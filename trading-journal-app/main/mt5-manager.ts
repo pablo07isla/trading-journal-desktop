@@ -173,45 +173,20 @@ function executePythonScript(args: string[]): Promise<any> {
   });
 }
 
-// // Función para determinar el tipo de cuenta basado en el servidor
-// function determineAccountType(server: string, balance: number): string {
-//   const serverLower = server.toLowerCase();
-
-//   // Detectar cuentas demo
-//   if (serverLower.includes("demo")) {
-//     return "Demo";
-//   }
-
-//   // Detectar cuentas de challenge/prop firm
-//   if (
-//     serverLower.includes("challenge") ||
-//     serverLower.includes("funded") ||
-//     serverLower.includes("prop") ||
-//     balance >= 10000
-//   ) {
-//     // Asumiendo que balances altos son challenges
-//     return "Challenge";
-//   }
-
-//   // Por defecto, cuenta real
-//   return "Live";
-// }
-
-// // Función para convertir trade de MT5 a formato de base de datos
+// Función para convertir trade de MT5 a formato de base de datos (comentada - no se usa actualmente)
 // function convertMT5TradeToDBFormat(
 //   trade: MT5TradeResponse,
 //   accountId: number
 //   ): MT5TradeInsertData {
 //   return {
 //     account_id: accountId,
-//     // entry: trade.entry,
 //     position_id: trade.position_id,
 //     symbol: trade.symbol,
 //     trade_type: trade.type === 0 ? "BUY" : "SELL",
 //     volume: trade.volume,
-//     open_time: new Date(trade.time * 1000).toISOString(), // Convertir Unix timestamp a ISO
+//     open_time: new Date(trade.time * 1000).toISOString(),
 //     open_price: trade.price,
-//     close_time: undefined, // Se establecerá cuando se cierre el trade
+//     close_time: undefined,
 //     close_price: undefined,
 //     profit: trade.profit,
 //     commission: trade.commission,
@@ -315,10 +290,8 @@ export async function importMT5Data(): Promise<MT5ImportResult> {
         (existing) => existing.account_id === account!.login
       );
 
-      // Si la cuenta existe, mantener el tipo actual; si no, determinar uno nuevo
-      const accountType = existingAccount
-        ? existingAccount.type
-        : determineAccountType(account!.server, currentBalance);
+      // Si la cuenta existe, mantener el tipo actual; si no, guardar como null para clasificación manual
+      const accountType = existingAccount?.type || null;
 
       const createdAt = createDate
         ? new Date(createDate.time * 1000).toISOString()
@@ -343,13 +316,15 @@ export async function importMT5Data(): Promise<MT5ImportResult> {
             console.log(
               `Cuenta ${
                 account!.login
-              } ya existe, actualizando información (preservando tipo: ${accountType})...`
+              } ya existe, actualizando información (preservando tipo: ${
+                accountType || "Sin clasificar"
+              })...`
             );
           } else {
             console.log(
               `Creando nueva cuenta ${
                 account!.login
-              } con tipo: ${accountType}...`
+              } sin tipo asignado (se puede clasificar manualmente)...`
             );
           }
 
