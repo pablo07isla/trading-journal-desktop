@@ -72,8 +72,8 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar variant='inset' collapsible='icon'>
-      <SidebarHeader>
+    <Sidebar variant='sidebar' collapsible='icon' className='border-r'>
+      <SidebarHeader className='border-b border-sidebar-border'>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size='lg' asChild>
@@ -93,20 +93,23 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className='px-2 py-2'>
         <SidebarGroup>
-          <SidebarGroupLabel>Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className='px-2 text-xs font-medium text-sidebar-foreground/70'>
+            Principal
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className='gap-1'>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={location.pathname === item.url}
-                    tooltip={item.title}>
+                    tooltip={item.title}
+                    className='px-2 py-2'>
                     <Link to={item.url}>
                       <item.icon className='size-4' />
-                      <span>{item.title}</span>
+                      <span className='text-sm'>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -116,18 +119,21 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+          <SidebarGroupLabel className='px-2 text-xs font-medium text-sidebar-foreground/70'>
+            Sistema
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className='gap-1'>
               {settingsItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={location.pathname === item.url}
-                    tooltip={item.title}>
+                    tooltip={item.title}
+                    className='px-2 py-2'>
                     <Link to={item.url}>
                       <item.icon className='size-4' />
-                      <span>{item.title}</span>
+                      <span className='text-sm'>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -137,20 +143,24 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className='border-t border-sidebar-border p-2'>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size='lg'
-                  className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'>
-                  <Avatar className='h-8 w-8 rounded-lg'>
+                  className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground px-2'>
+                  <Avatar className='h-7 w-7 rounded-lg'>
                     <AvatarImage src={avatar} alt='Usuario' />
-                    <AvatarFallback className='rounded-lg'>U</AvatarFallback>
+                    <AvatarFallback className='rounded-lg text-xs'>
+                      U
+                    </AvatarFallback>
                   </Avatar>
                   <div className='grid flex-1 text-left text-sm leading-tight'>
-                    <span className='truncate font-semibold'>Usuario</span>
+                    <span className='truncate font-semibold text-sm'>
+                      Usuario
+                    </span>
                     <span className='truncate text-xs'>trader@ejemplo.com</span>
                   </div>
                   <ChevronUp className='ml-auto size-4' />

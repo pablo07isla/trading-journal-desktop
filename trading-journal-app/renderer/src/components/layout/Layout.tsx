@@ -70,14 +70,14 @@ const Layout: React.FC = () => {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "14rem",
-          "--sidebar-width-mobile": "16rem",
+          "--sidebar-width": "13rem",
+          "--sidebar-width-mobile": "14rem",
         } as React.CSSProperties
       }>
       <AppSidebar />
       <SidebarInset>
-        <header className='flex h-12 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-          <div className='flex items-center gap-2 px-3'>
+        <header className='flex h-11 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+          <div className='flex items-center gap-2 px-4'>
             <SidebarTrigger className='-ml-1' />
             <Separator orientation='vertical' className='mr-2 h-4' />
             <Breadcrumb>
@@ -102,7 +102,7 @@ const Layout: React.FC = () => {
           </div>
         </header>
         <main className='flex-1 overflow-auto'>
-          <div className='h-full w-full p-3'>
+          <div className='h-full w-full px-2 py-2'>
             <Toaster position='top-right' richColors />
             <Outlet />
           </div>
