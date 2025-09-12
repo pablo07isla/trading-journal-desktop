@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Minus, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Search,
+  Edit,
+  FileText,
+} from "lucide-react";
 import {
   Table,
   TableHeader,
@@ -11,6 +19,8 @@ import {
 } from "@/components/ui/table";
 import type { MT5TradeData } from "../types/electron";
 import { formatTradeDate } from "@/lib/dateUtils";
+import MT5TradeEditForm from "./forms/MT5TradeEditForm";
+import { toast } from "sonner";
 
 interface MT5TradesTableProps {
   accountId?: number;
@@ -21,23 +31,50 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [editingTrade, setEditingTrade] = useState<MT5TradeData | null>(null);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+
+  const loadTrades = async () => {
+    setLoading(true);
+    try {
+      const res = await window.electronAPI.getMT5AccountTrades(
+        accountId ?? null
+      );
+      if (res.success && res.data) {
+        setTrades(res.data);
+      } else {
+        setError(res.error || "Error al obtener trades MT5");
+      }
+    } catch (err: any) {
+      setError(err.message || "Error inesperado");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLoading(true);
-    window.electronAPI
-      .getMT5AccountTrades(accountId ?? null)
-      .then((res) => {
-        if (res.success && res.data) {
-          setTrades(res.data);
-        } else {
-          setError(res.error || "Error al obtener trades MT5");
-        }
-      })
-      .catch((err) => {
-        setError(err.message || "Error inesperado");
-      })
-      .finally(() => setLoading(false));
+    loadTrades();
   }, [accountId]);
+
+  const handleEditTrade = (trade: MT5TradeData) => {
+    setEditingTrade(trade);
+    setIsEditFormOpen(true);
+  };
+
+  const handleSaveTrade = () => {
+    toast.success("Trade actualizado exitosamente");
+    loadTrades(); // Recargar trades para mostrar cambios
+  };
+
+  const handleCloseEditForm = () => {
+    setIsEditFormOpen(false);
+    setEditingTrade(null);
+  };
+
+  // Función para verificar si un trade tiene información adicional
+  const hasAdditionalInfo = (trade: MT5TradeData) => {
+    return !!(trade.strategy_id || trade.description || trade.notes);
+  };
 
   const getOrderTypeBadge = (orderType: string) => {
     if (orderType === "BUY" || orderType === "Buy") {
@@ -209,6 +246,9 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
                 <TableHead className='text-left w-[150px] font-semibold text-gray-700'>
                   Comentario
                 </TableHead>
+                <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+                  Acciones
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -277,12 +317,41 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
                     <TableCell className='text-left w-[150px] text-sm text-gray-600'>
                       {getCommentBadge(trade.comment ?? null)}
                     </TableCell>
+                    <TableCell className='text-left w-[100px]'>
+                      <div className='flex items-center gap-2'>
+                        {hasAdditionalInfo(trade) && (
+                          <Badge
+                            variant='outline'
+                            className='text-xs bg-blue-50 text-blue-700 border-blue-200'>
+                            <FileText className='w-3 h-3 mr-1' />
+                            Info
+                          </Badge>
+                        )}
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => handleEditTrade(trade)}
+                          className='h-8 w-8 p-0'>
+                          <Edit className='w-4 h-4' />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </div>
+      )}
+
+      {/* Modal de edición */}
+      {editingTrade && (
+        <MT5TradeEditForm
+          trade={editingTrade}
+          isOpen={isEditFormOpen}
+          onClose={handleCloseEditForm}
+          onSave={handleSaveTrade}
+        />
       )}
     </>
   );

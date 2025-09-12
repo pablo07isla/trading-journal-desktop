@@ -60,6 +60,10 @@ export interface MT5TradeData {
   swap: number;
   magic_number?: bigint;
   comment?: string;
+  // Campos adicionales del usuario
+  strategy_id?: number;
+  description?: string;
+  notes?: string;
 }
 
 export interface MT5TradeDataLegacy {
@@ -105,6 +109,14 @@ export interface MT5TradeInsertData {
   swap: number;
   magic_number?: string | number;
   comment?: string;
+}
+
+export interface MT5TradeAttachment {
+  id: number;
+  mt5_trade_id: number;
+  filePath: string;
+  fileType: string;
+  created_at: string;
 }
 
 export class DatabaseManager {
@@ -300,6 +312,9 @@ export class DatabaseManager {
         swap,
         magic_number,
         comment,
+        strategy_id,
+        description,
+        notes,
         created_at
       FROM mt5_trades
     `;
@@ -363,39 +378,6 @@ export class DatabaseManager {
     } catch (error) {
       console.error("Error consultando trades por símbolo:", error);
       return [];
-    }
-  }
-
-  // Método para actualizar un trade (cerrar posición)
-  updateMT5Trade(tradeId: number, updateData: Partial<MT5TradeData>) {
-    const updates: string[] = [];
-    const params: any[] = [];
-
-    Object.entries(updateData).forEach(([key, value]) => {
-      if (key !== "trade_id" && value !== undefined) {
-        updates.push(`${key} = ?`);
-        params.push(value);
-      }
-    });
-
-    if (updates.length === 0) {
-      throw new Error("No hay datos para actualizar");
-    }
-
-    const query = `
-      UPDATE mt5_trades 
-      SET ${updates.join(", ")}
-      WHERE trade_id = ?
-    `;
-
-    params.push(tradeId);
-
-    try {
-      const stmt = this.db.prepare(query);
-      return stmt.run(...params);
-    } catch (error) {
-      console.error("Error actualizando trade MT5:", error);
-      throw error;
     }
   }
 
@@ -663,6 +645,33 @@ export class DatabaseManager {
           "INSERT OR IGNORE INTO strategies (id, nombre, descripcion, estado) VALUES (?, ?, ?, ?)"
         )
         .run(s.id, s.nombre, s.descripcion, s.estado);
+    }
+
+    // Ejecutar migración 008: Agregar campos adicionales para MT5 trades
+    try {
+      console.log(
+        "Verificando si se necesita migración 008 (campos adicionales MT5)..."
+      );
+      const needsMigration008 = this.checkIfNeedsMT5FieldsMigration();
+
+      if (needsMigration008) {
+        console.log("Aplicando migración 008...");
+        const migration008Path = path.join(__dirname, "migration_008.sql");
+        if (fs.existsSync(migration008Path)) {
+          const migration008 = fs.readFileSync(migration008Path, "utf8");
+          this.db.exec(migration008);
+          console.log(
+            "Migration 008 (campos adicionales MT5) aplicada desde archivo."
+          );
+        } else {
+          this.runMT5FieldsMigration008Inline();
+          console.log(
+            "Migration 008 (campos adicionales MT5) aplicada inline."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error en migración 008:", error);
     }
   }
 
@@ -1054,6 +1063,65 @@ export class DatabaseManager {
       CREATE INDEX IF NOT EXISTS idx_mt5_trades_close_time ON mt5_trades(close_time);
       CREATE INDEX IF NOT EXISTS idx_mt5_trades_magic_number ON mt5_trades(magic_number);
       
+      COMMIT;
+    `;
+
+    this.db.exec(migrationSQL);
+  }
+
+  // Migración 008: Verificar si se necesitan campos adicionales para MT5 trades
+  private checkIfNeedsMT5FieldsMigration(): boolean {
+    try {
+      const tableInfo = this.db
+        .prepare("PRAGMA table_info(mt5_trades)")
+        .all() as Array<{ name: string }>;
+
+      const hasStrategyId = tableInfo.some((col) => col.name === "strategy_id");
+      const hasDescription = tableInfo.some(
+        (col) => col.name === "description"
+      );
+      const hasNotes = tableInfo.some((col) => col.name === "notes");
+
+      const hasAttachmentsTable =
+        this.db
+          .prepare(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='mt5_trade_attachments'"
+          )
+          .all().length > 0;
+
+      return (
+        !hasStrategyId || !hasDescription || !hasNotes || !hasAttachmentsTable
+      );
+    } catch (error) {
+      console.error("Error verificando migración 008:", error);
+      return false;
+    }
+  }
+
+  // Migración 008: Agregar campos adicionales inline
+  private runMT5FieldsMigration008Inline(): void {
+    const migrationSQL = `
+      BEGIN TRANSACTION;
+
+      -- Agregar columnas para información adicional del usuario
+      ALTER TABLE mt5_trades ADD COLUMN strategy_id INTEGER REFERENCES strategies(id) ON DELETE SET NULL;
+      ALTER TABLE mt5_trades ADD COLUMN description TEXT;
+      ALTER TABLE mt5_trades ADD COLUMN notes TEXT;
+
+      -- Crear tabla de adjuntos para trades MT5
+      CREATE TABLE IF NOT EXISTS mt5_trade_attachments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          mt5_trade_id INTEGER NOT NULL,
+          file_path TEXT NOT NULL,
+          file_type TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (mt5_trade_id) REFERENCES mt5_trades(trade_id) ON DELETE CASCADE
+      );
+
+      -- Crear índices para optimizar consultas
+      CREATE INDEX IF NOT EXISTS idx_mt5_trades_strategy_id ON mt5_trades(strategy_id);
+      CREATE INDEX IF NOT EXISTS idx_mt5_trade_attachments_trade_id ON mt5_trade_attachments(mt5_trade_id);
+
       COMMIT;
     `;
 
@@ -1603,6 +1671,102 @@ export class DatabaseManager {
       return updatedAccounts;
     } catch (error) {
       console.error("Error en actualización forzada:", error);
+      throw error;
+    }
+  }
+
+  // Método para actualizar trades MT5 con información adicional
+  updateMT5Trade(
+    tradeId: number,
+    updateData: {
+      strategy_id?: number;
+      description?: string;
+      notes?: string;
+    }
+  ): void {
+    console.log("DatabaseManager.updateMT5Trade: Actualizando trade...", {
+      tradeId,
+      updateData,
+    });
+
+    try {
+      const fields = [];
+      const values = [];
+
+      if (updateData.strategy_id !== undefined) {
+        fields.push("strategy_id = ?");
+        values.push(updateData.strategy_id);
+      }
+      if (updateData.description !== undefined) {
+        fields.push("description = ?");
+        values.push(updateData.description);
+      }
+      if (updateData.notes !== undefined) {
+        fields.push("notes = ?");
+        values.push(updateData.notes);
+      }
+
+      if (fields.length === 0) {
+        console.log("No hay campos para actualizar");
+        return;
+      }
+
+      values.push(tradeId);
+
+      const query = `UPDATE mt5_trades SET ${fields.join(
+        ", "
+      )} WHERE trade_id = ?`;
+      const stmt = this.db.prepare(query);
+      const result = stmt.run(...values);
+
+      console.log("Trade MT5 actualizado:", result);
+    } catch (error) {
+      console.error("Error actualizando trade MT5:", error);
+      throw error;
+    }
+  }
+
+  // Método para guardar adjuntos de trades MT5
+  saveMT5TradeAttachment(
+    tradeId: number,
+    filePath: string,
+    fileType: string
+  ): void {
+    console.log("DatabaseManager.saveMT5TradeAttachment:", {
+      tradeId,
+      filePath,
+      fileType,
+    });
+
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO mt5_trade_attachments (mt5_trade_id, file_path, file_type)
+        VALUES (?, ?, ?)
+      `);
+      const result = stmt.run(tradeId, filePath, fileType);
+      console.log("Adjunto MT5 guardado:", result);
+    } catch (error) {
+      console.error("Error guardando adjunto MT5:", error);
+      throw error;
+    }
+  }
+
+  // Método para obtener adjuntos de trades MT5
+  getMT5TradeAttachments(tradeId: number): MT5TradeAttachment[] {
+    console.log("DatabaseManager.getMT5TradeAttachments:", { tradeId });
+
+    try {
+      const stmt = this.db.prepare(`
+        SELECT id, mt5_trade_id, file_path as filePath, file_type as fileType, created_at
+        FROM mt5_trade_attachments
+        WHERE mt5_trade_id = ?
+        ORDER BY created_at DESC
+      `);
+      const results = stmt.all(tradeId) as MT5TradeAttachment[];
+      console.log("Adjuntos MT5 encontrados:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error obteniendo adjuntos MT5:", error);
       throw error;
     }
   }

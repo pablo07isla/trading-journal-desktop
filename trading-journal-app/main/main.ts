@@ -3,6 +3,7 @@ import { importMT5Data } from "./mt5-manager";
 
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
+import * as fs from "fs";
 import { DatabaseManager } from "./database/db-manager";
 
 let mainWindow: BrowserWindow;
@@ -206,6 +207,108 @@ ipcMain.handle("db:delete-strategy", async (_event, id) => {
 
 ipcMain.handle("db:get-strategy-by-id", async (_event, id) => {
   return await dbManager.getStrategyById(id);
+});
+
+// Handlers IPC para trades MT5 con información adicional
+ipcMain.handle("update-mt5-trade", async (_event, tradeId, updateData) => {
+  try {
+    console.log("IPC update-mt5-trade:", { tradeId, updateData });
+    await dbManager.updateMT5Trade(tradeId, updateData);
+    return { success: true };
+  } catch (error) {
+    console.error("IPC update-mt5-trade: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+ipcMain.handle("save-mt5-trade-attachment", async (_event, tradeId, file) => {
+  try {
+    console.log("IPC save-mt5-trade-attachment:", { tradeId, file });
+    const attachmentsDir = path.join(
+      app.getPath("userData"),
+      "mt5-attachments"
+    );
+
+    // Crear directorio si no existe
+    if (!fs.existsSync(attachmentsDir)) {
+      fs.mkdirSync(attachmentsDir, { recursive: true });
+    }
+
+    // Generar nombre único para el archivo
+    const timestamp = Date.now();
+    const fileExtension = path.extname(file.originalName);
+    const fileName = `mt5_trade_${tradeId}_${timestamp}${fileExtension}`;
+    const filePath = path.join(attachmentsDir, fileName);
+
+    // Escribir archivo
+    const buffer = Buffer.from(file.buffer);
+    fs.writeFileSync(filePath, buffer);
+
+    // Guardar en base de datos
+    await dbManager.saveMT5TradeAttachment(tradeId, filePath, file.mimeType);
+
+    console.log("Adjunto MT5 guardado:", filePath);
+    return { success: true, filePath };
+  } catch (error) {
+    console.error("IPC save-mt5-trade-attachment: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+ipcMain.handle("get-mt5-trade-attachments", async (_event, tradeId) => {
+  try {
+    console.log("IPC get-mt5-trade-attachments:", { tradeId });
+    const attachments = await dbManager.getMT5TradeAttachments(tradeId);
+    return { success: true, data: attachments };
+  } catch (error) {
+    console.error("IPC get-mt5-trade-attachments: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+ipcMain.handle("read-mt5-trade-attachment-file", async (_event, filePath) => {
+  try {
+    console.log("IPC read-mt5-trade-attachment-file:", { filePath });
+
+    if (!fs.existsSync(filePath)) {
+      console.log("Archivo no encontrado:", filePath);
+      return null;
+    }
+
+    // Leer archivo como base64 para poder enviarlo al renderer
+    const fileBuffer = fs.readFileSync(filePath);
+    const base64 = fileBuffer.toString("base64");
+    const mimeType =
+      path.extname(filePath).toLowerCase() === ".png"
+        ? "image/png"
+        : path.extname(filePath).toLowerCase() === ".jpg" ||
+          path.extname(filePath).toLowerCase() === ".jpeg"
+        ? "image/jpeg"
+        : "application/octet-stream";
+
+    return `data:${mimeType};base64,${base64}`;
+  } catch (error) {
+    console.error("Error leyendo archivo adjunto MT5:", error);
+    return null;
+  }
 });
 
 // Add more IPC handlers as needed for attachments, settings, etc.

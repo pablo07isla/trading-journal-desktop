@@ -69,6 +69,19 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deleteStrategy: (id: number) => ipcRenderer.invoke("db:delete-strategy", id),
   getStrategyById: (id: number) =>
     ipcRenderer.invoke("db:get-strategy-by-id", id),
+
+  // MT5 Trade methods
+  updateMT5Trade: (tradeId: number, updateData: any) =>
+    ipcRenderer.invoke("update-mt5-trade", tradeId, updateData),
+  saveMT5TradeAttachment: (
+    tradeId: number,
+    file: { buffer: ArrayBuffer; originalName: string; mimeType: string }
+  ) => ipcRenderer.invoke("save-mt5-trade-attachment", tradeId, file),
+  getMT5TradeAttachments: (tradeId: number) =>
+    ipcRenderer.invoke("get-mt5-trade-attachments", tradeId),
+  readMT5TradeAttachmentFile: (filePath: string) =>
+    ipcRenderer.invoke("read-mt5-trade-attachment-file", filePath),
+
   // Add more methods for attachments, settings, etc.
 });
 

@@ -33,6 +33,10 @@ export interface MT5TradeData {
   swap: number;
   magic_number?: bigint;
   comment?: string;
+  // Campos adicionales del usuario
+  strategy_id?: number;
+  description?: string;
+  notes?: string;
 }
 // MT5 Account and Trade types
 export interface MT5Account {
@@ -110,6 +114,14 @@ export interface AttachmentFile {
   isAttachment: true;
 }
 
+export interface MT5TradeAttachment {
+  id: number;
+  mt5_trade_id: number;
+  filePath: string;
+  fileType: string;
+  created_at: string;
+}
+
 export interface ElectronAPI {
   getMT5AccountTrades: (accountId?: number | null) => Promise<{
     success: boolean;
@@ -158,6 +170,32 @@ export interface ElectronAPI {
     data?: MT5Account[];
     error?: string;
   }>;
+  // Nuevos métodos para MT5 trades con información adicional
+  updateMT5Trade: (
+    tradeId: number,
+    updateData: {
+      strategy_id?: number;
+      description?: string;
+      notes?: string;
+    }
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
+  saveMT5TradeAttachment: (
+    tradeId: number,
+    file: { buffer: ArrayBuffer; originalName: string; mimeType: string }
+  ) => Promise<{
+    success: boolean;
+    filePath?: string;
+    error?: string;
+  }>;
+  getMT5TradeAttachments: (tradeId: number) => Promise<{
+    success: boolean;
+    data?: MT5TradeAttachment[];
+    error?: string;
+  }>;
+  readMT5TradeAttachmentFile: (filePath: string) => Promise<string | null>;
   createTrade: (tradeData: TradeData) => Promise<{ lastInsertRowid: number }>;
   getTrades: () => Promise<TradeData[]>;
   updateTrade: (tradeData: TradeData & { id: number }) => Promise<void>;
