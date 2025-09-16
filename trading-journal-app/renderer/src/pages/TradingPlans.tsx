@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
   Plus,
@@ -29,6 +29,10 @@ import {
   Activity,
   CheckCircle,
   Clock,
+  Settings,
+  TrendingUp,
+  AlertTriangle,
+  Eye,
 } from "lucide-react";
 import { TradingPlanForm } from "@/components/forms/TradingPlanForm";
 import type { TradingPlanData, PlanProgress } from "@/types/electron";
@@ -47,6 +51,9 @@ export function TradingPlans() {
   const [planProgress, setPlanProgress] = useState<{
     [key: number]: PlanProgress;
   }>({});
+  const [planDetailsOpen, setPlanDetailsOpen] = useState(false);
+  const [selectedPlanForDetails, setSelectedPlanForDetails] =
+    useState<TradingPlanData | null>(null);
 
   const filterPlans = () => {
     let filtered = plans;
@@ -211,6 +218,43 @@ export function TradingPlans() {
     return "text-green-600";
   };
 
+  const handleViewPlanDetails = (plan: TradingPlanData) => {
+    setSelectedPlanForDetails(plan);
+    setPlanDetailsOpen(true);
+  };
+
+  const formatTime = (time: string | undefined) => {
+    if (!time) return "-";
+    return time.slice(0, 5); // Format HH:MM
+  };
+
+  const formatMarkets = (markets: string) => {
+    if (!markets) return [];
+    try {
+      return JSON.parse(markets);
+    } catch {
+      return [];
+    }
+  };
+
+  const formatInstruments = (instruments: string) => {
+    if (!instruments) return [];
+    try {
+      return JSON.parse(instruments);
+    } catch {
+      return [];
+    }
+  };
+
+  const formatRules = (rules: string) => {
+    if (!rules) return [];
+    try {
+      return JSON.parse(rules);
+    } catch {
+      return [];
+    }
+  };
+
   if (loading) {
     return (
       <div className='flex items-center justify-center h-64'>
@@ -255,11 +299,16 @@ export function TradingPlans() {
       {/* Plans activos - Cards */}
       {plans.filter((plan) => plan.activo).length > 0 && (
         <div className='mb-8'>
-          <h2 className='text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2'>
-            <Activity className='w-5 h-5 text-green-600' />
-            Planes Activos
+          <h2 className='text-lg font-semibold text-gray-900 mb-4 flex items-center justify-between'>
+            <div className='flex items-center gap-2'>
+              <Activity className='w-5 h-5 text-green-600' />
+              Planes Activos
+            </div>
+            <span className='text-sm font-normal text-gray-500'>
+              Haz clic para ver detalles
+            </span>
           </h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+          <div className='space-y-4'>
             {plans
               .filter((plan) => plan.activo)
               .map((plan) => {
@@ -267,148 +316,117 @@ export function TradingPlans() {
                 return (
                   <Card
                     key={plan.id}
-                    className='bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'>
-                    <CardHeader className='pb-3'>
-                      <CardTitle className='text-lg flex items-center justify-between'>
-                        <span className='truncate'>{plan.nombre}</span>
-                        <div className='flex gap-1'>
+                    className='bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 cursor-pointer transition-all duration-200 hover:shadow-md'
+                    onClick={() => handleViewPlanDetails(plan)}>
+                    <CardContent className='p-4'>
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center space-x-6 flex-1'>
+                          {/* Nombre del Plan */}
+                          <div className='min-w-0 flex-1'>
+                            <h3 className='text-lg font-semibold text-gray-900 truncate'>
+                              {plan.nombre}
+                            </h3>
+                            <div className='flex items-center gap-2 mt-1'>
+                              {getStatusBadge(plan.activo)}
+                              {plan.strategy_nombre && (
+                                <Badge variant='outline' className='text-xs'>
+                                  {plan.strategy_nombre}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Información Básica */}
+                          <div className='flex items-center space-x-4 text-sm'>
+                            <div className='text-center'>
+                              <p className='text-xs text-gray-600'>Tipo</p>
+                              <p className='font-semibold'>
+                                {plan.tipo_trader || "-"}
+                              </p>
+                            </div>
+                            <div className='text-center'>
+                              <p className='text-xs text-gray-600'>
+                                Riesgo/Día
+                              </p>
+                              <p className='font-semibold'>
+                                {plan.riesgo_max_diario_pct
+                                  ? `${plan.riesgo_max_diario_pct}%`
+                                  : "-"}
+                              </p>
+                            </div>
+                            <div className='text-center'>
+                              <p className='text-xs text-gray-600'>Max Ops</p>
+                              <p className='font-semibold'>
+                                {plan.max_operaciones_dia || "-"}
+                              </p>
+                            </div>
+                            <div className='text-center'>
+                              <p className='text-xs text-gray-600'>Riesgo/Op</p>
+                              <p className='font-semibold'>
+                                {plan.riesgo_por_operacion_pct
+                                  ? `${plan.riesgo_por_operacion_pct}%`
+                                  : "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Progreso del Día */}
+                          {progress && (
+                            <div className='flex items-center space-x-4 text-sm'>
+                              <div className='text-center'>
+                                <p className='text-xs text-gray-600'>Ops Hoy</p>
+                                <p className='font-semibold'>
+                                  {progress.operacionesHoy || 0}
+                                </p>
+                              </div>
+                              <div className='text-center'>
+                                <p className='text-xs text-gray-600'>P&L</p>
+                                <p
+                                  className={`font-semibold ${
+                                    progress.totalProfit >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}>
+                                  {formatCurrency(progress.totalProfit)}
+                                </p>
+                              </div>
+                              <div className='text-center'>
+                                <p className='text-xs text-gray-600'>
+                                  Riesgo Usado
+                                </p>
+                                <p
+                                  className={`font-semibold ${getRiskColor(
+                                    progress.riesgoActual,
+                                    plan.riesgo_max_diario_pct || 100
+                                  )}`}>
+                                  {progress.riesgoActual.toFixed(1)}%
+                                </p>
+                              </div>
+                              <div className='text-center'>
+                                <p className='text-xs text-gray-600'>
+                                  Win Rate
+                                </p>
+                                <p className='font-semibold'>
+                                  {progress.winRate.toFixed(1)}%
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Acciones */}
+                        <div className='flex items-center gap-2'>
                           <Button
                             variant='ghost'
                             size='sm'
-                            onClick={() => handleEditPlan(plan)}>
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditPlan(plan);
+                            }}>
                             <Edit className='w-4 h-4' />
                           </Button>
+                          <Eye className='w-5 h-5 text-blue-600' />
                         </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className='space-y-3'>
-                      <div className='grid grid-cols-2 gap-4'>
-                        <div>
-                          <p className='text-xs text-gray-600'>Tipo Trader</p>
-                          <p className='font-semibold'>
-                            {plan.tipo_trader || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className='text-xs text-gray-600'>Riesgo/Día</p>
-                          <p className='font-semibold'>
-                            {plan.riesgo_max_diario_pct
-                              ? `${plan.riesgo_max_diario_pct}%`
-                              : "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className='grid grid-cols-2 gap-4'>
-                        <div>
-                          <p className='text-xs text-gray-600'>Max Ops/Día</p>
-                          <p className='font-semibold'>
-                            {plan.max_operaciones_dia || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className='text-xs text-gray-600'>Riesgo/Op</p>
-                          <p className='font-semibold'>
-                            {plan.riesgo_por_operacion_pct
-                              ? `${plan.riesgo_por_operacion_pct}%`
-                              : "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      {progress && (
-                        <div className='space-y-2'>
-                          <div>
-                            <div className='flex justify-between text-xs'>
-                              <span>Operaciones Hoy</span>
-                              <span className='font-semibold'>
-                                {progress.operacionesHoy || 0} /{" "}
-                                {plan.max_operaciones_dia || "-"}
-                              </span>
-                            </div>
-                          </div>
-                          <div>
-                            <div className='flex justify-between text-xs'>
-                              <span>Riesgo Disponible</span>
-                              <span
-                                className={getRiskColor(
-                                  progress.riesgoActual || 0,
-                                  plan.riesgo_max_diario_pct || 100
-                                )}>
-                                {progress.riesgoDisponible
-                                  ? `${progress.riesgoDisponible.toFixed(1)}%`
-                                  : "-"}
-                              </span>
-                            </div>
-                            <div className='w-full bg-gray-200 rounded-full h-2'>
-                              <div
-                                className={`h-2 rounded-full transition-all ${
-                                  ((progress.riesgoActual || 0) /
-                                    (plan.riesgo_max_diario_pct || 1)) *
-                                    100 >
-                                  80
-                                    ? "bg-red-500"
-                                    : ((progress.riesgoActual || 0) /
-                                        (plan.riesgo_max_diario_pct || 1)) *
-                                        100 >
-                                      60
-                                    ? "bg-yellow-500"
-                                    : "bg-green-500"
-                                }`}
-                                style={{
-                                  width: `${Math.min(
-                                    ((progress.riesgoActual || 0) /
-                                      (plan.riesgo_max_diario_pct || 1)) *
-                                      100,
-                                    100
-                                  )}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <div className='grid grid-cols-2 gap-2 text-xs'>
-                            <div>
-                              <span className='text-gray-600'>Trades:</span>{" "}
-                              {progress.totalTrades}
-                            </div>
-                            <div>
-                              <span className='text-gray-600'>Win Rate:</span>{" "}
-                              {progress.winRate.toFixed(1)}%
-                            </div>
-                            <div>
-                              <span className='text-gray-600'>P&L:</span>
-                              <span
-                                className={
-                                  progress.totalProfit >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }>
-                                {formatCurrency(progress.totalProfit)}
-                              </span>
-                            </div>
-                            <div>
-                              <span className='text-gray-600'>Riesgo:</span>
-                              <span
-                                className={getRiskColor(
-                                  progress.riesgoActual,
-                                  100
-                                )}>
-                                {progress.riesgoActual.toFixed(1)}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className='flex items-center justify-between pt-2 border-t border-blue-200'>
-                        <div className='text-xs text-gray-600'>
-                          {plan.strategy_nombre && (
-                            <span className='bg-white px-2 py-1 rounded text-xs'>
-                              {plan.strategy_nombre}
-                            </span>
-                          )}
-                        </div>
-                        {getStatusBadge(plan.activo)}
                       </div>
                     </CardContent>
                   </Card>
@@ -586,6 +604,281 @@ export function TradingPlans() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Dialog de Detalles del Plan */}
+      <Dialog open={planDetailsOpen} onOpenChange={setPlanDetailsOpen}>
+        <DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
+          {selectedPlanForDetails && (
+            <div className='space-y-6'>
+              <div className='flex items-center justify-between border-b pb-4'>
+                <div>
+                  <h2 className='text-2xl font-bold text-gray-900 flex items-center gap-2'>
+                    <Target className='w-6 h-6 text-blue-600' />
+                    {selectedPlanForDetails.nombre}
+                  </h2>
+                  <div className='flex items-center gap-2 mt-2'>
+                    {getStatusBadge(selectedPlanForDetails.activo)}
+                    {selectedPlanForDetails.strategy_nombre && (
+                      <Badge variant='outline' className='text-sm'>
+                        {selectedPlanForDetails.strategy_nombre}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Objetivos del Plan */}
+              <div>
+                <h3 className='text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2'>
+                  <Target className='w-5 h-5' />
+                  Objetivos y Límites
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                  <div className='bg-blue-50 p-4 rounded-lg'>
+                    <p className='text-sm text-gray-600 mb-1'>R/R Mínima</p>
+                    <p className='text-xl font-bold text-blue-600'>
+                      {selectedPlanForDetails.relacion_rr_minima
+                        ? `1:${selectedPlanForDetails.relacion_rr_minima}`
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className='bg-yellow-50 p-4 rounded-lg'>
+                    <p className='text-sm text-gray-600 mb-1'>
+                      Riesgo Máximo Diario
+                    </p>
+                    <p className='text-xl font-bold text-yellow-600'>
+                      {selectedPlanForDetails.riesgo_max_diario_pct
+                        ? `${selectedPlanForDetails.riesgo_max_diario_pct}%`
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className='bg-red-50 p-4 rounded-lg'>
+                    <p className='text-sm text-gray-600 mb-1'>
+                      Pérdida Máx. Semanal
+                    </p>
+                    <p className='text-xl font-bold text-red-600'>
+                      {selectedPlanForDetails.perdida_max_semanal_pct
+                        ? `${selectedPlanForDetails.perdida_max_semanal_pct}%`
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className='bg-green-50 p-4 rounded-lg'>
+                    <p className='text-sm text-gray-600 mb-1'>
+                      Max Operaciones/Día
+                    </p>
+                    <p className='text-xl font-bold text-green-600'>
+                      {selectedPlanForDetails.max_operaciones_dia || "-"}
+                    </p>
+                  </div>
+                  <div className='bg-purple-50 p-4 rounded-lg'>
+                    <p className='text-sm text-gray-600 mb-1'>
+                      Riesgo por Operación
+                    </p>
+                    <p className='text-xl font-bold text-purple-600'>
+                      {selectedPlanForDetails.riesgo_por_operacion_pct
+                        ? `${selectedPlanForDetails.riesgo_por_operacion_pct}%`
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className='bg-indigo-50 p-4 rounded-lg'>
+                    <p className='text-sm text-gray-600 mb-1'>Tipo de Trader</p>
+                    <p className='text-xl font-bold text-indigo-600'>
+                      {selectedPlanForDetails.tipo_trader || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Configuración de Trading */}
+              <div>
+                <h3 className='text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2'>
+                  <Settings className='w-5 h-5' />
+                  Configuración de Trading
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                  {/* Horarios */}
+                  {(selectedPlanForDetails.horario_operacion_inicio ||
+                    selectedPlanForDetails.horario_operacion_fin) && (
+                    <div className='bg-gray-50 p-4 rounded-lg'>
+                      <h4 className='font-medium text-gray-900 mb-2'>
+                        Horarios de Operación
+                      </h4>
+                      <p className='text-lg font-semibold text-gray-700'>
+                        {formatTime(
+                          selectedPlanForDetails.horario_operacion_inicio
+                        )}{" "}
+                        -{" "}
+                        {formatTime(
+                          selectedPlanForDetails.horario_operacion_fin
+                        )}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Mercados */}
+                  {selectedPlanForDetails.mercados_operacion &&
+                    formatMarkets(selectedPlanForDetails.mercados_operacion)
+                      .length > 0 && (
+                      <div className='bg-gray-50 p-4 rounded-lg'>
+                        <h4 className='font-medium text-gray-900 mb-2'>
+                          Mercados
+                        </h4>
+                        <div className='flex flex-wrap gap-2'>
+                          {formatMarkets(
+                            selectedPlanForDetails.mercados_operacion
+                          ).map((market: string, idx: number) => (
+                            <Badge
+                              key={idx}
+                              variant='secondary'
+                              className='text-sm'>
+                              {market}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Instrumentos */}
+                  {selectedPlanForDetails.instrumentos_principales &&
+                    formatInstruments(
+                      selectedPlanForDetails.instrumentos_principales
+                    ).length > 0 && (
+                      <div className='bg-gray-50 p-4 rounded-lg col-span-1 md:col-span-2'>
+                        <h4 className='font-medium text-gray-900 mb-2'>
+                          Instrumentos Principales
+                        </h4>
+                        <div className='flex flex-wrap gap-2'>
+                          {formatInstruments(
+                            selectedPlanForDetails.instrumentos_principales
+                          ).map((instrument: string, idx: number) => (
+                            <Badge
+                              key={idx}
+                              variant='outline'
+                              className='text-sm'>
+                              {instrument}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              </div>
+
+              {/* Reglas de Trading */}
+              {selectedPlanForDetails.reglas_personales &&
+                formatRules(selectedPlanForDetails.reglas_personales).length >
+                  0 && (
+                  <div>
+                    <h3 className='text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2'>
+                      <AlertTriangle className='w-5 h-5' />
+                      Reglas de Trading
+                    </h3>
+                    <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg'>
+                      <ul className='space-y-2'>
+                        {formatRules(
+                          selectedPlanForDetails.reglas_personales
+                        ).map((rule: string, idx: number) => (
+                          <li key={idx} className='flex items-start gap-3'>
+                            <span className='w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0'></span>
+                            <span className='text-gray-800'>{rule}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+              {/* Estado Actual */}
+              {planProgress[selectedPlanForDetails.id!] && (
+                <div>
+                  <h3 className='text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2'>
+                    <TrendingUp className='w-5 h-5' />
+                    Estado Actual
+                  </h3>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                    {(() => {
+                      const progress = planProgress[selectedPlanForDetails.id!];
+                      return (
+                        <>
+                          <div className='bg-blue-50 p-4 rounded-lg text-center'>
+                            <p className='text-sm text-gray-600 mb-1'>
+                              Operaciones Hoy
+                            </p>
+                            <p className='text-2xl font-bold text-blue-600'>
+                              {progress.operacionesHoy || 0}
+                            </p>
+                            <p className='text-xs text-gray-500'>
+                              Restantes:{" "}
+                              {Math.max(
+                                0,
+                                (selectedPlanForDetails.max_operaciones_dia ||
+                                  0) - (progress.operacionesHoy || 0)
+                              )}
+                            </p>
+                          </div>
+                          <div
+                            className={`p-4 rounded-lg text-center ${
+                              progress.totalProfit >= 0
+                                ? "bg-green-50"
+                                : "bg-red-50"
+                            }`}>
+                            <p className='text-sm text-gray-600 mb-1'>
+                              P&L del Día
+                            </p>
+                            <p
+                              className={`text-2xl font-bold ${
+                                progress.totalProfit >= 0
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                              }`}>
+                              {formatCurrency(progress.totalProfit)}
+                            </p>
+                            <p className='text-xs text-gray-500'>
+                              {progress.totalProfit >= 0
+                                ? "Ganando"
+                                : "Perdiendo"}
+                            </p>
+                          </div>
+                          <div className='bg-orange-50 p-4 rounded-lg text-center'>
+                            <p className='text-sm text-gray-600 mb-1'>
+                              Riesgo Usado
+                            </p>
+                            <p
+                              className={`text-2xl font-bold ${getRiskColor(
+                                progress.riesgoActual,
+                                selectedPlanForDetails.riesgo_max_diario_pct ||
+                                  100
+                              )}`}>
+                              {progress.riesgoActual.toFixed(1)}%
+                            </p>
+                            <p className='text-xs text-gray-500'>
+                              de{" "}
+                              {selectedPlanForDetails.riesgo_max_diario_pct ||
+                                0}
+                              % máximo
+                            </p>
+                          </div>
+                          <div className='bg-purple-50 p-4 rounded-lg text-center'>
+                            <p className='text-sm text-gray-600 mb-1'>
+                              Win Rate
+                            </p>
+                            <p className='text-2xl font-bold text-purple-600'>
+                              {progress.winRate.toFixed(1)}%
+                            </p>
+                            <p className='text-xs text-gray-500'>
+                              {progress.totalTrades} trades totales
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
