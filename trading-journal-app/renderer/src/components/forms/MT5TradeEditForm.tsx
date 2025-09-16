@@ -22,6 +22,7 @@ import type {
   MT5TradeData,
   StrategyData,
   MT5TradeAttachment,
+  TradingPlanData,
 } from "../../types/electron";
 import { formatTradeDate } from "@/lib/dateUtils";
 
@@ -34,6 +35,7 @@ interface MT5TradeEditFormProps {
 
 interface EditFormData {
   strategy_id?: number;
+  plan_id?: number;
   description?: string;
   notes?: string;
 }
@@ -46,11 +48,13 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<EditFormData>({
     strategy_id: trade.strategy_id || undefined,
+    plan_id: trade.plan_id || undefined,
     description: trade.description || "",
     notes: trade.notes || "",
   });
   const [loading, setLoading] = useState(false);
   const [strategies, setStrategies] = useState<StrategyData[]>([]);
+  const [tradingPlans, setTradingPlans] = useState<TradingPlanData[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [attachments, setAttachments] = useState<MT5TradeAttachment[]>([]);
@@ -70,23 +74,35 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
     }
   }, [trade.trade_id]);
 
-  // Cargar estrategias disponibles
+  // Cargar estrategias y planes disponibles
   useEffect(() => {
-    const loadStrategies = async () => {
+    const loadData = async () => {
       try {
+        // Cargar estrategias
         const strategiesData = await window.electronAPI.getStrategies();
         setStrategies(strategiesData || []);
+
+        // Cargar planes de trading activos
+        const plansResult = await window.electronAPI.getTradingPlans();
+        if (plansResult.success) {
+          // Solo mostrar planes activos
+          const activePlans = (plansResult.data || []).filter(
+            (plan) => plan.activo
+          );
+          setTradingPlans(activePlans);
+        }
       } catch (error) {
-        console.error("Error cargando estrategias:", error);
-        toast.error("Error al cargar las estrategias");
+        console.error("Error cargando datos:", error);
+        toast.error("Error al cargar estrategias y planes");
       }
     };
 
     if (isOpen) {
-      loadStrategies();
+      loadData();
       loadAttachments();
       setFormData({
         strategy_id: trade.strategy_id || undefined,
+        plan_id: trade.plan_id || undefined,
         description: trade.description || "",
         notes: trade.notes || "",
       });
@@ -327,6 +343,44 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Plan de Trading */}
+            <div>
+              <Label htmlFor='plan'>Plan de Trading</Label>
+              <Select
+                value={formData.plan_id?.toString() || "none"}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    plan_id: value !== "none" ? parseInt(value) : undefined,
+                  }))
+                }>
+                <SelectTrigger>
+                  <SelectValue placeholder='Seleccionar plan de trading (opcional)' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='none'>Sin plan</SelectItem>
+                  {tradingPlans.map((plan) => (
+                    <SelectItem key={plan.id} value={plan.id!.toString()}>
+                      <div className='flex flex-col'>
+                        <span>{plan.nombre}</span>
+                        {plan.tipo_trader && (
+                          <span className='text-xs text-gray-500 truncate'>
+                            {plan.tipo_trader}
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.plan_id && (
+                <p className='text-xs text-blue-600 mt-1'>
+                  💡 Este trade se asociará con tu plan de trading para
+                  seguimiento y análisis
+                </p>
+              )}
             </div>
 
             {/* Descripción */}

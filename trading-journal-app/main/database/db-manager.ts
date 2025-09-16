@@ -119,6 +119,50 @@ export interface MT5TradeAttachment {
   created_at: string;
 }
 
+// Interface para planes de trading
+export interface TradingPlanData {
+  id?: number;
+  nombre: string;
+  activo: boolean;
+  
+  // Información general
+  tipo_trader?: "Scalper" | "Intraday" | "Swing";
+
+  // Capital y gestión de riesgo (en porcentajes)
+  riesgo_max_diario_pct?: number; // Porcentaje de riesgo máximo diario
+  max_operaciones_dia?: number; // Número máximo de operaciones por día
+  riesgo_por_operacion_pct?: number; // Calculado: riesgo_max_diario_pct / max_operaciones_dia
+  relacion_rr_minima?: number; // Relación riesgo/beneficio mínima
+  perdida_max_semanal_pct?: number; // Porcentaje de pérdida máxima semanal
+
+  // Configuración de mercado (JSON strings)
+  mercados_operacion?: string; // JSON: ["NY", "Asia", "London"]
+  instrumentos_principales?: string; // JSON array
+  horario_operacion_inicio?: string;
+  horario_operacion_fin?: string;
+
+  // Psicología y disciplina
+  reglas_personales?: string; // JSON array de strings
+
+  // Estrategia asociada
+  strategy_id?: number;
+
+  // Metadatos
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PlanPerformanceData {
+  id?: number;
+  plan_id: number;
+  fecha: string;
+  profit_acumulado: number;
+  trades_ejecutados: number;
+  reglas_cumplidas: boolean;
+  notas?: string;
+  created_at?: string;
+}
+
 export class DatabaseManager {
   // Consulta todas las cuentas MT5
   getMT5Accounts(): any[] {
@@ -673,6 +717,56 @@ export class DatabaseManager {
     } catch (error) {
       console.error("Error en migración 008:", error);
     }
+
+    // Ejecutar migración 009: Crear tabla de planes de trading
+    try {
+      console.log(
+        "Verificando si se necesita migración 009 (planes de trading)..."
+      );
+      const needsMigration009 = this.checkIfNeedsTradingPlansMigration();
+
+      if (needsMigration009) {
+        console.log("Aplicando migración 009...");
+        const migration009Path = path.join(__dirname, "migration_009.sql");
+        if (fs.existsSync(migration009Path)) {
+          const migration009 = fs.readFileSync(migration009Path, "utf8");
+          this.db.exec(migration009);
+          console.log(
+            "Migration 009 (planes de trading) aplicada desde archivo."
+          );
+        } else {
+          this.runTradingPlansMigration009Inline();
+          console.log("Migration 009 (planes de trading) aplicada inline.");
+        }
+      }
+    } catch (error) {
+      console.error("Error en migración 009:", error);
+    }
+
+    // Ejecutar migración 010: Reestructurar planes de trading
+    try {
+      console.log(
+        "Verificando si se necesita migración 010 (reestructurar planes de trading)..."
+      );
+      const needsMigration010 = this.checkIfNeedsTradingPlansRestructureMigration();
+
+      if (needsMigration010) {
+        console.log("Aplicando migración 010...");
+        const migration010Path = path.join(__dirname, "migration_010.sql");
+        if (fs.existsSync(migration010Path)) {
+          const migration010 = fs.readFileSync(migration010Path, "utf8");
+          this.db.exec(migration010);
+          console.log(
+            "Migration 010 (reestructurar planes de trading) aplicada desde archivo."
+          );
+        } else {
+          this.runTradingPlansRestructureMigration010Inline();
+          console.log("Migration 010 (reestructurar planes de trading) aplicada inline.");
+        }
+      }
+    } catch (error) {
+      console.error("Error en migración 010:", error);
+    }
   }
 
   private runInlineMigration() {
@@ -1128,6 +1222,221 @@ export class DatabaseManager {
     this.db.exec(migrationSQL);
   }
 
+  // Migración 009: Verificar si se necesita migración de planes de trading
+  private checkIfNeedsTradingPlansMigration(): boolean {
+    try {
+      const tableExists = this.db
+        .prepare(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='trading_plans'"
+        )
+        .get();
+
+      return !tableExists; // Necesita migración si la tabla no existe
+    } catch (error) {
+      console.error("Error verificando migración 009:", error);
+      return false;
+    }
+  }
+
+  // Migración 009: Crear tabla de planes de trading inline
+  private runTradingPlansMigration009Inline(): void {
+    const migrationSQL = `
+      BEGIN TRANSACTION;
+
+      -- Crear tabla principal de planes de trading
+      CREATE TABLE IF NOT EXISTS trading_plans (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nombre TEXT NOT NULL,
+          activo BOOLEAN DEFAULT 1,
+          
+          -- Fechas
+          fecha_inicio DATE,
+          fecha_fin DATE,
+          proposito_principal TEXT,
+          
+          -- Objetivos financieros
+          meta_anual REAL,
+          meta_mensual REAL,
+          meta_semanal REAL,
+          
+          -- Capital y gestión de riesgo
+          capital_disponible REAL NOT NULL,
+          riesgo_max_operacion REAL NOT NULL, -- Porcentaje (ej: 2.5 para 2.5%)
+          perdida_max_diaria REAL,
+          perdida_max_semanal REAL,
+          perdida_max_mensual REAL,
+          relacion_rr_minima REAL, -- Relación riesgo/beneficio mínima (ej: 1.5)
+          
+          -- Configuración de mercado
+          mercados_operacion TEXT, -- JSON: ["NY", "Asia", "London"]
+          instrumentos_principales TEXT, -- JSON array de instrumentos
+          horario_operacion_inicio TIME,
+          horario_operacion_fin TIME,
+          
+          -- Psicología y disciplina
+          reglas_personales TEXT, -- JSON array de strings con reglas
+          
+          -- Estrategia asociada
+          strategy_id INTEGER,
+          
+          -- Metadatos
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          
+          FOREIGN KEY (strategy_id) REFERENCES strategies(id) ON DELETE SET NULL
+      );
+
+      -- Crear tabla para seguimiento de progreso del plan
+      CREATE TABLE IF NOT EXISTS plan_performance_tracking (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          plan_id INTEGER NOT NULL,
+          fecha DATE NOT NULL,
+          profit_acumulado REAL DEFAULT 0,
+          trades_ejecutados INTEGER DEFAULT 0,
+          reglas_cumplidas BOOLEAN DEFAULT 1,
+          notas TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          
+          FOREIGN KEY (plan_id) REFERENCES trading_plans(id) ON DELETE CASCADE,
+          UNIQUE(plan_id, fecha) -- Un registro por plan por día
+      );
+
+      -- Agregar campo plan_id a la tabla mt5_trades para vincular trades con planes
+      ALTER TABLE mt5_trades ADD COLUMN plan_id INTEGER REFERENCES trading_plans(id) ON DELETE SET NULL;
+
+      -- Agregar campo plan_id a la tabla trades manuales también
+      ALTER TABLE trades ADD COLUMN plan_id INTEGER REFERENCES trading_plans(id) ON DELETE SET NULL;
+
+      -- Crear índices para optimizar consultas
+      CREATE INDEX IF NOT EXISTS idx_trading_plans_activo ON trading_plans(activo);
+      CREATE INDEX IF NOT EXISTS idx_trading_plans_strategy_id ON trading_plans(strategy_id);
+      CREATE INDEX IF NOT EXISTS idx_trading_plans_fechas ON trading_plans(fecha_inicio, fecha_fin);
+      CREATE INDEX IF NOT EXISTS idx_plan_performance_plan_id ON plan_performance_tracking(plan_id);
+      CREATE INDEX IF NOT EXISTS idx_plan_performance_fecha ON plan_performance_tracking(fecha);
+      CREATE INDEX IF NOT EXISTS idx_mt5_trades_plan_id ON mt5_trades(plan_id);
+      CREATE INDEX IF NOT EXISTS idx_trades_plan_id ON trades(plan_id);
+
+      COMMIT;
+    `;
+
+    this.db.exec(migrationSQL);
+  }
+
+  // Verificar si se necesita migración 010: Reestructurar planes de trading
+  private checkIfNeedsTradingPlansRestructureMigration(): boolean {
+    try {
+      // Verificar si la tabla trading_plans existe
+      const tableExists = this.db
+        .prepare(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='trading_plans'"
+        )
+        .get();
+      
+      if (!tableExists) {
+        return false; // Si no existe la tabla, no necesita reestructurar
+      }
+      
+      // Verificar si ya tiene las nuevas columnas
+      const columns = this.db
+        .prepare("PRAGMA table_info(trading_plans)")
+        .all() as { name: string }[];
+      
+      const hasNewColumns = columns.some(col => col.name === 'tipo_trader');
+      return !hasNewColumns; // Necesita migración si no tiene las nuevas columnas
+    } catch (error) {
+      console.error("Error verificando migración 010:", error);
+      return false;
+    }
+  }
+
+  // Migración 010: Reestructurar tabla de planes de trading inline
+  private runTradingPlansRestructureMigration010Inline(): void {
+    const migrationSQL = `
+      -- Migración 010: Reestructurar tabla de planes de trading
+      -- Simplificar y enfocar en la gestión de riesgo por operación
+
+      BEGIN TRANSACTION;
+
+      -- Crear una tabla temporal con la nueva estructura
+      CREATE TABLE trading_plans_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nombre TEXT NOT NULL,
+          activo BOOLEAN DEFAULT 1,
+          
+          -- Nuevo: Tipo de trader
+          tipo_trader TEXT CHECK (tipo_trader IN ('Scalper', 'Intraday', 'Swing')),
+          
+          -- Gestión de riesgo simplificada (en porcentajes)
+          riesgo_max_diario_pct REAL, -- Porcentaje de riesgo máximo diario
+          max_operaciones_dia INTEGER, -- Número máximo de operaciones por día
+          riesgo_por_operacion_pct REAL, -- Calculado: riesgo_max_diario_pct / max_operaciones_dia
+          relacion_rr_minima REAL, -- Relación riesgo/beneficio mínima
+          perdida_max_semanal_pct REAL, -- Porcentaje de pérdida máxima semanal
+          
+          -- Configuración de mercado (mantener)
+          mercados_operacion TEXT, -- JSON: ["NY", "Asia", "London"]
+          instrumentos_principales TEXT, -- JSON array de instrumentos
+          horario_operacion_inicio TIME,
+          horario_operacion_fin TIME,
+          
+          -- Psicología y disciplina (mantener)
+          reglas_personales TEXT, -- JSON array de strings con reglas
+          
+          -- Estrategia asociada (mantener)
+          strategy_id INTEGER,
+          
+          -- Metadatos
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          
+          FOREIGN KEY (strategy_id) REFERENCES strategies(id) ON DELETE SET NULL
+      );
+
+      -- Migrar datos existentes manteniendo solo los campos que se conservan
+      INSERT INTO trading_plans_new (
+          id, 
+          nombre, 
+          activo, 
+          relacion_rr_minima, 
+          mercados_operacion, 
+          instrumentos_principales, 
+          horario_operacion_inicio, 
+          horario_operacion_fin, 
+          reglas_personales, 
+          strategy_id, 
+          created_at, 
+          updated_at
+      )
+      SELECT 
+          id, 
+          nombre, 
+          activo, 
+          relacion_rr_minima, 
+          mercados_operacion, 
+          instrumentos_principales, 
+          horario_operacion_inicio, 
+          horario_operacion_fin, 
+          reglas_personales, 
+          strategy_id, 
+          created_at, 
+          updated_at
+      FROM trading_plans;
+
+      -- Eliminar tabla anterior y renombrar la nueva
+      DROP TABLE trading_plans;
+      ALTER TABLE trading_plans_new RENAME TO trading_plans;
+
+      -- Recrear índices
+      CREATE INDEX IF NOT EXISTS idx_trading_plans_activo ON trading_plans(activo);
+      CREATE INDEX IF NOT EXISTS idx_trading_plans_strategy_id ON trading_plans(strategy_id);
+      CREATE INDEX IF NOT EXISTS idx_trading_plans_tipo_trader ON trading_plans(tipo_trader);
+
+      COMMIT;
+    `;
+
+    this.db.exec(migrationSQL);
+  }
+
   createTrade(tradeData: TradeData) {
     const stmt = this.db.prepare(`
       INSERT INTO trades (
@@ -1491,6 +1800,387 @@ export class DatabaseManager {
       WHERE id = ?
     `);
     return stmt.get(id);
+  }
+
+  // ============ TRADING PLANS METHODS ============
+
+  // Método para crear un plan de trading
+  createTradingPlan(planData: TradingPlanData) {
+    console.log("DatabaseManager.createTradingPlan: Creando plan...", planData);
+
+    const stmt = this.db.prepare(`
+      INSERT INTO trading_plans (
+        nombre, activo, tipo_trader,
+        riesgo_max_diario_pct, max_operaciones_dia, riesgo_por_operacion_pct,
+        relacion_rr_minima, perdida_max_semanal_pct,
+        mercados_operacion, instrumentos_principales, 
+        horario_operacion_inicio, horario_operacion_fin,
+        reglas_personales, strategy_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    try {
+      const result = stmt.run(
+        planData.nombre,
+        planData.activo ? 1 : 0,
+        planData.tipo_trader ?? null,
+        planData.riesgo_max_diario_pct ?? null,
+        planData.max_operaciones_dia ?? null,
+        planData.riesgo_por_operacion_pct ?? null,
+        planData.relacion_rr_minima ?? null,
+        planData.perdida_max_semanal_pct ?? null,
+        planData.mercados_operacion ?? null,
+        planData.instrumentos_principales ?? null,
+        planData.horario_operacion_inicio ?? null,
+        planData.horario_operacion_fin ?? null,
+        planData.reglas_personales ?? null,
+        planData.strategy_id ?? null
+      );
+
+      console.log("Plan de trading creado:", result);
+      return result;
+    } catch (error) {
+      console.error("Error creando plan de trading:", error);
+      throw error;
+    }
+  }
+
+  // Método para obtener todos los planes de trading
+  getTradingPlans() {
+    console.log("DatabaseManager.getTradingPlans: Consultando planes...");
+
+    const stmt = this.db.prepare(`
+      SELECT 
+        tp.id,
+        tp.nombre,
+        tp.activo,
+        tp.tipo_trader,
+        tp.riesgo_max_diario_pct,
+        tp.max_operaciones_dia,
+        tp.riesgo_por_operacion_pct,
+        tp.relacion_rr_minima,
+        tp.perdida_max_semanal_pct,
+        tp.mercados_operacion,
+        tp.instrumentos_principales,
+        tp.horario_operacion_inicio,
+        tp.horario_operacion_fin,
+        tp.reglas_personales,
+        tp.strategy_id,
+        tp.created_at,
+        tp.updated_at,
+        s.nombre as strategy_nombre
+      FROM trading_plans tp
+      LEFT JOIN strategies s ON tp.strategy_id = s.id
+      ORDER BY tp.created_at DESC
+    `);
+
+    try {
+      const results = stmt.all();
+      console.log("Planes de trading encontrados:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error consultando planes de trading:", error);
+      return [];
+    }
+  }
+
+  // Método para obtener un plan específico por ID
+  getTradingPlanById(id: number): TradingPlanData | null {
+    console.log("DatabaseManager.getTradingPlanById:", id);
+
+    const stmt = this.db.prepare(`
+      SELECT 
+        tp.id,
+        tp.nombre,
+        tp.activo,
+        tp.tipo_trader,
+        tp.riesgo_max_diario_pct,
+        tp.max_operaciones_dia,
+        tp.riesgo_por_operacion_pct,
+        tp.relacion_rr_minima,
+        tp.perdida_max_semanal_pct,
+        tp.mercados_operacion,
+        tp.instrumentos_principales,
+        tp.horario_operacion_inicio,
+        tp.horario_operacion_fin,
+        tp.reglas_personales,
+        tp.strategy_id,
+        tp.created_at,
+        tp.updated_at,
+        s.nombre as strategy_nombre
+      FROM trading_plans tp
+      LEFT JOIN strategies s ON tp.strategy_id = s.id
+      WHERE tp.id = ?
+    `);
+
+    try {
+      const result = stmt.get(id) as TradingPlanData;
+      console.log("Plan encontrado:", result);
+      return result;
+    } catch (error) {
+      console.error("Error consultando plan por ID:", error);
+      return null;
+    }
+  }
+
+  // Método para actualizar un plan de trading
+  updateTradingPlan(planData: TradingPlanData & { id: number }) {
+    console.log(
+      "DatabaseManager.updateTradingPlan: Actualizando plan...",
+      planData
+    );
+
+    const stmt = this.db.prepare(`
+      UPDATE trading_plans SET
+        nombre = ?,
+        activo = ?,
+        tipo_trader = ?,
+        riesgo_max_diario_pct = ?,
+        max_operaciones_dia = ?,
+        riesgo_por_operacion_pct = ?,
+        relacion_rr_minima = ?,
+        perdida_max_semanal_pct = ?,
+        mercados_operacion = ?,
+        instrumentos_principales = ?,
+        horario_operacion_inicio = ?,
+        horario_operacion_fin = ?,
+        reglas_personales = ?,
+        strategy_id = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+
+    try {
+      const result = stmt.run(
+        planData.nombre,
+        planData.activo ? 1 : 0,
+        planData.tipo_trader ?? null,
+        planData.riesgo_max_diario_pct ?? null,
+        planData.max_operaciones_dia ?? null,
+        planData.riesgo_por_operacion_pct ?? null,
+        planData.relacion_rr_minima ?? null,
+        planData.perdida_max_semanal_pct ?? null,
+        planData.mercados_operacion ?? null,
+        planData.instrumentos_principales ?? null,
+        planData.horario_operacion_inicio ?? null,
+        planData.horario_operacion_fin ?? null,
+        planData.reglas_personales ?? null,
+        planData.strategy_id ?? null,
+        planData.id
+      );
+
+      console.log("Plan de trading actualizado:", result);
+      return result;
+    } catch (error) {
+      console.error("Error actualizando plan de trading:", error);
+      throw error;
+    }
+  }
+
+  // Método para eliminar un plan de trading
+  deleteTradingPlan(id: number) {
+    console.log("DatabaseManager.deleteTradingPlan:", id);
+
+    // Verificar si hay trades asociados con este plan
+    const mt5TradesCount = this.db
+      .prepare(`SELECT COUNT(*) as count FROM mt5_trades WHERE plan_id = ?`)
+      .get(id) as { count: number };
+
+    const tradesCount = this.db
+      .prepare(`SELECT COUNT(*) as count FROM trades WHERE plan_id = ?`)
+      .get(id) as { count: number };
+
+    if (mt5TradesCount.count > 0 || tradesCount.count > 0) {
+      throw new Error(
+        "No se puede eliminar el plan porque tiene trades asociados"
+      );
+    }
+
+    const stmt = this.db.prepare(`DELETE FROM trading_plans WHERE id = ?`);
+
+    try {
+      const result = stmt.run(id);
+      console.log("Plan de trading eliminado:", result);
+      return result;
+    } catch (error) {
+      console.error("Error eliminando plan de trading:", error);
+      throw error;
+    }
+  }
+
+  // Método para obtener planes activos solamente
+  getActiveTradingPlans() {
+    console.log(
+      "DatabaseManager.getActiveTradingPlans: Consultando planes activos..."
+    );
+
+    const stmt = this.db.prepare(`
+      SELECT 
+        tp.id,
+        tp.nombre,
+        tp.fecha_inicio,
+        tp.fecha_fin,
+        tp.meta_anual,
+        tp.meta_mensual,
+        tp.meta_semanal,
+        tp.capital_disponible,
+        tp.riesgo_max_operacion,
+        s.nombre as strategy_nombre
+      FROM trading_plans tp
+      LEFT JOIN strategies s ON tp.strategy_id = s.id
+      WHERE tp.activo = 1
+      ORDER BY tp.created_at DESC
+    `);
+
+    try {
+      const results = stmt.all();
+      console.log("Planes activos encontrados:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error consultando planes activos:", error);
+      return [];
+    }
+  }
+
+  // Método para validar si un trade cumple con las reglas de un plan
+  // TODO: Refactorizar esta función para trabajar con la nueva estructura
+  validateTradeAgainstPlan(
+    planId: number,
+    tradeData: {
+      symbol: string;
+      trade_type: "BUY" | "SELL";
+      volume: number;
+      open_time: string;
+      profit: number;
+    }
+  ): { isValid: boolean; violations: string[] } {
+    console.log("DatabaseManager.validateTradeAgainstPlan:", {
+      planId,
+      tradeData,
+    });
+
+    try {
+      const plan = this.getTradingPlanById(planId);
+      if (!plan) {
+        return { isValid: false, violations: ["Plan no encontrado"] };
+      }
+
+      const violations: string[] = [];
+
+      // Validar instrumentos permitidos
+      if (plan.instrumentos_principales) {
+        const instrumentos = JSON.parse(
+          plan.instrumentos_principales
+        ) as string[];
+        if (
+          instrumentos.length > 0 &&
+          !instrumentos.includes(tradeData.symbol)
+        ) {
+          violations.push(
+            `El símbolo ${tradeData.symbol} no está en la lista de instrumentos permitidos`
+          );
+        }
+      }
+
+      // Validar horario de operación
+      if (plan.horario_operacion_inicio && plan.horario_operacion_fin) {
+        const tradeTime = new Date(tradeData.open_time);
+        const tradeHour = tradeTime.getHours() * 100 + tradeTime.getMinutes();
+        const startTime = parseInt(
+          plan.horario_operacion_inicio.replace(":", "")
+        );
+        const endTime = parseInt(plan.horario_operacion_fin.replace(":", ""));
+
+        if (tradeHour < startTime || tradeHour > endTime) {
+          violations.push(
+            `Trade ejecutado fuera del horario permitido (${plan.horario_operacion_inicio} - ${plan.horario_operacion_fin})`
+          );
+        }
+      }
+
+      // TODO: Implementar validación de riesgo con nueva estructura
+
+      return {
+        isValid: violations.length === 0,
+        violations,
+      };
+    } catch (error) {
+      console.error("Error validando trade contra plan:", error);
+      return { isValid: false, violations: ["Error en validación"] };
+    }
+  }
+
+  // Método para obtener estadísticas de progreso de un plan
+  getPlanProgress(planId: number) {
+    console.log("DatabaseManager.getPlanProgress:", planId);
+
+    try {
+      const plan = this.getTradingPlanById(planId);
+      if (!plan) {
+        return null;
+      }
+
+      // Obtener trades asociados al plan (tanto MT5 como manuales)
+      const mt5Trades = this.db
+        .prepare(
+          `
+        SELECT profit, commission, swap, open_time
+        FROM mt5_trades 
+        WHERE plan_id = ?
+        ORDER BY open_time DESC
+      `
+        )
+        .all(planId);
+
+      const manualTrades = this.db
+        .prepare(
+          `
+        SELECT pnl, commissions, entry_date
+        FROM trades 
+        WHERE plan_id = ?
+        ORDER BY entry_date DESC
+      `
+        )
+        .all(planId);
+
+      // Calcular métricas
+      const totalTrades = mt5Trades.length + manualTrades.length;
+
+      const totalProfit =
+        mt5Trades.reduce(
+          (sum: number, trade: any) =>
+            sum + (trade.profit - trade.commission - trade.swap),
+          0
+        ) +
+        manualTrades.reduce(
+          (sum: number, trade: any) =>
+            sum + ((trade.pnl || 0) - (trade.commissions || 0)),
+          0
+        );
+
+      const winningTrades =
+        mt5Trades.filter((t: any) => t.profit > 0).length +
+        manualTrades.filter((t: any) => (t.pnl || 0) > 0).length;
+
+      const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+
+      // TODO: Refactorizar cálculo de progreso para la nueva estructura
+      return {
+        planId,
+        planNombre: plan.nombre,
+        totalTrades,
+        totalProfit,
+        winningTrades,
+        losingTrades: totalTrades - winningTrades,
+        winRate,
+        riesgoActual: 0, // TODO: calcular riesgo usado hoy
+        operacionesHoy: 0, // TODO: calcular operaciones de hoy
+        riesgoDisponible: 0, // TODO: calcular riesgo disponible
+      };
+    } catch (error) {
+      console.error("Error calculando progreso del plan:", error);
+      return null;
+    }
   }
 
   close() {

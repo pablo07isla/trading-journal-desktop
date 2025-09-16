@@ -39,6 +39,11 @@ const navLinks = [
     description: "Metodologías de trading",
   },
   {
+    to: "/plans",
+    label: "Planes",
+    description: "Planes de trading",
+  },
+  {
     to: "/settings",
     label: "Configuración",
     description: "Ajustes y preferencias",

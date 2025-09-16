@@ -387,3 +387,155 @@ ipcMain.handle("force-update-mt5-created-at", async () => {
     };
   }
 });
+
+// ============ TRADING PLANS IPC HANDLERS ============
+
+// Handler para crear un plan de trading
+ipcMain.handle("db:create-trading-plan", async (_event, planData) => {
+  try {
+    console.log("IPC create-trading-plan:", planData);
+    const result = await dbManager.createTradingPlan(planData);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("IPC create-trading-plan: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener todos los planes de trading
+ipcMain.handle("db:get-trading-plans", async () => {
+  try {
+    console.log("IPC get-trading-plans: Consultando planes...");
+    const plans = await dbManager.getTradingPlans();
+    return { success: true, data: plans };
+  } catch (error) {
+    console.error("IPC get-trading-plans: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener un plan específico por ID
+ipcMain.handle("db:get-trading-plan-by-id", async (_event, id) => {
+  try {
+    console.log("IPC get-trading-plan-by-id:", id);
+    const plan = await dbManager.getTradingPlanById(id);
+    return { success: true, data: plan };
+  } catch (error) {
+    console.error("IPC get-trading-plan-by-id: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para actualizar un plan de trading
+ipcMain.handle("db:update-trading-plan", async (_event, planData) => {
+  try {
+    console.log("IPC update-trading-plan:", planData);
+    const result = await dbManager.updateTradingPlan(planData);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("IPC update-trading-plan: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para eliminar un plan de trading
+ipcMain.handle("db:delete-trading-plan", async (_event, id) => {
+  try {
+    console.log("IPC delete-trading-plan:", id);
+    const result = await dbManager.deleteTradingPlan(id);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("IPC delete-trading-plan: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener planes activos solamente
+ipcMain.handle("db:get-active-trading-plans", async () => {
+  try {
+    console.log("IPC get-active-trading-plans: Consultando planes activos...");
+    const plans = await dbManager.getActiveTradingPlans();
+    return { success: true, data: plans };
+  } catch (error) {
+    console.error("IPC get-active-trading-plans: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para validar un trade contra las reglas de un plan
+ipcMain.handle(
+  "db:validate-trade-against-plan",
+  async (_event, planId, tradeData) => {
+    try {
+      console.log("IPC validate-trade-against-plan:", { planId, tradeData });
+      const validation = await dbManager.validateTradeAgainstPlan(
+        planId,
+        tradeData
+      );
+      return { success: true, data: validation };
+    } catch (error) {
+      console.error("IPC validate-trade-against-plan: Error:", error);
+      return {
+        success: false,
+        error:
+          typeof error === "object" && error !== null && "message" in error
+            ? (error as { message: string }).message
+            : String(error),
+      };
+    }
+  }
+);
+
+// Handler para obtener progreso de un plan
+ipcMain.handle("db:get-plan-progress", async (_event, planId) => {
+  try {
+    console.log("IPC get-plan-progress:", planId);
+    const progress = await dbManager.getPlanProgress(planId);
+    return { success: true, data: progress };
+  } catch (error) {
+    console.error("IPC get-plan-progress: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});

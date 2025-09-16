@@ -35,6 +35,7 @@ export interface MT5TradeData {
   comment?: string;
   // Campos adicionales del usuario
   strategy_id?: number;
+  plan_id?: number;
   description?: string;
   notes?: string;
 }
@@ -112,6 +113,80 @@ export interface AttachmentFile {
   path: string;
   type: string;
   isAttachment: true;
+}
+
+// Tipo de trader
+export type TipoTrader = "Scalper" | "Intraday" | "Swing";
+
+// Interface para planes de trading
+export interface TradingPlanData {
+  id?: number;
+  nombre: string;
+  activo: boolean;
+  
+  // Información general
+  tipo_trader?: TipoTrader;
+
+  // Capital y gestión de riesgo (en porcentajes)
+  riesgo_max_diario_pct?: number; // Porcentaje de riesgo máximo diario
+  max_operaciones_dia?: number; // Número máximo de operaciones por día
+  riesgo_por_operacion_pct?: number; // Calculado: riesgo_max_diario_pct / max_operaciones_dia
+  relacion_rr_minima?: number; // Relación riesgo/beneficio mínima
+  perdida_max_semanal_pct?: number; // Porcentaje de pérdida máxima semanal
+
+  // Configuración de mercado (JSON strings)
+  mercados_operacion?: string; // JSON: ["NY", "Asia", "London"]
+  instrumentos_principales?: string; // JSON array
+  horario_operacion_inicio?: string;
+  horario_operacion_fin?: string;
+
+  // Psicología y disciplina
+  reglas_personales?: string; // JSON array de strings
+
+  // Estrategia asociada
+  strategy_id?: number;
+  strategy_nombre?: string; // JOIN con strategies table
+
+  // Metadatos
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Tipos para configuración de mercados y reglas
+export type MarketSession = "NY" | "Asia" | "London";
+
+// Interfaces para diferentes secciones del plan de trading
+export interface RiskManagement {
+  riesgo_max_diario_pct?: number;
+  max_operaciones_dia?: number;
+  riesgo_por_operacion_pct?: number;
+  relacion_rr_minima?: number;
+  perdida_max_semanal_pct?: number;
+}
+
+export interface MarketConfig {
+  mercados_operacion: MarketSession[];
+  instrumentos_principales: string[];
+  horario_operacion_inicio?: string;
+  horario_operacion_fin?: string;
+}
+
+export interface PlanValidation {
+  isValid: boolean;
+  violations: string[];
+}
+
+export interface PlanProgress {
+  planId: number;
+  planNombre: string;
+  totalTrades: number;
+  totalProfit: number;
+  winningTrades: number;
+  losingTrades: number;
+  winRate: number;
+  riesgoActual: number; // Riesgo usado hasta ahora en el día
+  operacionesHoy: number; // Número de operaciones ejecutadas hoy
+  riesgoDisponible: number; // Riesgo que queda disponible para el día
 }
 
 export interface MT5TradeAttachment {
@@ -225,6 +300,57 @@ export interface ElectronAPI {
   ) => Promise<void>;
   deleteStrategy: (id: number) => Promise<void>;
   getStrategyById: (id: number) => Promise<StrategyData>;
+
+  // Trading Plans methods
+  createTradingPlan: (planData: TradingPlanData) => Promise<{
+    success: boolean;
+    data?: { lastInsertRowid: number; changes: number };
+    error?: string;
+  }>;
+  getTradingPlans: () => Promise<{
+    success: boolean;
+    data?: TradingPlanData[];
+    error?: string;
+  }>;
+  getTradingPlanById: (id: number) => Promise<{
+    success: boolean;
+    data?: TradingPlanData;
+    error?: string;
+  }>;
+  updateTradingPlan: (planData: TradingPlanData & { id: number }) => Promise<{
+    success: boolean;
+    data?: { changes: number };
+    error?: string;
+  }>;
+  deleteTradingPlan: (id: number) => Promise<{
+    success: boolean;
+    data?: { changes: number };
+    error?: string;
+  }>;
+  getActiveTradingPlans: () => Promise<{
+    success: boolean;
+    data?: TradingPlanData[];
+    error?: string;
+  }>;
+  validateTradeAgainstPlan: (
+    planId: number,
+    tradeData: {
+      symbol: string;
+      trade_type: "BUY" | "SELL";
+      volume: number;
+      open_time: string;
+      profit: number;
+    }
+  ) => Promise<{
+    success: boolean;
+    data?: PlanValidation;
+    error?: string;
+  }>;
+  getPlanProgress: (planId: number) => Promise<{
+    success: boolean;
+    data?: PlanProgress;
+    error?: string;
+  }>;
 }
 
 declare global {

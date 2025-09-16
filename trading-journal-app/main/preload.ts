@@ -82,6 +82,23 @@ contextBridge.exposeInMainWorld("electronAPI", {
   readMT5TradeAttachmentFile: (filePath: string) =>
     ipcRenderer.invoke("read-mt5-trade-attachment-file", filePath),
 
+  // Trading Plans methods
+  createTradingPlan: (planData: any) =>
+    ipcRenderer.invoke("db:create-trading-plan", planData),
+  getTradingPlans: () => ipcRenderer.invoke("db:get-trading-plans"),
+  getTradingPlanById: (id: number) =>
+    ipcRenderer.invoke("db:get-trading-plan-by-id", id),
+  updateTradingPlan: (planData: any) =>
+    ipcRenderer.invoke("db:update-trading-plan", planData),
+  deleteTradingPlan: (id: number) =>
+    ipcRenderer.invoke("db:delete-trading-plan", id),
+  getActiveTradingPlans: () =>
+    ipcRenderer.invoke("db:get-active-trading-plans"),
+  validateTradeAgainstPlan: (planId: number, tradeData: any) =>
+    ipcRenderer.invoke("db:validate-trade-against-plan", planId, tradeData),
+  getPlanProgress: (planId: number) =>
+    ipcRenderer.invoke("db:get-plan-progress", planId),
+
   // Add more methods for attachments, settings, etc.
 });
 

@@ -29,6 +29,7 @@ import {
   Target,
   TrendingUp,
   Wallet,
+  ClipboardList,
 } from "lucide-react";
 import avatar from "@/assets/avataaars.svg";
 
@@ -57,6 +58,12 @@ const navigationItems = [
     url: "/strategies",
     icon: Target,
     description: "Metodologías de trading",
+  },
+  {
+    title: "Planes",
+    url: "/plans",
+    icon: ClipboardList,
+    description: "Planes de trading",
   },
 ];
 

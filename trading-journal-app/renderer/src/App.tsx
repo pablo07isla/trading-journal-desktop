@@ -5,6 +5,7 @@ import TradeLog from "@/pages/TradeLog";
 import Settings from "@/pages/Settings";
 import { TradingAccounts } from "@/pages/TradingAccounts";
 import { Strategies } from "@/pages/Strategies";
+import { TradingPlans } from "@/pages/TradingPlans";
 import Layout from "@/components/layout/Layout";
 import "./App.css";
 import MT5Import from "./pages/MT5Import";
@@ -18,6 +19,7 @@ const App: React.FC = () => (
         <Route path='accounts' element={<TradingAccounts />} />
         <Route path='mt5import' element={<MT5Import />} />
         <Route path='strategies' element={<Strategies />} />
+        <Route path='plans' element={<TradingPlans />} />
         <Route path='settings' element={<Settings />} />
       </Route>
     </Routes>
