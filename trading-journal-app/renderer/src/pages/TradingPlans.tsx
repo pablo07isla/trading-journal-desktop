@@ -1,28 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
   Plus,
-  Search,
   Edit,
   Trash2,
   Target,
@@ -39,9 +22,6 @@ import type { TradingPlanData, PlanProgress } from "@/types/electron";
 
 export function TradingPlans() {
   const [plans, setPlans] = useState<TradingPlanData[]>([]);
-  const [filteredPlans, setFilteredPlans] = useState<TradingPlanData[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<TradingPlanData | null>(
     null
@@ -54,28 +34,6 @@ export function TradingPlans() {
   const [planDetailsOpen, setPlanDetailsOpen] = useState(false);
   const [selectedPlanForDetails, setSelectedPlanForDetails] =
     useState<TradingPlanData | null>(null);
-
-  const filterPlans = () => {
-    let filtered = plans;
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (plan) =>
-          plan.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          plan.tipo_trader?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          plan.strategy_nombre?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (statusFilter === "activo") {
-      filtered = filtered.filter((plan) => plan.activo);
-    } else if (statusFilter === "inactivo") {
-      filtered = filtered.filter((plan) => !plan.activo);
-    }
-    // Si statusFilter === "all", no aplicamos filtro adicional
-
-    setFilteredPlans(filtered);
-  };
 
   const loadProgressForActivePlans = React.useCallback(
     async (allPlans: TradingPlanData[]) => {
@@ -123,11 +81,6 @@ export function TradingPlans() {
     };
     fetchPlans();
   }, [loadPlans]);
-
-  useEffect(() => {
-    filterPlans();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plans, searchTerm, statusFilter]);
 
   const handleCreatePlan = () => {
     setSelectedPlan(null);
@@ -297,7 +250,7 @@ export function TradingPlans() {
       </div>
 
       {/* Plans activos - Cards */}
-      {plans.filter((plan) => plan.activo).length > 0 && (
+      {plans.filter((plan) => plan.activo).length > 0 ? (
         <div className='mb-8'>
           <h2 className='text-lg font-semibold text-gray-900 mb-4 flex items-center justify-between'>
             <div className='flex items-center gap-2'>
@@ -326,7 +279,7 @@ export function TradingPlans() {
                             <h3 className='text-lg font-semibold text-gray-900 truncate'>
                               {plan.nombre}
                             </h3>
-                            <div className='flex items-center gap-2 mt-1'>
+                            <div className=' gap-2 mt-1'>
                               {getStatusBadge(plan.activo)}
                               {plan.strategy_nombre && (
                                 <Badge variant='outline' className='text-xs'>
@@ -422,8 +375,19 @@ export function TradingPlans() {
                             onClick={(e) => {
                               e.stopPropagation();
                               handleEditPlan(plan);
-                            }}>
+                            }}
+                            className='text-blue-600 hover:text-blue-800'>
                             <Edit className='w-4 h-4' />
+                          </Button>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeletePlan(plan);
+                            }}
+                            className='text-red-600 hover:text-red-800'>
+                            <Trash2 className='w-4 h-4' />
                           </Button>
                           <Eye className='w-5 h-5 text-blue-600' />
                         </div>
@@ -434,176 +398,24 @@ export function TradingPlans() {
               })}
           </div>
         </div>
-      )}
-
-      {/* Filtros */}
-      <div className='flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg shadow-sm border'>
-        <div className='flex-1'>
-          <div className='relative'>
-            <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
-            <Input
-              placeholder='Buscar planes...'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className='pl-10'
-            />
-          </div>
+      ) : (
+        <div className='bg-white rounded-lg shadow-sm border p-8 text-center'>
+          <Target className='w-16 h-16 mx-auto mb-4 text-gray-400' />
+          <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+            No hay planes activos
+          </h3>
+          <p className='text-gray-600 mb-4'>
+            Crea un plan de trading y actívalo para comenzar a operar con
+            disciplina
+          </p>
+          <Button
+            onClick={handleCreatePlan}
+            className='bg-blue-600 hover:bg-blue-700'>
+            <Plus className='w-4 h-4 mr-2' />
+            Crear Plan
+          </Button>
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className='w-full sm:w-48'>
-            <SelectValue placeholder='Filtrar por estado' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='all'>Todos</SelectItem>
-            <SelectItem value='activo'>Activos</SelectItem>
-            <SelectItem value='inactivo'>Inactivos</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Tabla de todos los planes */}
-      <div className='bg-white rounded-lg shadow-sm border overflow-hidden'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Plan</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Riesgo Diario</TableHead>
-              <TableHead>Max Ops/Día</TableHead>
-              <TableHead>R/R Min</TableHead>
-              <TableHead>Estrategia</TableHead>
-              <TableHead className='text-right'>Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredPlans.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className='text-center py-8 text-gray-500'>
-                  <Target className='w-12 h-12 mx-auto mb-3 text-gray-400' />
-                  <p className='text-lg font-medium'>
-                    No hay planes de trading
-                  </p>
-                  <p className='text-sm'>
-                    Crea tu primer plan para comenzar a operar con disciplina
-                  </p>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredPlans.map((plan) => (
-                <TableRow key={plan.id} className='hover:bg-gray-50'>
-                  <TableCell>
-                    <div>
-                      <p className='font-medium'>{plan.nombre}</p>
-                      {plan.instrumentos_principales && (
-                        <div className='flex gap-1 mt-1'>
-                          {JSON.parse(plan.instrumentos_principales)
-                            .slice(0, 3)
-                            .map((instrument: string, idx: number) => (
-                              <Badge
-                                key={idx}
-                                variant='outline'
-                                className='text-xs'>
-                                {instrument}
-                              </Badge>
-                            ))}
-                          {JSON.parse(plan.instrumentos_principales).length >
-                            3 && (
-                            <Badge variant='outline' className='text-xs'>
-                              +
-                              {JSON.parse(plan.instrumentos_principales)
-                                .length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(plan.activo)}</TableCell>
-                  <TableCell>
-                    <div className='text-sm'>
-                      <Badge variant='secondary' className='text-xs'>
-                        {plan.tipo_trader || "No definido"}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className='text-sm'>
-                      <p className='font-medium'>
-                        {plan.riesgo_max_diario_pct
-                          ? `${plan.riesgo_max_diario_pct}%`
-                          : "-"}
-                      </p>
-                      <p className='text-xs text-gray-600'>
-                        {plan.riesgo_por_operacion_pct
-                          ? `${plan.riesgo_por_operacion_pct}% por op`
-                          : ""}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className='font-medium'>
-                      {plan.max_operaciones_dia || "-"}
-                    </p>
-                    {planProgress[plan.id!] && (
-                      <p className='text-xs text-gray-600'>
-                        {planProgress[plan.id!].operacionesHoy || 0} ejecutadas
-                      </p>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <p className='font-medium'>
-                      {plan.relacion_rr_minima
-                        ? `1:${plan.relacion_rr_minima}`
-                        : "-"}
-                    </p>
-                    {planProgress[plan.id!]?.totalProfit !== undefined && (
-                      <p
-                        className={`text-xs ${
-                          planProgress[plan.id!].totalProfit >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}>
-                        P&L:{" "}
-                        {formatCurrency(planProgress[plan.id!].totalProfit)}
-                      </p>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {plan.strategy_nombre ? (
-                      <Badge variant='outline' className='text-xs'>
-                        {plan.strategy_nombre}
-                      </Badge>
-                    ) : (
-                      <span className='text-gray-400 text-sm'>-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className='text-right'>
-                    <div className='flex items-center gap-1 justify-end'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleEditPlan(plan)}
-                        className='text-blue-600 hover:text-blue-800'>
-                        <Edit className='w-4 h-4' />
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleDeletePlan(plan)}
-                        className='text-red-600 hover:text-red-800'>
-                        <Trash2 className='w-4 h-4' />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      )}
 
       {/* Dialog de Detalles del Plan */}
       <Dialog open={planDetailsOpen} onOpenChange={setPlanDetailsOpen}>
