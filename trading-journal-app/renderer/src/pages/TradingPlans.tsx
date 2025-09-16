@@ -55,9 +55,7 @@ export function TradingPlans() {
       filtered = filtered.filter(
         (plan) =>
           plan.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          plan.tipo_trader
-            ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
+          plan.tipo_trader?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           plan.strategy_nombre?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -288,13 +286,15 @@ export function TradingPlans() {
                         <div>
                           <p className='text-xs text-gray-600'>Tipo Trader</p>
                           <p className='font-semibold'>
-                            {plan.tipo_trader || '-'}
+                            {plan.tipo_trader || "-"}
                           </p>
                         </div>
                         <div>
                           <p className='text-xs text-gray-600'>Riesgo/Día</p>
                           <p className='font-semibold'>
-                            {plan.riesgo_max_diario_pct ? `${plan.riesgo_max_diario_pct}%` : '-'}
+                            {plan.riesgo_max_diario_pct
+                              ? `${plan.riesgo_max_diario_pct}%`
+                              : "-"}
                           </p>
                         </div>
                       </div>
@@ -303,13 +303,15 @@ export function TradingPlans() {
                         <div>
                           <p className='text-xs text-gray-600'>Max Ops/Día</p>
                           <p className='font-semibold'>
-                            {plan.max_operaciones_dia || '-'}
+                            {plan.max_operaciones_dia || "-"}
                           </p>
                         </div>
                         <div>
                           <p className='text-xs text-gray-600'>Riesgo/Op</p>
                           <p className='font-semibold'>
-                            {plan.riesgo_por_operacion_pct ? `${plan.riesgo_por_operacion_pct}%` : '-'}
+                            {plan.riesgo_por_operacion_pct
+                              ? `${plan.riesgo_por_operacion_pct}%`
+                              : "-"}
                           </p>
                         </div>
                       </div>
@@ -320,7 +322,8 @@ export function TradingPlans() {
                             <div className='flex justify-between text-xs'>
                               <span>Operaciones Hoy</span>
                               <span className='font-semibold'>
-                                {progress.operacionesHoy || 0} / {plan.max_operaciones_dia || '-'}
+                                {progress.operacionesHoy || 0} /{" "}
+                                {plan.max_operaciones_dia || "-"}
                               </span>
                             </div>
                           </div>
@@ -332,21 +335,31 @@ export function TradingPlans() {
                                   progress.riesgoActual || 0,
                                   plan.riesgo_max_diario_pct || 100
                                 )}>
-                                {progress.riesgoDisponible ? `${progress.riesgoDisponible.toFixed(1)}%` : '-'}
+                                {progress.riesgoDisponible
+                                  ? `${progress.riesgoDisponible.toFixed(1)}%`
+                                  : "-"}
                               </span>
                             </div>
                             <div className='w-full bg-gray-200 rounded-full h-2'>
                               <div
                                 className={`h-2 rounded-full transition-all ${
-                                  (progress.riesgoActual || 0) / (plan.riesgo_max_diario_pct || 1) * 100 > 80 
-                                    ? 'bg-red-500' 
-                                    : (progress.riesgoActual || 0) / (plan.riesgo_max_diario_pct || 1) * 100 > 60
-                                    ? 'bg-yellow-500'
-                                    : 'bg-green-500'
+                                  ((progress.riesgoActual || 0) /
+                                    (plan.riesgo_max_diario_pct || 1)) *
+                                    100 >
+                                  80
+                                    ? "bg-red-500"
+                                    : ((progress.riesgoActual || 0) /
+                                        (plan.riesgo_max_diario_pct || 1)) *
+                                        100 >
+                                      60
+                                    ? "bg-yellow-500"
+                                    : "bg-green-500"
                                 }`}
                                 style={{
                                   width: `${Math.min(
-                                    ((progress.riesgoActual || 0) / (plan.riesgo_max_diario_pct || 1)) * 100,
+                                    ((progress.riesgoActual || 0) /
+                                      (plan.riesgo_max_diario_pct || 1)) *
+                                      100,
                                     100
                                   )}%`,
                                 }}
@@ -468,14 +481,22 @@ export function TradingPlans() {
                       <p className='font-medium'>{plan.nombre}</p>
                       {plan.instrumentos_principales && (
                         <div className='flex gap-1 mt-1'>
-                          {JSON.parse(plan.instrumentos_principales).slice(0, 3).map((instrument: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className='text-xs'>
-                              {instrument}
-                            </Badge>
-                          ))}
-                          {JSON.parse(plan.instrumentos_principales).length > 3 && (
-                            <Badge variant="outline" className='text-xs'>
-                              +{JSON.parse(plan.instrumentos_principales).length - 3}
+                          {JSON.parse(plan.instrumentos_principales)
+                            .slice(0, 3)
+                            .map((instrument: string, idx: number) => (
+                              <Badge
+                                key={idx}
+                                variant='outline'
+                                className='text-xs'>
+                                {instrument}
+                              </Badge>
+                            ))}
+                          {JSON.parse(plan.instrumentos_principales).length >
+                            3 && (
+                            <Badge variant='outline' className='text-xs'>
+                              +
+                              {JSON.parse(plan.instrumentos_principales)
+                                .length - 3}
                             </Badge>
                           )}
                         </div>
@@ -485,24 +506,28 @@ export function TradingPlans() {
                   <TableCell>{getStatusBadge(plan.activo)}</TableCell>
                   <TableCell>
                     <div className='text-sm'>
-                      <Badge variant="secondary" className='text-xs'>
-                        {plan.tipo_trader || 'No definido'}
+                      <Badge variant='secondary' className='text-xs'>
+                        {plan.tipo_trader || "No definido"}
                       </Badge>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className='text-sm'>
                       <p className='font-medium'>
-                        {plan.riesgo_max_diario_pct ? `${plan.riesgo_max_diario_pct}%` : '-'}
+                        {plan.riesgo_max_diario_pct
+                          ? `${plan.riesgo_max_diario_pct}%`
+                          : "-"}
                       </p>
                       <p className='text-xs text-gray-600'>
-                        {plan.riesgo_por_operacion_pct ? `${plan.riesgo_por_operacion_pct}% por op` : ''}
+                        {plan.riesgo_por_operacion_pct
+                          ? `${plan.riesgo_por_operacion_pct}% por op`
+                          : ""}
                       </p>
                     </div>
                   </TableCell>
                   <TableCell>
                     <p className='font-medium'>
-                      {plan.max_operaciones_dia || '-'}
+                      {plan.max_operaciones_dia || "-"}
                     </p>
                     {planProgress[plan.id!] && (
                       <p className='text-xs text-gray-600'>
@@ -512,18 +537,21 @@ export function TradingPlans() {
                   </TableCell>
                   <TableCell>
                     <p className='font-medium'>
-                      {plan.relacion_rr_minima ? `1:${plan.relacion_rr_minima}` : '-'}
+                      {plan.relacion_rr_minima
+                        ? `1:${plan.relacion_rr_minima}`
+                        : "-"}
                     </p>
                     {planProgress[plan.id!]?.totalProfit !== undefined && (
-                        <p
-                          className={`text-xs ${
-                            planProgress[plan.id!].totalProfit >= 0
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}>
-                          P&L: {formatCurrency(planProgress[plan.id!].totalProfit)}
-                        </p>
-                      )}
+                      <p
+                        className={`text-xs ${
+                          planProgress[plan.id!].totalProfit >= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}>
+                        P&L:{" "}
+                        {formatCurrency(planProgress[plan.id!].totalProfit)}
+                      </p>
+                    )}
                   </TableCell>
                   <TableCell>
                     {plan.strategy_nombre ? (

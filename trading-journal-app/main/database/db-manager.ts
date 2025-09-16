@@ -124,7 +124,7 @@ export interface TradingPlanData {
   id?: number;
   nombre: string;
   activo: boolean;
-  
+
   // Información general
   tipo_trader?: "Scalper" | "Intraday" | "Swing";
 
@@ -748,7 +748,8 @@ export class DatabaseManager {
       console.log(
         "Verificando si se necesita migración 010 (reestructurar planes de trading)..."
       );
-      const needsMigration010 = this.checkIfNeedsTradingPlansRestructureMigration();
+      const needsMigration010 =
+        this.checkIfNeedsTradingPlansRestructureMigration();
 
       if (needsMigration010) {
         console.log("Aplicando migración 010...");
@@ -761,7 +762,9 @@ export class DatabaseManager {
           );
         } else {
           this.runTradingPlansRestructureMigration010Inline();
-          console.log("Migration 010 (reestructurar planes de trading) aplicada inline.");
+          console.log(
+            "Migration 010 (reestructurar planes de trading) aplicada inline."
+          );
         }
       }
     } catch (error) {
@@ -1331,17 +1334,17 @@ export class DatabaseManager {
           "SELECT name FROM sqlite_master WHERE type='table' AND name='trading_plans'"
         )
         .get();
-      
+
       if (!tableExists) {
         return false; // Si no existe la tabla, no necesita reestructurar
       }
-      
+
       // Verificar si ya tiene las nuevas columnas
       const columns = this.db
         .prepare("PRAGMA table_info(trading_plans)")
         .all() as { name: string }[];
-      
-      const hasNewColumns = columns.some(col => col.name === 'tipo_trader');
+
+      const hasNewColumns = columns.some((col) => col.name === "tipo_trader");
       return !hasNewColumns; // Necesita migración si no tiene las nuevas columnas
     } catch (error) {
       console.error("Error verificando migración 010:", error);

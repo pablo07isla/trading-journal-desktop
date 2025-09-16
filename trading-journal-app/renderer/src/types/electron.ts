@@ -123,7 +123,7 @@ export interface TradingPlanData {
   id?: number;
   nombre: string;
   activo: boolean;
-  
+
   // Información general
   tipo_trader?: TipoTrader;
 

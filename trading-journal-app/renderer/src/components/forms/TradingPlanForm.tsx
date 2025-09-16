@@ -40,7 +40,7 @@ interface TradingPlanFormProps {
 interface FormData {
   nombre: string;
   activo: boolean;
-  
+
   // Información general
   tipo_trader: string;
 
@@ -71,7 +71,7 @@ export function TradingPlanForm({
   const [formData, setFormData] = useState<FormData>({
     nombre: plan?.nombre || "",
     activo: plan?.activo ?? true,
-    
+
     // Información general
     tipo_trader: plan?.tipo_trader || "",
 
@@ -122,17 +122,21 @@ export function TradingPlanForm({
   useEffect(() => {
     const riesgoDiario = parseFloat(formData.riesgo_max_diario_pct);
     const maxOperaciones = parseInt(formData.max_operaciones_dia);
-    
+
     if (riesgoDiario && maxOperaciones && maxOperaciones > 0) {
       const riesgoPorOperacion = (riesgoDiario / maxOperaciones).toFixed(2);
       if (formData.riesgo_por_operacion_pct !== riesgoPorOperacion) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          riesgo_por_operacion_pct: riesgoPorOperacion
+          riesgo_por_operacion_pct: riesgoPorOperacion,
         }));
       }
     }
-  }, [formData.riesgo_max_diario_pct, formData.max_operaciones_dia, formData.riesgo_por_operacion_pct]);
+  }, [
+    formData.riesgo_max_diario_pct,
+    formData.max_operaciones_dia,
+    formData.riesgo_por_operacion_pct,
+  ]);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -152,7 +156,8 @@ export function TradingPlanForm({
       (parseFloat(formData.riesgo_max_diario_pct) <= 0 ||
         parseFloat(formData.riesgo_max_diario_pct) > 10)
     ) {
-      newErrors.riesgo_max_diario_pct = "El riesgo diario debe estar entre 0.1% y 10%";
+      newErrors.riesgo_max_diario_pct =
+        "El riesgo diario debe estar entre 0.1% y 10%";
     }
 
     // Validar número máximo de operaciones
@@ -177,15 +182,16 @@ export function TradingPlanForm({
       formData.perdida_max_semanal_pct &&
       parseFloat(formData.perdida_max_semanal_pct) <= 0
     ) {
-      newErrors.perdida_max_semanal_pct = "La pérdida semanal debe ser mayor a 0%";
+      newErrors.perdida_max_semanal_pct =
+        "La pérdida semanal debe ser mayor a 0%";
     }
 
     // Validar coherencia entre riesgo diario y semanal
     const riesgoDiario = parseFloat(formData.riesgo_max_diario_pct);
     const perdidaSemanal = parseFloat(formData.perdida_max_semanal_pct);
-    
+
     if (riesgoDiario && perdidaSemanal && riesgoDiario * 5 > perdidaSemanal) {
-      newErrors.perdida_max_semanal_pct = 
+      newErrors.perdida_max_semanal_pct =
         "La pérdida semanal debe ser al menos 5 veces el riesgo diario";
     }
 
@@ -209,7 +215,7 @@ export function TradingPlanForm({
         ...plan,
         nombre: formData.nombre,
         activo: formData.activo,
-        
+
         // Información general
         tipo_trader: formData.tipo_trader as TipoTrader,
 
@@ -267,7 +273,10 @@ export function TradingPlanForm({
     }
   };
 
-  const handleInputChange = (field: keyof FormData, value: string | boolean | MarketSession[] | string[]) => {
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | boolean | MarketSession[] | string[]
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -286,7 +295,7 @@ export function TradingPlanForm({
     const newMarkets = formData.mercados_operacion.includes(market)
       ? formData.mercados_operacion.filter((m) => m !== market)
       : [...formData.mercados_operacion, market];
-    
+
     handleInputChange("mercados_operacion", newMarkets);
   };
 
@@ -325,228 +334,281 @@ export function TradingPlanForm({
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {isEditing ? "Editar Plan de Trading" : "Crear Nuevo Plan de Trading"}
+    <div className='max-w-4xl mx-auto p-6'>
+      <form onSubmit={handleSubmit} className='space-y-8'>
+        <div className='flex items-center justify-between mb-6'>
+          <h2 className='text-2xl font-bold text-gray-900'>
+            {isEditing
+              ? "Editar Plan de Trading"
+              : "Crear Nuevo Plan de Trading"}
           </h2>
           <Button
-            type="button"
-            variant="outline"
+            type='button'
+            variant='outline'
             onClick={onCancel}
-            className="px-4 py-2"
-          >
+            className='px-4 py-2'>
             Cancelar
           </Button>
         </div>
 
         {/* 1. Información General */}
-        <section className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Target className="w-6 h-6 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
+        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+          <div className='flex items-center gap-3 mb-4'>
+            <Target className='w-6 h-6 text-blue-600' />
+            <h3 className='text-lg font-semibold text-gray-900'>
               1. Información General
             </h3>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor='nombre'
+                className='block text-sm font-medium text-gray-700 mb-1'>
                 Nombre del Plan *
               </label>
               <Input
-                id="nombre"
+                id='nombre'
                 value={formData.nombre}
                 onChange={(e) => handleInputChange("nombre", e.target.value)}
-                placeholder="Ej: Plan Scalping EURUSD"
+                placeholder='Ej: Plan Scalping EURUSD'
                 className={errors.nombre ? "border-red-500" : ""}
               />
               {errors.nombre && (
-                <p className="text-sm text-red-600 mt-1">{errors.nombre}</p>
+                <p className='text-sm text-red-600 mt-1'>{errors.nombre}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="tipo_trader" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor='tipo_trader'
+                className='block text-sm font-medium text-gray-700 mb-1'>
                 Tipo de Trader *
               </label>
-              <Select 
-                value={formData.tipo_trader} 
-                onValueChange={(value) => handleInputChange("tipo_trader", value)}
-              >
-                <SelectTrigger className={errors.tipo_trader ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Selecciona tu estilo" />
+              <Select
+                value={formData.tipo_trader}
+                onValueChange={(value) =>
+                  handleInputChange("tipo_trader", value)
+                }>
+                <SelectTrigger
+                  className={errors.tipo_trader ? "border-red-500" : ""}>
+                  <SelectValue placeholder='Selecciona tu estilo' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Scalper">Scalper</SelectItem>
-                  <SelectItem value="Intraday">Intraday</SelectItem>
-                  <SelectItem value="Swing">Swing</SelectItem>
+                  <SelectItem value='Scalper'>Scalper</SelectItem>
+                  <SelectItem value='Intraday'>Intraday</SelectItem>
+                  <SelectItem value='Swing'>Swing</SelectItem>
                 </SelectContent>
               </Select>
               {errors.tipo_trader && (
-                <p className="text-sm text-red-600 mt-1">{errors.tipo_trader}</p>
+                <p className='text-sm text-red-600 mt-1'>
+                  {errors.tipo_trader}
+                </p>
               )}
             </div>
           </div>
 
-          <div className="mt-4">
-            <label className="flex items-center gap-2">
+          <div className='mt-4'>
+            <label className='flex items-center gap-2'>
               <Checkbox
                 checked={formData.activo}
-                onCheckedChange={(checked: boolean) => handleInputChange("activo", checked)}
+                onCheckedChange={(checked: boolean) =>
+                  handleInputChange("activo", checked)
+                }
               />
-              <span className="text-sm text-gray-700">Plan activo</span>
+              <span className='text-sm text-gray-700'>Plan activo</span>
             </label>
           </div>
         </section>
 
         {/* 2. Capital y Gestión de Riesgo */}
-        <section className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Shield className="w-6 h-6 text-red-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
+        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+          <div className='flex items-center gap-3 mb-4'>
+            <Shield className='w-6 h-6 text-red-600' />
+            <h3 className='text-lg font-semibold text-gray-900'>
               2. Capital y Gestión de Riesgo
             </h3>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
             <div>
-              <label htmlFor="riesgo_max_diario_pct" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor='riesgo_max_diario_pct'
+                className='block text-sm font-medium text-gray-700 mb-1'>
                 Riesgo Máximo Diario (%)
               </label>
               <Input
-                id="riesgo_max_diario_pct"
-                type="number"
-                step="0.1"
+                id='riesgo_max_diario_pct'
+                type='number'
+                step='0.1'
                 value={formData.riesgo_max_diario_pct}
-                onChange={(e) => handleInputChange("riesgo_max_diario_pct", e.target.value)}
-                placeholder="2.0"
+                onChange={(e) =>
+                  handleInputChange("riesgo_max_diario_pct", e.target.value)
+                }
+                placeholder='2.0'
                 className={errors.riesgo_max_diario_pct ? "border-red-500" : ""}
               />
               {errors.riesgo_max_diario_pct && (
-                <p className="text-sm text-red-600 mt-1">{errors.riesgo_max_diario_pct}</p>
+                <p className='text-sm text-red-600 mt-1'>
+                  {errors.riesgo_max_diario_pct}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="max_operaciones_dia" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor='max_operaciones_dia'
+                className='block text-sm font-medium text-gray-700 mb-1'>
                 Máximo Operaciones/Día
               </label>
               <Input
-                id="max_operaciones_dia"
-                type="number"
+                id='max_operaciones_dia'
+                type='number'
                 value={formData.max_operaciones_dia}
-                onChange={(e) => handleInputChange("max_operaciones_dia", e.target.value)}
-                placeholder="10"
+                onChange={(e) =>
+                  handleInputChange("max_operaciones_dia", e.target.value)
+                }
+                placeholder='10'
                 className={errors.max_operaciones_dia ? "border-red-500" : ""}
               />
               {errors.max_operaciones_dia && (
-                <p className="text-sm text-red-600 mt-1">{errors.max_operaciones_dia}</p>
+                <p className='text-sm text-red-600 mt-1'>
+                  {errors.max_operaciones_dia}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="riesgo_por_operacion_pct" className="block text-sm font-medium text-gray-700 mb-1">
-                Riesgo por Operación (%) 
-                <span className="text-xs text-gray-500">(Calculado)</span>
+              <label
+                htmlFor='riesgo_por_operacion_pct'
+                className='block text-sm font-medium text-gray-700 mb-1'>
+                Riesgo por Operación (%)
+                <span className='text-xs text-gray-500'>(Calculado)</span>
               </label>
               <Input
-                id="riesgo_por_operacion_pct"
+                id='riesgo_por_operacion_pct'
                 value={formData.riesgo_por_operacion_pct}
                 disabled
-                className="bg-gray-50"
-                placeholder="Automático"
+                className='bg-gray-50'
+                placeholder='Automático'
               />
             </div>
 
             <div>
-              <label htmlFor="relacion_rr_minima" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor='relacion_rr_minima'
+                className='block text-sm font-medium text-gray-700 mb-1'>
                 Relación R/R Mínima
               </label>
               <Input
-                id="relacion_rr_minima"
-                type="number"
-                step="0.1"
+                id='relacion_rr_minima'
+                type='number'
+                step='0.1'
                 value={formData.relacion_rr_minima}
-                onChange={(e) => handleInputChange("relacion_rr_minima", e.target.value)}
-                placeholder="1.5"
+                onChange={(e) =>
+                  handleInputChange("relacion_rr_minima", e.target.value)
+                }
+                placeholder='1.5'
                 className={errors.relacion_rr_minima ? "border-red-500" : ""}
               />
               {errors.relacion_rr_minima && (
-                <p className="text-sm text-red-600 mt-1">{errors.relacion_rr_minima}</p>
+                <p className='text-sm text-red-600 mt-1'>
+                  {errors.relacion_rr_minima}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="perdida_max_semanal_pct" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor='perdida_max_semanal_pct'
+                className='block text-sm font-medium text-gray-700 mb-1'>
                 Pérdida Máxima Semanal (%)
               </label>
               <Input
-                id="perdida_max_semanal_pct"
-                type="number"
-                step="0.1"
+                id='perdida_max_semanal_pct'
+                type='number'
+                step='0.1'
                 value={formData.perdida_max_semanal_pct}
-                onChange={(e) => handleInputChange("perdida_max_semanal_pct", e.target.value)}
-                placeholder="5.0"
-                className={errors.perdida_max_semanal_pct ? "border-red-500" : ""}
+                onChange={(e) =>
+                  handleInputChange("perdida_max_semanal_pct", e.target.value)
+                }
+                placeholder='5.0'
+                className={
+                  errors.perdida_max_semanal_pct ? "border-red-500" : ""
+                }
               />
               {errors.perdida_max_semanal_pct && (
-                <p className="text-sm text-red-600 mt-1">{errors.perdida_max_semanal_pct}</p>
+                <p className='text-sm text-red-600 mt-1'>
+                  {errors.perdida_max_semanal_pct}
+                </p>
               )}
             </div>
           </div>
         </section>
 
         {/* 3. Mercados y Horarios */}
-        <section className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Globe className="w-6 h-6 text-green-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
+        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+          <div className='flex items-center gap-3 mb-4'>
+            <Globe className='w-6 h-6 text-green-600' />
+            <h3 className='text-lg font-semibold text-gray-900'>
               3. Mercados y Horarios
             </h3>
           </div>
-          
-          <div className="space-y-4">
+
+          <div className='space-y-4'>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
                 Sesiones de Mercado
               </label>
-              <div className="flex gap-2 flex-wrap">
-                {(['NY', 'Asia', 'London'] as MarketSession[]).map((market) => (
+              <div className='flex gap-2 flex-wrap'>
+                {(["NY", "Asia", "London"] as MarketSession[]).map((market) => (
                   <Badge
                     key={market}
-                    variant={formData.mercados_operacion.includes(market) ? "default" : "outline"}
-                    className="cursor-pointer px-3 py-1"
-                    onClick={() => handleMarketToggle(market)}
-                  >
+                    variant={
+                      formData.mercados_operacion.includes(market)
+                        ? "default"
+                        : "outline"
+                    }
+                    className='cursor-pointer px-3 py-1'
+                    onClick={() => handleMarketToggle(market)}>
                     {market}
                   </Badge>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label htmlFor="horario_inicio" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor='horario_inicio'
+                  className='block text-sm font-medium text-gray-700 mb-1'>
                   Horario de Inicio
                 </label>
                 <Input
-                  id="horario_inicio"
-                  type="time"
+                  id='horario_inicio'
+                  type='time'
                   value={formData.horario_operacion_inicio}
-                  onChange={(e) => handleInputChange("horario_operacion_inicio", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "horario_operacion_inicio",
+                      e.target.value
+                    )
+                  }
                 />
               </div>
               <div>
-                <label htmlFor="horario_fin" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor='horario_fin'
+                  className='block text-sm font-medium text-gray-700 mb-1'>
                   Horario de Fin
                 </label>
                 <Input
-                  id="horario_fin"
-                  type="time"
+                  id='horario_fin'
+                  type='time'
                   value={formData.horario_operacion_fin}
-                  onChange={(e) => handleInputChange("horario_operacion_fin", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("horario_operacion_fin", e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -554,34 +616,39 @@ export function TradingPlanForm({
         </section>
 
         {/* 4. Instrumentos de Trading */}
-        <section className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <TrendingUp className="w-6 h-6 text-orange-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
+        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+          <div className='flex items-center gap-3 mb-4'>
+            <TrendingUp className='w-6 h-6 text-orange-600' />
+            <h3 className='text-lg font-semibold text-gray-900'>
               4. Instrumentos de Trading
             </h3>
           </div>
-          
-          <div className="space-y-4">
-            <div className="flex gap-2">
+
+          <div className='space-y-4'>
+            <div className='flex gap-2'>
               <Input
                 value={newInstrument}
                 onChange={(e) => setNewInstrument(e.target.value)}
-                placeholder="Ej: EURUSD, GBPUSD..."
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addInstrument())}
+                placeholder='Ej: EURUSD, GBPUSD...'
+                onKeyPress={(e) =>
+                  e.key === "Enter" && (e.preventDefault(), addInstrument())
+                }
               />
-              <Button type="button" onClick={addInstrument} variant="outline">
-                <Plus className="w-4 h-4" />
+              <Button type='button' onClick={addInstrument} variant='outline'>
+                <Plus className='w-4 h-4' />
               </Button>
             </div>
-            
+
             {formData.instrumentos_principales.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
+              <div className='flex gap-2 flex-wrap'>
                 {formData.instrumentos_principales.map((instrument, index) => (
-                  <Badge key={index} variant="secondary" className="px-3 py-1 gap-2">
+                  <Badge
+                    key={index}
+                    variant='secondary'
+                    className='px-3 py-1 gap-2'>
                     {instrument}
-                    <X 
-                      className="w-3 h-3 cursor-pointer" 
+                    <X
+                      className='w-3 h-3 cursor-pointer'
                       onClick={() => removeInstrument(index)}
                     />
                   </Badge>
@@ -592,34 +659,36 @@ export function TradingPlanForm({
         </section>
 
         {/* 5. Psicología y Disciplina */}
-        <section className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Brain className="w-6 h-6 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
+        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+          <div className='flex items-center gap-3 mb-4'>
+            <Brain className='w-6 h-6 text-purple-600' />
+            <h3 className='text-lg font-semibold text-gray-900'>
               5. Psicología y Disciplina
             </h3>
           </div>
-          
-          <div className="space-y-4">
-            <div className="flex gap-2">
+
+          <div className='space-y-4'>
+            <div className='flex gap-2'>
               <Textarea
                 value={newRule}
                 onChange={(e) => setNewRule(e.target.value)}
-                placeholder="Escribe una regla personal..."
-                className="min-h-[80px]"
+                placeholder='Escribe una regla personal...'
+                className='min-h-[80px]'
               />
-              <Button type="button" onClick={addRule} variant="outline">
-                <Plus className="w-4 h-4" />
+              <Button type='button' onClick={addRule} variant='outline'>
+                <Plus className='w-4 h-4' />
               </Button>
             </div>
-            
+
             {formData.reglas_personales.length > 0 && (
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 {formData.reglas_personales.map((rule, index) => (
-                  <div key={index} className="flex items-start gap-2 p-3 bg-gray-50 rounded-md">
-                    <span className="text-sm text-gray-700 flex-1">{rule}</span>
-                    <X 
-                      className="w-4 h-4 cursor-pointer text-gray-400 hover:text-red-500 mt-0.5" 
+                  <div
+                    key={index}
+                    className='flex items-start gap-2 p-3 bg-gray-50 rounded-md'>
+                    <span className='text-sm text-gray-700 flex-1'>{rule}</span>
+                    <X
+                      className='w-4 h-4 cursor-pointer text-gray-400 hover:text-red-500 mt-0.5'
                       onClick={() => removeRule(index)}
                     />
                   </div>
@@ -630,51 +699,56 @@ export function TradingPlanForm({
         </section>
 
         {/* 6. Estrategia */}
-        <section className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Settings className="w-6 h-6 text-indigo-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
+        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+          <div className='flex items-center gap-3 mb-4'>
+            <Settings className='w-6 h-6 text-indigo-600' />
+            <h3 className='text-lg font-semibold text-gray-900'>
               6. Estrategia
             </h3>
           </div>
-          
+
           <div>
-            <label htmlFor="strategy" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor='strategy'
+              className='block text-sm font-medium text-gray-700 mb-1'>
               Estrategia a Utilizar
             </label>
-            <Select 
-              value={formData.strategy_id} 
-              onValueChange={(value) => handleInputChange("strategy_id", value)}
-            >
+            <Select
+              value={formData.strategy_id}
+              onValueChange={(value) =>
+                handleInputChange("strategy_id", value)
+              }>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona una estrategia" />
+                <SelectValue placeholder='Selecciona una estrategia' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Sin estrategia específica</SelectItem>
+                <SelectItem value='none'>Sin estrategia específica</SelectItem>
                 {strategies.map((strategy) => (
-                  <SelectItem key={strategy.id} value={strategy.id?.toString() || ""}>
+                  <SelectItem
+                    key={strategy.id}
+                    value={strategy.id?.toString() || ""}>
                     {strategy.nombre}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-gray-500 mt-1">
-              * Futura implementación: Checklist automático basado en la estrategia seleccionada
+            <p className='text-xs text-gray-500 mt-1'>
+              * Futura implementación: Checklist automático basado en la
+              estrategia seleccionada
             </p>
           </div>
         </section>
 
         {/* Botones */}
-        <div className="flex justify-end gap-3 pt-6 border-t">
-          <Button type="button" variant="outline" onClick={onCancel}>
+        <div className='flex justify-end gap-3 pt-6 border-t'>
+          <Button type='button' variant='outline' onClick={onCancel}>
             Cancelar
           </Button>
-          <Button 
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700"
-            disabled={Object.values(errors).some((e) => e) || !formData.nombre}
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
+          <Button
+            type='submit'
+            className='bg-blue-600 hover:bg-blue-700'
+            disabled={Object.values(errors).some((e) => e) || !formData.nombre}>
+            <CheckCircle className='w-4 h-4 mr-2' />
             {isEditing ? "Actualizar" : "Crear"} Plan
           </Button>
         </div>
