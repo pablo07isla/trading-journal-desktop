@@ -15,16 +15,6 @@ import {
   Target,
   BarChart3,
 } from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  ReferenceLine,
-} from "recharts";
 
 // Importar tipos MT5 y hook personalizado
 import type {
@@ -35,6 +25,7 @@ import type {
 } from "@/types/mt5";
 import { useMT5Data } from "@/hooks/useMT5Data";
 import PnLDistributionChart from "@/components/charts/PnLDistributionChart";
+import EquityCurveChart from "@/components/charts/EquityCurveChart";
 
 const MT5Dashboard: React.FC = () => {
   // Estados para filtros
@@ -122,36 +113,6 @@ const MT5Dashboard: React.FC = () => {
     () => calculateAdvancedMetrics(trades),
     [trades, calculateAdvancedMetrics]
   );
-
-  // Preparar datos para equity curve
-  const equityCurveData = useMemo(() => {
-    if (!equityCurve.length) return [];
-
-    let runningEquity = 0;
-    return equityCurve.map((item, index) => {
-      runningEquity += item.netPnL;
-      return {
-        date: new Date(item.open_time).toLocaleDateString(),
-        equity: runningEquity,
-        value: runningEquity,
-        index,
-      };
-    });
-  }, [equityCurve]);
-
-  // Función para gradiente del equity curve
-  const gradientOffset = () => {
-    if (!equityCurveData.length) return 0;
-    const dataMax = Math.max(...equityCurveData.map((i) => i.equity));
-    const dataMin = Math.min(...equityCurveData.map((i) => i.equity));
-
-    if (dataMax <= 0) return 0;
-    if (dataMin >= 0) return 1;
-
-    return dataMax / (dataMax - dataMin);
-  };
-
-  const off = gradientOffset();
 
   // Obtener balance inicial para cálculo de porcentaje
   const getInitialBalance = () => {
@@ -418,47 +379,10 @@ const MT5Dashboard: React.FC = () => {
       </div>
 
       {/* Equity Curve */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Curva de Equity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {equityCurveData.length > 0 ? (
-            <div className='h-80'>
-              <ResponsiveContainer width='100%' height='100%'>
-                <AreaChart data={equityCurveData}>
-                  <defs>
-                    <linearGradient id='splitColor' x1='0' y1='0' x2='0' y2='1'>
-                      <stop offset={off} stopColor='green' stopOpacity={1} />
-                      <stop offset={off} stopColor='red' stopOpacity={1} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray='3 3' />
-                  <XAxis dataKey='date' />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value: number) => [
-                      `$${value.toFixed(2)}`,
-                      "Equity",
-                    ]}
-                  />
-                  <ReferenceLine y={0} stroke='#666' strokeDasharray='3 3' />
-                  <Area
-                    type='monotone'
-                    dataKey='equity'
-                    stroke='#8884d8'
-                    fill='url(#splitColor)'
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className='h-80 flex items-center justify-center text-gray-500'>
-              <p>No hay datos de equity disponibles</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <EquityCurveChart 
+        data={equityCurve} 
+        initialBalance={initialBalance}
+      />
 
       {/* Gráfico de Distribución P&L */}
       <PnLDistributionChart data={pnlDistribution} />

@@ -5,8 +5,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
   Cell,
 } from "recharts";
@@ -17,6 +15,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import type { MT5PnLDistributionItem } from "../../types/mt5";
 
 interface PnLDistributionChartProps {
@@ -30,6 +34,20 @@ const PnLDistributionChart: React.FC<PnLDistributionChartProps> = ({
   title = "Distribución de P&L",
   className,
 }) => {
+  // Chart configuration
+  const chartConfig = {
+    count: {
+      label: "Número de Trades",
+    },
+    profit: {
+      label: "Ganancia",
+      color: "hsl(var(--chart-1))",
+    },
+    loss: {
+      label: "Pérdida",
+      color: "hsl(var(--chart-5))",
+    },
+  } satisfies ChartConfig;
   // Procesar datos para crear histograma
   const processDataForHistogram = (trades: MT5PnLDistributionItem[]) => {
     if (trades.length === 0) return [];
@@ -93,38 +111,6 @@ const PnLDistributionChart: React.FC<PnLDistributionChartProps> = ({
       ? (data.reduce((sum, t) => sum + t.netPnL, 0) / totalTrades).toFixed(2)
       : "0.00";
 
-  // Tooltip customizado
-  const CustomTooltip = ({
-    active,
-    payload,
-    label,
-  }: {
-    active?: boolean;
-    payload?: Array<{
-      payload: {
-        range: string;
-        count: number;
-        midpoint: number;
-        isProfit: boolean;
-      };
-    }>;
-    label?: string;
-  }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className='bg-white p-3 border rounded-lg shadow-lg'>
-          <p className='font-medium'>{`Rango: $${label}`}</p>
-          <p className='text-sm text-gray-600'>{`Trades: ${data.count}`}</p>
-          <p className='text-sm text-gray-600'>
-            {`Punto medio: $${data.midpoint.toFixed(2)}`}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <Card className={className}>
       <CardHeader>
@@ -135,44 +121,55 @@ const PnLDistributionChart: React.FC<PnLDistributionChartProps> = ({
       </CardHeader>
       <CardContent>
         {histogramData.length > 0 ? (
-          <div className='h-80'>
-            <ResponsiveContainer width='100%' height='100%'>
-              <BarChart
-                data={histogramData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                barCategoryGap='5%'>
-                <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
-                <XAxis
-                  dataKey='range'
-                  fontSize={12}
-                  tick={{ fontSize: 10 }}
-                  angle={-45}
-                  textAnchor='end'
-                  height={80}
-                />
-                <YAxis
-                  fontSize={12}
-                  label={{
-                    value: "Número de Trades",
-                    angle: -90,
-                    position: "insideLeft",
-                  }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <ReferenceLine x={0} stroke='#666' strokeDasharray='2 2' />
-                <Bar dataKey='count' radius={[2, 2, 0, 0]}>
-                  {histogramData.map((entry, index) => (
-                    <Cell
-                      key={index}
-                      fill={entry.isProfit ? "#10b981" : "#ef4444"}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer config={chartConfig} className='min-h-[320px] w-full'>
+            <BarChart
+              accessibilityLayer
+              data={histogramData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+              barCategoryGap='5%'>
+              <CartesianGrid strokeDasharray='3 3' vertical={false} />
+              <XAxis
+                dataKey='range'
+                fontSize={12}
+                tick={{ fontSize: 10 }}
+                angle={-45}
+                textAnchor='end'
+                height={80}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                label={{
+                  value: "Número de Trades",
+                  angle: -90,
+                  position: "insideLeft",
+                }}
+              />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ReferenceLine
+                x={0}
+                stroke='hsl(var(--border))'
+                strokeDasharray='2 2'
+              />
+              <Bar dataKey='count' radius={[2, 2, 0, 0]}>
+                {histogramData.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={
+                      entry.isProfit
+                        ? "hsl(var(--chart-1))"
+                        : "hsl(var(--chart-5))"
+                    }
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ChartContainer>
         ) : (
-          <div className='h-80 flex items-center justify-center text-gray-500'>
+          <div className='min-h-[320px] flex items-center justify-center text-muted-foreground'>
             <div className='text-center'>
               <p className='text-lg mb-2'>No hay datos disponibles</p>
               <p className='text-sm'>
@@ -186,27 +183,33 @@ const PnLDistributionChart: React.FC<PnLDistributionChartProps> = ({
         {histogramData.length > 0 && (
           <div className='mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t'>
             <div className='text-center'>
-              <p className='text-2xl font-bold text-green-600'>{winTrades}</p>
-              <p className='text-xs text-gray-500'>Trades Ganadores</p>
+              <p className='text-2xl font-bold text-green-600 dark:text-green-400'>
+                {winTrades}
+              </p>
+              <p className='text-xs text-muted-foreground'>Trades Ganadores</p>
             </div>
             <div className='text-center'>
-              <p className='text-2xl font-bold text-red-600'>
+              <p className='text-2xl font-bold text-red-600 dark:text-red-400'>
                 {totalTrades - winTrades}
               </p>
-              <p className='text-xs text-gray-500'>Trades Perdedores</p>
+              <p className='text-xs text-muted-foreground'>Trades Perdedores</p>
             </div>
             <div className='text-center'>
-              <p className='text-2xl font-bold text-blue-600'>{winRate}%</p>
-              <p className='text-xs text-gray-500'>Win Rate</p>
+              <p className='text-2xl font-bold text-blue-600 dark:text-blue-400'>
+                {winRate}%
+              </p>
+              <p className='text-xs text-muted-foreground'>Win Rate</p>
             </div>
             <div className='text-center'>
               <p
                 className={`text-2xl font-bold ${
-                  parseFloat(avgPnL) >= 0 ? "text-green-600" : "text-red-600"
+                  parseFloat(avgPnL) >= 0
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"
                 }`}>
                 ${avgPnL}
               </p>
-              <p className='text-xs text-gray-500'>P&L Promedio</p>
+              <p className='text-xs text-muted-foreground'>P&L Promedio</p>
             </div>
           </div>
         )}
