@@ -99,6 +99,24 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getPlanProgress: (planId: number) =>
     ipcRenderer.invoke("db:get-plan-progress", planId),
 
+  // ============ NUEVOS MÉTODOS MT5 PARA DASHBOARD ============
+
+  // Métodos MT5 avanzados para dashboard
+  getMT5TradesWithFilters: (filters?: any) =>
+    ipcRenderer.invoke("db:get-mt5-trades-with-filters", filters),
+  getMT5TradesMetrics: (filters?: any) =>
+    ipcRenderer.invoke("db:get-mt5-trades-metrics", filters),
+  getMT5PnLDistribution: (filters?: any) =>
+    ipcRenderer.invoke("db:get-mt5-pnl-distribution", filters),
+  getMT5UniqueSymbols: () => ipcRenderer.invoke("db:get-mt5-unique-symbols"),
+  getMT5EquityCurve: (filters?: any) =>
+    ipcRenderer.invoke("db:get-mt5-equity-curve", filters),
+  getMT5MetricsBySymbol: (filters?: any) =>
+    ipcRenderer.invoke("db:get-mt5-metrics-by-symbol", filters),
+  getMT5MetricsByAccount: (filters?: any) =>
+    ipcRenderer.invoke("db:get-mt5-metrics-by-account", filters),
+  getMT5AccountsFromDB: () => ipcRenderer.invoke("db:get-mt5-accounts"),
+
   // Add more methods for attachments, settings, etc.
 });
 
@@ -165,6 +183,80 @@ declare global {
         error?: string;
       }>;
       forceUpdateMT5CreatedAt: () => Promise<{
+        success: boolean;
+        data?: any[];
+        error?: string;
+      }>;
+
+      // ============ NUEVOS MÉTODOS MT5 PARA DASHBOARD ============
+
+      // Métodos MT5 avanzados para dashboard
+      getMT5TradesWithFilters: (filters?: {
+        accountId?: number;
+        symbol?: string;
+        tradeType?: "BUY" | "SELL";
+        magicNumber?: number;
+        dateFrom?: string;
+        dateTo?: string;
+        onlyClosedTrades?: boolean;
+      }) => Promise<{
+        success: boolean;
+        data?: any[];
+        error?: string;
+      }>;
+      getMT5TradesMetrics: (filters?: {
+        accountId?: number;
+        symbol?: string;
+        dateFrom?: string;
+        dateTo?: string;
+      }) => Promise<{
+        success: boolean;
+        data?: any;
+        error?: string;
+      }>;
+      getMT5PnLDistribution: (filters?: {
+        accountId?: number;
+        symbol?: string;
+        dateFrom?: string;
+        dateTo?: string;
+      }) => Promise<{
+        success: boolean;
+        data?: any[];
+        error?: string;
+      }>;
+      getMT5UniqueSymbols: () => Promise<{
+        success: boolean;
+        data?: string[];
+        error?: string;
+      }>;
+      getMT5EquityCurve: (filters?: {
+        accountId?: number;
+        symbol?: string;
+        dateFrom?: string;
+        dateTo?: string;
+      }) => Promise<{
+        success: boolean;
+        data?: any[];
+        error?: string;
+      }>;
+      getMT5MetricsBySymbol: (filters?: {
+        accountId?: number;
+        dateFrom?: string;
+        dateTo?: string;
+      }) => Promise<{
+        success: boolean;
+        data?: any[];
+        error?: string;
+      }>;
+      getMT5MetricsByAccount: (filters?: {
+        dateFrom?: string;
+        dateTo?: string;
+      }) => Promise<{
+        success: boolean;
+        data?: any[];
+        error?: string;
+      }>;
+      getMT5AccountsFromDB: () => Promise<{
         success: boolean;
         data?: any[];
         error?: string;

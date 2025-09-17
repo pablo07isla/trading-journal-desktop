@@ -24,6 +24,11 @@ const navLinks = [
     description: "Vista general",
   },
   {
+    to: "/mt5dashboard",
+    label: "Dashboard MT5",
+    description: "Análisis de datos MT5",
+  },
+  {
     to: "/trades",
     label: "Trade Log",
     description: "Historial de operaciones",

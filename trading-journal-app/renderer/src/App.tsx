@@ -1,6 +1,7 @@
 import React from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "@/pages/Dashboard";
+import MT5Dashboard from "@/pages/MT5Dashboard";
 import TradeLog from "@/pages/TradeLog";
 import Settings from "@/pages/Settings";
 import { TradingAccounts } from "@/pages/TradingAccounts";
@@ -15,6 +16,7 @@ const App: React.FC = () => (
     <Routes>
       <Route path='/' element={<Layout />}>
         <Route index element={<Dashboard />} />
+        <Route path='mt5dashboard' element={<MT5Dashboard />} />
         <Route path='trades' element={<TradeLog />} />
         <Route path='accounts' element={<TradingAccounts />} />
         <Route path='mt5import' element={<MT5Import />} />

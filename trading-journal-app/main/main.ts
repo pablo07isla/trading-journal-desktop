@@ -390,6 +390,154 @@ ipcMain.handle("force-update-mt5-created-at", async () => {
 
 // ============ TRADING PLANS IPC HANDLERS ============
 
+// ============ NUEVOS HANDLERS IPC PARA DASHBOARD MT5 ============
+
+// Handler para obtener trades MT5 con filtros avanzados
+ipcMain.handle("db:get-mt5-trades-with-filters", async (_event, filters) => {
+  try {
+    console.log("IPC get-mt5-trades-with-filters:", filters);
+    const trades = await dbManager.getMT5TradesWithFilters(filters);
+    return { success: true, data: trades };
+  } catch (error) {
+    console.error("IPC get-mt5-trades-with-filters: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener métricas básicas de MT5 trades
+ipcMain.handle("db:get-mt5-trades-metrics", async (_event, filters) => {
+  try {
+    console.log("IPC get-mt5-trades-metrics:", filters);
+    const metrics = await dbManager.getMT5TradesMetrics(filters);
+    return { success: true, data: metrics };
+  } catch (error) {
+    console.error("IPC get-mt5-trades-metrics: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener distribución de P&L
+ipcMain.handle("db:get-mt5-pnl-distribution", async (_event, filters) => {
+  try {
+    console.log("IPC get-mt5-pnl-distribution:", filters);
+    const distribution = await dbManager.getMT5PnLDistribution(filters);
+    return { success: true, data: distribution };
+  } catch (error) {
+    console.error("IPC get-mt5-pnl-distribution: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener símbolos únicos
+ipcMain.handle("db:get-mt5-unique-symbols", async () => {
+  try {
+    console.log("IPC get-mt5-unique-symbols");
+    const symbols = await dbManager.getMT5UniqueSymbols();
+    return { success: true, data: symbols };
+  } catch (error) {
+    console.error("IPC get-mt5-unique-symbols: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener datos de equity curve MT5
+ipcMain.handle("db:get-mt5-equity-curve", async (_event, filters) => {
+  try {
+    console.log("IPC get-mt5-equity-curve:", filters);
+    const equityCurve = await dbManager.getMT5EquityCurve(filters);
+    return { success: true, data: equityCurve };
+  } catch (error) {
+    console.error("IPC get-mt5-equity-curve: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener métricas por símbolo
+ipcMain.handle("db:get-mt5-metrics-by-symbol", async (_event, filters) => {
+  try {
+    console.log("IPC get-mt5-metrics-by-symbol:", filters);
+    const metrics = await dbManager.getMT5MetricsBySymbol(filters);
+    return { success: true, data: metrics };
+  } catch (error) {
+    console.error("IPC get-mt5-metrics-by-symbol: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener métricas por cuenta
+ipcMain.handle("db:get-mt5-metrics-by-account", async (_event, filters) => {
+  try {
+    console.log("IPC get-mt5-metrics-by-account:", filters);
+    const metrics = await dbManager.getMT5MetricsByAccount(filters);
+    return { success: true, data: metrics };
+  } catch (error) {
+    console.error("IPC get-mt5-metrics-by-account: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// Handler para obtener cuentas MT5 desde db-manager (para dashboard)
+ipcMain.handle("db:get-mt5-accounts", async () => {
+  try {
+    console.log("IPC db:get-mt5-accounts");
+    const accounts = await dbManager.getMT5Accounts();
+    return { success: true, data: accounts };
+  } catch (error) {
+    console.error("IPC db:get-mt5-accounts: Error:", error);
+    return {
+      success: false,
+      error:
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error),
+    };
+  }
+});
+
+// ============ TRADING PLANS IPC HANDLERS ============
+
 // Handler para crear un plan de trading
 ipcMain.handle("db:create-trading-plan", async (_event, planData) => {
   try {

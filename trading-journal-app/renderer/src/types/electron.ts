@@ -1,7 +1,15 @@
+import type {
+  MT5TradesMetrics,
+  MT5PnLDistributionItem,
+  MT5EquityCurveItem,
+  MT5MetricsBySymbol,
+  MT5MetricsByAccount,
+} from "./mt5";
+
 // Shared type for grouped MT5 trades
 export interface MT5TradeInsertData {
   account_id: number;
-  position_id: string | number;
+  position_id: bigint;
   symbol: string;
   trade_type: "BUY" | "SELL";
   volume: number;
@@ -12,7 +20,7 @@ export interface MT5TradeInsertData {
   profit: number;
   commission: number;
   swap: number;
-  magic_number?: string | number;
+  magic_number?: bigint;
   comment?: string;
 }
 
@@ -349,6 +357,80 @@ export interface ElectronAPI {
   getPlanProgress: (planId: number) => Promise<{
     success: boolean;
     data?: PlanProgress;
+    error?: string;
+  }>;
+
+  // ============ NUEVOS MÉTODOS MT5 PARA DASHBOARD ============
+
+  // Métodos MT5 avanzados para dashboard
+  getMT5TradesWithFilters: (filters?: {
+    accountId?: number;
+    symbol?: string;
+    tradeType?: "BUY" | "SELL";
+    magicNumber?: number;
+    dateFrom?: string;
+    dateTo?: string;
+    onlyClosedTrades?: boolean;
+  }) => Promise<{
+    success: boolean;
+    data?: MT5TradeData[];
+    error?: string;
+  }>;
+  getMT5TradesMetrics: (filters?: {
+    accountId?: number;
+    symbol?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => Promise<{
+    success: boolean;
+    data?: MT5TradesMetrics;
+    error?: string;
+  }>;
+  getMT5PnLDistribution: (filters?: {
+    accountId?: number;
+    symbol?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => Promise<{
+    success: boolean;
+    data?: MT5PnLDistributionItem[];
+    error?: string;
+  }>;
+  getMT5UniqueSymbols: () => Promise<{
+    success: boolean;
+    data?: string[];
+    error?: string;
+  }>;
+  getMT5EquityCurve: (filters?: {
+    accountId?: number;
+    symbol?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => Promise<{
+    success: boolean;
+    data?: MT5EquityCurveItem[];
+    error?: string;
+  }>;
+  getMT5MetricsBySymbol: (filters?: {
+    accountId?: number;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => Promise<{
+    success: boolean;
+    data?: MT5MetricsBySymbol[];
+    error?: string;
+  }>;
+  getMT5MetricsByAccount: (filters?: {
+    dateFrom?: string;
+    dateTo?: string;
+  }) => Promise<{
+    success: boolean;
+    data?: MT5MetricsByAccount[];
+    error?: string;
+  }>;
+  getMT5AccountsFromDB: () => Promise<{
+    success: boolean;
+    data?: MT5Account[];
     error?: string;
   }>;
 }

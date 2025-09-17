@@ -460,6 +460,415 @@ export class DatabaseManager {
     return stmt.get(accountId);
   }
 
+  // ============ NUEVOS MÉTODOS PARA DASHBOARD MT5 ============
+
+  // Método para obtener todos los trades MT5 con filtros avanzados
+  getMT5TradesWithFilters(filters?: {
+    accountId?: number;
+    symbol?: string;
+    tradeType?: "BUY" | "SELL";
+    magicNumber?: number;
+    dateFrom?: string;
+    dateTo?: string;
+    onlyClosedTrades?: boolean;
+  }): MT5TradeData[] {
+    console.log("DatabaseManager.getMT5TradesWithFilters:", filters);
+
+    let query = `
+      SELECT 
+        trade_id,
+        account_id,
+        position_id,
+        symbol,
+        trade_type,
+        volume,
+        open_time,
+        open_price,
+        close_time,
+        close_price,
+        profit,
+        commission,
+        swap,
+        magic_number,
+        comment,
+        strategy_id,
+        description,
+        notes,
+        created_at
+      FROM mt5_trades
+      WHERE 1=1
+    `;
+
+    const params: any[] = [];
+
+    if (filters?.accountId) {
+      query += ` AND account_id = ?`;
+      params.push(filters.accountId);
+    }
+
+    if (filters?.symbol) {
+      query += ` AND symbol = ?`;
+      params.push(filters.symbol);
+    }
+
+    if (filters?.tradeType) {
+      query += ` AND trade_type = ?`;
+      params.push(filters.tradeType);
+    }
+
+    if (filters?.magicNumber) {
+      query += ` AND magic_number = ?`;
+      params.push(filters.magicNumber);
+    }
+
+    if (filters?.dateFrom) {
+      query += ` AND open_time >= ?`;
+      params.push(filters.dateFrom);
+    }
+
+    if (filters?.dateTo) {
+      query += ` AND open_time <= ?`;
+      params.push(filters.dateTo);
+    }
+
+    if (filters?.onlyClosedTrades) {
+      query += ` AND close_time IS NOT NULL`;
+    }
+
+    query += ` ORDER BY open_time DESC`;
+
+    try {
+      const stmt = this.db.prepare(query);
+      const results = stmt.all(...params) as MT5TradeData[];
+
+      console.log("getMT5TradesWithFilters results:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error en getMT5TradesWithFilters:", error);
+      return [];
+    }
+  }
+
+  // Método para obtener métricas básicas de MT5 trades
+  getMT5TradesMetrics(filters?: {
+    accountId?: number;
+    symbol?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
+    console.log("DatabaseManager.getMT5TradesMetrics:", filters);
+
+    let query = `
+      SELECT 
+        COUNT(*) as totalTrades,
+        COUNT(CASE WHEN close_time IS NOT NULL THEN 1 END) as closedTrades,
+        COUNT(CASE WHEN close_time IS NULL THEN 1 END) as openTrades,
+        SUM(CASE WHEN (profit + commission + swap) > 0 AND close_time IS NOT NULL THEN 1 ELSE 0 END) as winTrades,
+        SUM(CASE WHEN (profit + commission + swap) < 0 AND close_time IS NOT NULL THEN 1 ELSE 0 END) as loseTrades,
+        SUM(CASE WHEN (profit + commission + swap) = 0 AND close_time IS NOT NULL THEN 1 ELSE 0 END) as breakEvenTrades,
+        SUM(profit) as totalProfit,
+        SUM(commission) as totalCommission,
+        SUM(swap) as totalSwap,
+        SUM(profit + commission + swap) as netPnL,
+        AVG(profit + commission + swap) as avgProfit,
+        MAX(profit + commission + swap) as maxProfit,
+        MIN(profit + commission + swap) as minProfit,
+        SUM(CASE WHEN (profit + commission + swap) > 0 THEN (profit + commission + swap) ELSE 0 END) as grossProfit,
+        SUM(CASE WHEN (profit + commission + swap) < 0 THEN ABS(profit + commission + swap) ELSE 0 END) as grossLoss,
+        AVG(volume) as avgVolume,
+        SUM(volume) as totalVolume
+      FROM mt5_trades
+      WHERE 1=1
+    `;
+
+    const params: any[] = [];
+
+    if (filters?.accountId) {
+      query += ` AND account_id = ?`;
+      params.push(filters.accountId);
+    }
+
+    if (filters?.symbol) {
+      query += ` AND symbol = ?`;
+      params.push(filters.symbol);
+    }
+
+    if (filters?.dateFrom) {
+      query += ` AND open_time >= ?`;
+      params.push(filters.dateFrom);
+    }
+
+    if (filters?.dateTo) {
+      query += ` AND open_time <= ?`;
+      params.push(filters.dateTo);
+    }
+
+    try {
+      const stmt = this.db.prepare(query);
+      const result = stmt.get(...params);
+
+      console.log("getMT5TradesMetrics result:", result);
+      return result;
+    } catch (error) {
+      console.error("Error en getMT5TradesMetrics:", error);
+      return {
+        totalTrades: 0,
+        closedTrades: 0,
+        openTrades: 0,
+        winTrades: 0,
+        loseTrades: 0,
+        breakEvenTrades: 0,
+        totalProfit: 0,
+        totalCommission: 0,
+        totalSwap: 0,
+        netPnL: 0,
+        avgProfit: 0,
+        maxProfit: 0,
+        minProfit: 0,
+        grossProfit: 0,
+        grossLoss: 0,
+        avgVolume: 0,
+        totalVolume: 0,
+      };
+    }
+  }
+
+  // Método para obtener distribución de P&L para el histograma
+  getMT5PnLDistribution(filters?: {
+    accountId?: number;
+    symbol?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
+    console.log("DatabaseManager.getMT5PnLDistribution:", filters);
+
+    let query = `
+      SELECT 
+        profit,
+        commission,
+        swap,
+        (profit + commission + swap) as netPnL,
+        symbol,
+        trade_type as tradeType,
+        open_time as openTime
+      FROM mt5_trades
+      WHERE close_time IS NOT NULL
+    `;
+
+    const params: any[] = [];
+
+    if (filters?.accountId) {
+      query += ` AND account_id = ?`;
+      params.push(filters.accountId);
+    }
+
+    if (filters?.symbol) {
+      query += ` AND symbol = ?`;
+      params.push(filters.symbol);
+    }
+
+    if (filters?.dateFrom) {
+      query += ` AND open_time >= ?`;
+      params.push(filters.dateFrom);
+    }
+
+    if (filters?.dateTo) {
+      query += ` AND open_time <= ?`;
+      params.push(filters.dateTo);
+    }
+
+    query += ` ORDER BY open_time DESC`;
+
+    try {
+      const stmt = this.db.prepare(query);
+      const results = stmt.all(...params);
+
+      console.log("getMT5PnLDistribution results:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error en getMT5PnLDistribution:", error);
+      return [];
+    }
+  }
+
+  // Método para obtener símbolos únicos disponibles en MT5 trades
+  getMT5UniqueSymbols(): string[] {
+    console.log("DatabaseManager.getMT5UniqueSymbols");
+
+    try {
+      const stmt = this.db.prepare(`
+        SELECT DISTINCT symbol
+        FROM mt5_trades
+        WHERE symbol IS NOT NULL
+        ORDER BY symbol
+      `);
+
+      const results = stmt.all() as { symbol: string }[];
+      const symbols = results.map((r) => r.symbol);
+
+      console.log("getMT5UniqueSymbols results:", symbols);
+      return symbols;
+    } catch (error) {
+      console.error("Error en getMT5UniqueSymbols:", error);
+      return [];
+    }
+  }
+
+  // Método para obtener datos de equity curve basados en MT5 trades
+  getMT5EquityCurve(filters?: {
+    accountId?: number;
+    symbol?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
+    console.log("DatabaseManager.getMT5EquityCurve:", filters);
+
+    let query = `
+      SELECT 
+        open_time,
+        profit,
+        commission,
+        swap,
+        (profit + commission + swap) as netPnL
+      FROM mt5_trades
+      WHERE close_time IS NOT NULL
+    `;
+
+    const params: any[] = [];
+
+    if (filters?.accountId) {
+      query += ` AND account_id = ?`;
+      params.push(filters.accountId);
+    }
+
+    if (filters?.symbol) {
+      query += ` AND symbol = ?`;
+      params.push(filters.symbol);
+    }
+
+    if (filters?.dateFrom) {
+      query += ` AND open_time >= ?`;
+      params.push(filters.dateFrom);
+    }
+
+    if (filters?.dateTo) {
+      query += ` AND open_time <= ?`;
+      params.push(filters.dateTo);
+    }
+
+    query += ` ORDER BY open_time ASC`;
+
+    try {
+      const stmt = this.db.prepare(query);
+      const results = stmt.all(...params);
+
+      console.log("getMT5EquityCurve results:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error en getMT5EquityCurve:", error);
+      return [];
+    }
+  }
+
+  // Método para obtener métricas agrupadas por símbolo
+  getMT5MetricsBySymbol(filters?: {
+    accountId?: number;
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
+    console.log("DatabaseManager.getMT5MetricsBySymbol:", filters);
+
+    let query = `
+      SELECT 
+        symbol,
+        COUNT(*) as totalTrades,
+        SUM(CASE WHEN profit > 0 AND close_time IS NOT NULL THEN 1 ELSE 0 END) as winTrades,
+        SUM(profit + commission + swap) as netPnL,
+        AVG(profit) as avgProfit,
+        MAX(profit) as maxProfit,
+        MIN(profit) as minProfit,
+        SUM(volume) as totalVolume
+      FROM mt5_trades
+      WHERE close_time IS NOT NULL
+    `;
+
+    const params: any[] = [];
+
+    if (filters?.accountId) {
+      query += ` AND account_id = ?`;
+      params.push(filters.accountId);
+    }
+
+    if (filters?.dateFrom) {
+      query += ` AND open_time >= ?`;
+      params.push(filters.dateFrom);
+    }
+
+    if (filters?.dateTo) {
+      query += ` AND open_time <= ?`;
+      params.push(filters.dateTo);
+    }
+
+    query += ` GROUP BY symbol ORDER BY netPnL DESC`;
+
+    try {
+      const stmt = this.db.prepare(query);
+      const results = stmt.all(...params);
+
+      console.log("getMT5MetricsBySymbol results:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error en getMT5MetricsBySymbol:", error);
+      return [];
+    }
+  }
+
+  // Método para obtener métricas agrupadas por cuenta MT5
+  getMT5MetricsByAccount(filters?: { dateFrom?: string; dateTo?: string }) {
+    console.log("DatabaseManager.getMT5MetricsByAccount:", filters);
+
+    let query = `
+      SELECT 
+        t.account_id,
+        a.account_name,
+        COUNT(*) as totalTrades,
+        SUM(CASE WHEN t.profit > 0 AND t.close_time IS NOT NULL THEN 1 ELSE 0 END) as winTrades,
+        SUM(t.profit + t.commission + t.swap) as netPnL,
+        AVG(t.profit) as avgProfit,
+        MAX(t.profit) as maxProfit,
+        MIN(t.profit) as minProfit,
+        SUM(t.volume) as totalVolume
+      FROM mt5_trades t
+      LEFT JOIN mt5_accounts a ON t.account_id = a.account_id
+      WHERE t.close_time IS NOT NULL
+    `;
+
+    const params: any[] = [];
+
+    if (filters?.dateFrom) {
+      query += ` AND t.open_time >= ?`;
+      params.push(filters.dateFrom);
+    }
+
+    if (filters?.dateTo) {
+      query += ` AND t.open_time <= ?`;
+      params.push(filters.dateTo);
+    }
+
+    query += ` GROUP BY t.account_id, a.account_name ORDER BY netPnL DESC`;
+
+    try {
+      const stmt = this.db.prepare(query);
+      const results = stmt.all(...params);
+
+      console.log("getMT5MetricsByAccount results:", results.length);
+      return results;
+    } catch (error) {
+      console.error("Error en getMT5MetricsByAccount:", error);
+      return [];
+    }
+  }
+
   private db: Database.Database;
 
   constructor() {

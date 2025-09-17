@@ -30,6 +30,7 @@ import {
   TrendingUp,
   Wallet,
   ClipboardList,
+  BarChart3,
 } from "lucide-react";
 import avatar from "@/assets/avataaars.svg";
 
@@ -40,6 +41,12 @@ const navigationItems = [
     url: "/",
     icon: Home,
     description: "Vista general",
+  },
+  {
+    title: "Dashboard MT5",
+    url: "/mt5dashboard",
+    icon: BarChart3,
+    description: "Análisis de datos MT5",
   },
   {
     title: "Trade Log",
