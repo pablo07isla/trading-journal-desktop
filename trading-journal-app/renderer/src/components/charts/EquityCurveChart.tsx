@@ -75,18 +75,25 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
   const equityCurveData = processEquityCurveData(data);
 
   // Calcular estadísticas
-  const currentEquity = equityCurveData.length > 0 ? equityCurveData[equityCurveData.length - 1].equity : initialBalance;
+  const currentEquity =
+    equityCurveData.length > 0
+      ? equityCurveData[equityCurveData.length - 1].equity
+      : initialBalance;
   const totalReturn = currentEquity - initialBalance;
-  const totalReturnPercent = initialBalance > 0 ? ((totalReturn / initialBalance) * 100).toFixed(2) : "0.00";
-  
+  const totalReturnPercent =
+    initialBalance > 0
+      ? ((totalReturn / initialBalance) * 100).toFixed(2)
+      : "0.00";
+
   // Calcular drawdown máximo
   let maxEquity = initialBalance;
   let maxDrawdown = 0;
-  equityCurveData.forEach(point => {
+  equityCurveData.forEach((point) => {
     if (point.equity > maxEquity) {
       maxEquity = point.equity;
     }
-    const drawdown = maxEquity > 0 ? ((maxEquity - point.equity) / maxEquity) * 100 : 0;
+    const drawdown =
+      maxEquity > 0 ? ((maxEquity - point.equity) / maxEquity) * 100 : 0;
     if (drawdown > maxDrawdown) {
       maxDrawdown = drawdown;
     }
@@ -109,47 +116,53 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+        <CardTitle className='text-lg font-semibold'>{title}</CardTitle>
         <CardDescription>
-          {equityCurveData.length} trades • Return: {totalReturnPercent}% • Max DD: {maxDrawdown.toFixed(2)}%
+          {equityCurveData.length} trades • Return: {totalReturnPercent}% • Max
+          DD: {maxDrawdown.toFixed(2)}%
         </CardDescription>
       </CardHeader>
       <CardContent>
         {equityCurveData.length > 0 ? (
-          <ChartContainer config={chartConfig} className="min-h-[320px] w-full">
+          <ChartContainer config={chartConfig} className='min-h-[320px] w-full'>
             <AreaChart
               accessibilityLayer
               data={equityCurveData}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <defs>
-                <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop 
-                    offset={gradientOffset} 
-                    stopColor="hsl(var(--chart-1))" 
-                    stopOpacity={0.8} 
+                <linearGradient id='equityGradient' x1='0' y1='0' x2='0' y2='1'>
+                  <stop
+                    offset={gradientOffset}
+                    stopColor='hsl(var(--chart-1))'
+                    stopOpacity={0.8}
                   />
-                  <stop 
-                    offset={gradientOffset} 
-                    stopColor="hsl(var(--chart-5))" 
-                    stopOpacity={0.8} 
+                  <stop
+                    offset={gradientOffset}
+                    stopColor='hsl(var(--chart-5))'
+                    stopOpacity={0.8}
                   />
                 </linearGradient>
-                <linearGradient id="equityGradientFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop 
-                    offset={gradientOffset} 
-                    stopColor="hsl(var(--chart-1))" 
-                    stopOpacity={0.2} 
+                <linearGradient
+                  id='equityGradientFill'
+                  x1='0'
+                  y1='0'
+                  x2='0'
+                  y2='1'>
+                  <stop
+                    offset={gradientOffset}
+                    stopColor='hsl(var(--chart-1))'
+                    stopOpacity={0.2}
                   />
-                  <stop 
-                    offset={gradientOffset} 
-                    stopColor="hsl(var(--chart-5))" 
-                    stopOpacity={0.2} 
+                  <stop
+                    offset={gradientOffset}
+                    stopColor='hsl(var(--chart-5))'
+                    stopOpacity={0.2}
                   />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid strokeDasharray='3 3' vertical={false} />
               <XAxis
-                dataKey="date"
+                dataKey='date'
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
@@ -160,43 +173,45 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                 axisLine={false}
                 tickFormatter={(value) => `$${value.toFixed(0)}`}
               />
-              <ChartTooltip 
+              <ChartTooltip
                 content={
-                  <ChartTooltipContent 
+                  <ChartTooltipContent
                     formatter={(value, name) => [
                       `$${Number(value).toFixed(2)}`,
-                      name === "equity" ? "Equity" : String(name)
+                      name === "equity" ? "Equity" : String(name),
                     ]}
                     labelFormatter={(label, payload) => {
                       if (payload && payload.length > 0) {
-                        return `Fecha: ${payload[0]?.payload?.fullDate || label}`;
+                        return `Fecha: ${
+                          payload[0]?.payload?.fullDate || label
+                        }`;
                       }
                       return `Fecha: ${label}`;
                     }}
                   />
                 }
               />
-              <ReferenceLine 
-                y={initialBalance} 
-                stroke="hsl(var(--border))" 
-                strokeDasharray="3 3"
+              <ReferenceLine
+                y={initialBalance}
+                stroke='hsl(var(--border))'
+                strokeDasharray='3 3'
                 label={{ value: "Balance Inicial", position: "insideTopRight" }}
               />
               <Area
-                type="monotone"
-                dataKey="equity"
-                stroke="url(#equityGradient)"
+                type='monotone'
+                dataKey='equity'
+                stroke='url(#equityGradient)'
                 strokeWidth={2}
-                fill="url(#equityGradientFill)"
+                fill='url(#equityGradientFill)'
                 fillOpacity={0.6}
               />
             </AreaChart>
           </ChartContainer>
         ) : (
-          <div className="min-h-[320px] flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <p className="text-lg mb-2">No hay datos de equity disponibles</p>
-              <p className="text-sm">
+          <div className='min-h-[320px] flex items-center justify-center text-muted-foreground'>
+            <div className='text-center'>
+              <p className='text-lg mb-2'>No hay datos de equity disponibles</p>
+              <p className='text-sm'>
                 Importa trades MT5 para ver la curva de equity
               </p>
             </div>
@@ -205,40 +220,40 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
 
         {/* Estadísticas adicionales */}
         {equityCurveData.length > 0 && (
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">
+          <div className='mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t'>
+            <div className='text-center'>
+              <p className='text-2xl font-bold text-foreground'>
                 ${currentEquity.toFixed(2)}
               </p>
-              <p className="text-xs text-muted-foreground">Equity Actual</p>
+              <p className='text-xs text-muted-foreground'>Equity Actual</p>
             </div>
-            <div className="text-center">
-              <p 
+            <div className='text-center'>
+              <p
                 className={`text-2xl font-bold ${
-                  totalReturn >= 0 
-                    ? "text-green-600 dark:text-green-400" 
+                  totalReturn >= 0
+                    ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
                 ${totalReturn.toFixed(2)}
               </p>
-              <p className="text-xs text-muted-foreground">Return Total</p>
+              <p className='text-xs text-muted-foreground'>Return Total</p>
             </div>
-            <div className="text-center">
-              <p 
+            <div className='text-center'>
+              <p
                 className={`text-2xl font-bold ${
-                  parseFloat(totalReturnPercent) >= 0 
-                    ? "text-green-600 dark:text-green-400" 
+                  parseFloat(totalReturnPercent) >= 0
+                    ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
                 {totalReturnPercent}%
               </p>
-              <p className="text-xs text-muted-foreground">Return %</p>
+              <p className='text-xs text-muted-foreground'>Return %</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+            <div className='text-center'>
+              <p className='text-2xl font-bold text-red-600 dark:text-red-400'>
                 {maxDrawdown.toFixed(2)}%
               </p>
-              <p className="text-xs text-muted-foreground">Max Drawdown</p>
+              <p className='text-xs text-muted-foreground'>Max Drawdown</p>
             </div>
           </div>
         )}

@@ -379,10 +379,7 @@ const MT5Dashboard: React.FC = () => {
       </div>
 
       {/* Equity Curve */}
-      <EquityCurveChart 
-        data={equityCurve} 
-        initialBalance={initialBalance}
-      />
+      <EquityCurveChart data={equityCurve} initialBalance={initialBalance} />
 
       {/* Gráfico de Distribución P&L */}
       <PnLDistributionChart data={pnlDistribution} />
