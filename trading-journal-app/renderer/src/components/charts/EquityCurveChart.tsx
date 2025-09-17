@@ -27,6 +27,9 @@ interface EquityCurveChartProps {
   readonly title?: string;
   readonly className?: string;
   readonly initialBalance?: number;
+  readonly challengeMode?: boolean;
+  readonly challengeTarget?: number; // Porcentaje para pasar el challenge (default: 8%)
+  readonly challengeStop?: number; // Porcentaje para perder el challenge (default: -10%)
 }
 
 const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
@@ -34,6 +37,9 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
   title = "Curva de Equity",
   className,
   initialBalance = 0,
+  challengeMode = true,
+  challengeTarget = 8, // 8% para pasar
+  challengeStop = -10, // -10% para perder
 }) => {
   // Chart configuration
   const chartConfig = {
@@ -85,6 +91,41 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
       ? ((totalReturn / initialBalance) * 100).toFixed(2)
       : "0.00";
 
+  // Niveles del challenge
+  const challengeTargetLevel = initialBalance * (1 + challengeTarget / 100);
+  const challengeStopLevel = initialBalance * (1 + challengeStop / 100);
+
+  // Debug: Log para verificar valores
+  if (challengeMode && equityCurveData.length > 0) {
+    console.log("Challenge Debug:", {
+      initialBalance,
+      challengeTargetLevel,
+      challengeStopLevel,
+      currentEquity,
+      challengeTarget,
+      challengeStop,
+    });
+  }
+
+  // Estado del challenge
+  const challengeStatus = challengeMode
+    ? currentEquity >= challengeTargetLevel
+      ? "passed"
+      : currentEquity <= challengeStopLevel
+      ? "failed"
+      : "in-progress"
+    : null;
+
+  // Distancia a los objetivos del challenge
+  const distanceToTarget = challengeMode
+    ? (((challengeTargetLevel - currentEquity) / initialBalance) * 100).toFixed(
+        2
+      )
+    : "0.00";
+  const distanceToStop = challengeMode
+    ? (((currentEquity - challengeStopLevel) / initialBalance) * 100).toFixed(2)
+    : "0.00";
+
   // Calcular drawdown máximo
   let maxEquity = initialBalance;
   let maxDrawdown = 0;
@@ -111,6 +152,23 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
     return (dataMax - initialBalance) / (dataMax - dataMin);
   };
 
+  // Calcular el rango para el YAxis para asegurar que las líneas sean visibles
+  const getYAxisDomain = () => {
+    if (!challengeMode || equityCurveData.length === 0) {
+      return ["dataMin - 100", "dataMax + 100"];
+    }
+
+    const dataValues = equityCurveData.map((d) => d.equity);
+    const dataMin = Math.min(...dataValues);
+    const dataMax = Math.max(...dataValues);
+
+    // Asegurar que las líneas de referencia estén dentro del rango visible
+    const yMin = Math.min(dataMin, challengeStopLevel) * 0.95;
+    const yMax = Math.max(dataMax, challengeTargetLevel) * 1.05;
+
+    return [yMin, yMax];
+  };
+
   const gradientOffset = getGradientOffset();
 
   return (
@@ -120,6 +178,26 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
         <CardDescription>
           {equityCurveData.length} trades • Return: {totalReturnPercent}% • Max
           DD: {maxDrawdown.toFixed(2)}%
+          {challengeMode && (
+            <>
+              {" • "}
+              <span
+                className={
+                  challengeStatus === "passed"
+                    ? "text-green-600 dark:text-green-400"
+                    : challengeStatus === "failed"
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-blue-600 dark:text-blue-400"
+                }>
+                Challenge:{" "}
+                {challengeStatus === "passed"
+                  ? "PASADO"
+                  : challengeStatus === "failed"
+                  ? "FALLIDO"
+                  : "EN PROGRESO"}
+              </span>
+            </>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -172,6 +250,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) => `$${value.toFixed(0)}`}
+                domain={getYAxisDomain()}
               />
               <ChartTooltip
                 content={
@@ -197,6 +276,24 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                 strokeDasharray='3 3'
                 label={{ value: "Balance Inicial", position: "insideTopRight" }}
               />
+              {challengeMode && equityCurveData.length > 0 && (
+                <>
+                  {/* Target Line - Verde */}
+                  <ReferenceLine
+                    y={challengeTargetLevel}
+                    stroke='#10b981'
+                    strokeDasharray='8 4'
+                    strokeWidth={3}
+                  />
+                  {/* Stop Line - Rojo */}
+                  <ReferenceLine
+                    y={challengeStopLevel}
+                    stroke='#ef4444'
+                    strokeDasharray='8 4'
+                    strokeWidth={3}
+                  />
+                </>
+              )}
               <Area
                 type='monotone'
                 dataKey='equity'
@@ -220,41 +317,100 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
 
         {/* Estadísticas adicionales */}
         {equityCurveData.length > 0 && (
-          <div className='mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t'>
-            <div className='text-center'>
-              <p className='text-2xl font-bold text-foreground'>
-                ${currentEquity.toFixed(2)}
-              </p>
-              <p className='text-xs text-muted-foreground'>Equity Actual</p>
-            </div>
-            <div className='text-center'>
-              <p
-                className={`text-2xl font-bold ${
-                  totalReturn >= 0
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-600 dark:text-red-400"
-                }`}>
-                ${totalReturn.toFixed(2)}
-              </p>
-              <p className='text-xs text-muted-foreground'>Return Total</p>
-            </div>
-            <div className='text-center'>
-              <p
-                className={`text-2xl font-bold ${
-                  parseFloat(totalReturnPercent) >= 0
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-600 dark:text-red-400"
-                }`}>
-                {totalReturnPercent}%
-              </p>
-              <p className='text-xs text-muted-foreground'>Return %</p>
-            </div>
-            <div className='text-center'>
-              <p className='text-2xl font-bold text-red-600 dark:text-red-400'>
-                {maxDrawdown.toFixed(2)}%
-              </p>
-              <p className='text-xs text-muted-foreground'>Max Drawdown</p>
-            </div>
+          <div className='mt-4 pt-4 border-t'>
+            {challengeMode ? (
+              // Vista Challenge Mode
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                <div className='text-center'>
+                  <p className='text-2xl font-bold text-foreground'>
+                    ${currentEquity.toFixed(2)}
+                  </p>
+                  <p className='text-xs text-muted-foreground'>Equity Actual</p>
+                </div>
+                <div className='text-center'>
+                  <p
+                    className={`text-2xl font-bold ${
+                      parseFloat(totalReturnPercent) >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}>
+                    {totalReturnPercent}%
+                  </p>
+                  <p className='text-xs text-muted-foreground'>Return %</p>
+                </div>
+                <div className='text-center'>
+                  <p
+                    className={`text-2xl font-bold ${
+                      parseFloat(distanceToTarget) > 0
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-green-600 dark:text-green-400"
+                    }`}>
+                    {parseFloat(distanceToTarget) > 0
+                      ? distanceToTarget
+                      : "0.00"}
+                    %
+                  </p>
+                  <p className='text-xs text-muted-foreground'>
+                    {parseFloat(distanceToTarget) > 0
+                      ? "Para Target"
+                      : "Target Alcanzado"}
+                  </p>
+                </div>
+                <div className='text-center'>
+                  <p
+                    className={`text-2xl font-bold ${
+                      parseFloat(distanceToStop) > 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}>
+                    {parseFloat(distanceToStop) > 0 ? distanceToStop : "0.00"}%
+                  </p>
+                  <p className='text-xs text-muted-foreground'>
+                    {parseFloat(distanceToStop) > 0
+                      ? "Margen Stop"
+                      : "Stop Loss"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              // Vista Normal
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                <div className='text-center'>
+                  <p className='text-2xl font-bold text-foreground'>
+                    ${currentEquity.toFixed(2)}
+                  </p>
+                  <p className='text-xs text-muted-foreground'>Equity Actual</p>
+                </div>
+                <div className='text-center'>
+                  <p
+                    className={`text-2xl font-bold ${
+                      totalReturn >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}>
+                    ${totalReturn.toFixed(2)}
+                  </p>
+                  <p className='text-xs text-muted-foreground'>Return Total</p>
+                </div>
+                <div className='text-center'>
+                  <p
+                    className={`text-2xl font-bold ${
+                      parseFloat(totalReturnPercent) >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}>
+                    {totalReturnPercent}%
+                  </p>
+                  <p className='text-xs text-muted-foreground'>Return %</p>
+                </div>
+                <div className='text-center'>
+                  <p className='text-2xl font-bold text-red-600 dark:text-red-400'>
+                    {maxDrawdown.toFixed(2)}%
+                  </p>
+                  <p className='text-xs text-muted-foreground'>Max Drawdown</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
