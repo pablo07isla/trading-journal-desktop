@@ -272,50 +272,55 @@ export function TradingPlans() {
                     className='bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 cursor-pointer transition-all duration-200 hover:shadow-md'
                     onClick={() => handleViewPlanDetails(plan)}>
                     <CardContent className='p-4'>
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center space-x-6 flex-1'>
-                          {/* Nombre del Plan */}
-                          <div className='min-w-0 flex-1'>
-                            <h3 className='text-lg font-semibold text-gray-900 truncate'>
-                              {plan.nombre}
-                            </h3>
-                            <div className=' gap-2 mt-1'>
-                              {getStatusBadge(plan.activo)}
-                              {plan.strategy_nombre && (
-                                <Badge variant='outline' className='text-xs'>
-                                  {plan.strategy_nombre}
-                                </Badge>
-                              )}
-                            </div>
+                      <div className='flex items-center justify-between gap-6'>
+                        {/* Columna izquierda: Nombre del Plan y Status */}
+                        <div className='min-w-0 flex-shrink-0 w-64'>
+                          <h3 className='text-lg font-semibold text-gray-900 truncate mb-2'>
+                            {plan.nombre}
+                          </h3>
+                          <div className='gap-2'>
+                            {getStatusBadge(plan.activo)}
+                            {plan.strategy_nombre && (
+                              <Badge variant='outline' className='text-xs'>
+                                {plan.strategy_nombre}
+                              </Badge>
+                            )}
                           </div>
+                        </div>
 
+                        {/* Columna central: Información del Plan y Progreso */}
+                        <div className='flex items-center gap-8 flex-1'>
                           {/* Información Básica */}
-                          <div className='flex items-center space-x-4 text-sm'>
-                            <div className='text-center'>
-                              <p className='text-xs text-gray-600'>Tipo</p>
-                              <p className='font-semibold'>
+                          <div className='flex items-center gap-6 text-sm'>
+                            <div className='text-center min-w-0'>
+                              <p className='text-xs text-gray-600 mb-1'>Tipo</p>
+                              <p className='font-semibold text-gray-900'>
                                 {plan.tipo_trader || "-"}
                               </p>
                             </div>
-                            <div className='text-center'>
-                              <p className='text-xs text-gray-600'>
+                            <div className='text-center min-w-0'>
+                              <p className='text-xs text-gray-600 mb-1'>
                                 Riesgo/Día
                               </p>
-                              <p className='font-semibold'>
+                              <p className='font-semibold text-gray-900'>
                                 {plan.riesgo_max_diario_pct
                                   ? `${plan.riesgo_max_diario_pct}%`
                                   : "-"}
                               </p>
                             </div>
-                            <div className='text-center'>
-                              <p className='text-xs text-gray-600'>Max Ops</p>
-                              <p className='font-semibold'>
+                            <div className='text-center min-w-0'>
+                              <p className='text-xs text-gray-600 mb-1'>
+                                Max Ops
+                              </p>
+                              <p className='font-semibold text-gray-900'>
                                 {plan.max_operaciones_dia || "-"}
                               </p>
                             </div>
-                            <div className='text-center'>
-                              <p className='text-xs text-gray-600'>Riesgo/Op</p>
-                              <p className='font-semibold'>
+                            <div className='text-center min-w-0'>
+                              <p className='text-xs text-gray-600 mb-1'>
+                                Riesgo/Op
+                              </p>
+                              <p className='font-semibold text-gray-900'>
                                 {plan.riesgo_por_operacion_pct
                                   ? `${plan.riesgo_por_operacion_pct}%`
                                   : "-"}
@@ -325,15 +330,19 @@ export function TradingPlans() {
 
                           {/* Progreso del Día */}
                           {progress && (
-                            <div className='flex items-center space-x-4 text-sm'>
-                              <div className='text-center'>
-                                <p className='text-xs text-gray-600'>Ops Hoy</p>
-                                <p className='font-semibold'>
+                            <div className='flex items-center gap-6 text-sm border-l pl-6 border-gray-200'>
+                              <div className='text-center min-w-0'>
+                                <p className='text-xs text-gray-600 mb-1'>
+                                  Ops Hoy
+                                </p>
+                                <p className='font-semibold text-blue-600'>
                                   {progress.operacionesHoy || 0}
                                 </p>
                               </div>
-                              <div className='text-center'>
-                                <p className='text-xs text-gray-600'>P&L</p>
+                              <div className='text-center min-w-0'>
+                                <p className='text-xs text-gray-600 mb-1'>
+                                  P&L
+                                </p>
                                 <p
                                   className={`font-semibold ${
                                     progress.totalProfit >= 0
@@ -343,8 +352,8 @@ export function TradingPlans() {
                                   {formatCurrency(progress.totalProfit)}
                                 </p>
                               </div>
-                              <div className='text-center'>
-                                <p className='text-xs text-gray-600'>
+                              <div className='text-center min-w-0'>
+                                <p className='text-xs text-gray-600 mb-1'>
                                   Riesgo Usado
                                 </p>
                                 <p
@@ -355,11 +364,11 @@ export function TradingPlans() {
                                   {progress.riesgoActual.toFixed(1)}%
                                 </p>
                               </div>
-                              <div className='text-center'>
-                                <p className='text-xs text-gray-600'>
+                              <div className='text-center min-w-0'>
+                                <p className='text-xs text-gray-600 mb-1'>
                                   Win Rate
                                 </p>
-                                <p className='font-semibold'>
+                                <p className='font-semibold text-purple-600'>
                                   {progress.winRate.toFixed(1)}%
                                 </p>
                               </div>
@@ -367,7 +376,7 @@ export function TradingPlans() {
                           )}
                         </div>
 
-                        {/* Acciones */}
+                        {/* Columna derecha: Acciones */}
                         <div className='flex items-center gap-2'>
                           <Button
                             variant='ghost'
