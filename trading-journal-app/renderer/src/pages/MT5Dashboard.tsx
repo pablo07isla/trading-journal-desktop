@@ -29,7 +29,7 @@ import EquityCurveChart from "@/components/charts/EquityCurveChart";
 
 const MT5Dashboard: React.FC = () => {
   // Estados para filtros
-  const [period, setPeriod] = useState("7days");
+  const [period, setPeriod] = useState("year");
   const [account, setAccount] = useState("all");
   const [symbol, setSymbol] = useState("all");
 

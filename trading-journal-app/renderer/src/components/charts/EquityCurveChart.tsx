@@ -96,16 +96,16 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
   const challengeStopLevel = initialBalance * (1 + challengeStop / 100);
 
   // Debug: Log para verificar valores
-  if (challengeMode && equityCurveData.length > 0) {
-    console.log("Challenge Debug:", {
-      initialBalance,
-      challengeTargetLevel,
-      challengeStopLevel,
-      currentEquity,
-      challengeTarget,
-      challengeStop,
-    });
-  }
+  console.log("EquityCurveChart Debug:", {
+    challengeMode,
+    challengeTarget,
+    challengeStop,
+    initialBalance,
+    challengeTargetLevel,
+    challengeStopLevel,
+    currentEquity,
+    dataLength: equityCurveData.length,
+  });
 
   // Estado del challenge
   const challengeStatus = challengeMode
@@ -152,46 +152,50 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
     return (dataMax - initialBalance) / (dataMax - dataMin);
   };
 
-  // Calcular el rango para el YAxis para asegurar que las líneas sean visibles
+  // Calcular el rango para el YAxis optimizado para mostrar las líneas de referencia
   const getYAxisDomain = () => {
     if (equityCurveData.length === 0) {
-      return ["dataMin - 100", "dataMax + 100"];
+      return challengeMode
+        ? [challengeStopLevel * 0.9, challengeTargetLevel * 1.1]
+        : [initialBalance * 0.9, initialBalance * 1.1];
     }
 
     const dataValues = equityCurveData.map((d) => d.equity);
     let dataMin = Math.min(...dataValues);
     let dataMax = Math.max(...dataValues);
 
-    // Incluir todas las líneas de referencia en el cálculo del dominio
+    // Incluir balance inicial siempre
     const referenceValues = [initialBalance];
 
+    // Incluir líneas de challenge si está activo
     if (challengeMode) {
       referenceValues.push(challengeTargetLevel, challengeStopLevel);
-      console.log("Reference values:", {
-        initialBalance,
-        challengeTargetLevel,
-        challengeStopLevel,
-        dataMin,
-        dataMax,
-      });
     }
 
-    // Expandir el dominio para incluir todas las referencias
-    dataMin = Math.min(dataMin, ...referenceValues);
-    dataMax = Math.max(dataMax, ...referenceValues);
+    // Expandir dominio para incluir todas las referencias
+    const allValues = [...dataValues, ...referenceValues];
+    dataMin = Math.min(...allValues);
+    dataMax = Math.max(...allValues);
 
-    // Agregar un margen del 10% para mejor visualización
+    // Margen más pequeño para mejor ajuste
     const range = dataMax - dataMin;
-    const margin = range * 0.1;
+    const margin = Math.max(range * 0.05, 50); // Mínimo 50 de margen
 
-    console.log("Domain calculation:", {
-      dataMin: dataMin - margin,
-      dataMax: dataMax + margin,
-      range,
-      margin,
+    const finalDomain = [dataMin - margin, dataMax + margin];
+
+    console.log("YAxis Domain Debug:", {
+      dataValues: {
+        min: Math.min(...dataValues),
+        max: Math.max(...dataValues),
+      },
+      referenceValues,
+      finalDomain,
+      challengeMode,
+      challengeTargetLevel,
+      challengeStopLevel,
     });
 
-    return [dataMin - margin, dataMax + margin];
+    return finalDomain;
   };
 
   const gradientOffset = getGradientOffset();
@@ -227,11 +231,11 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
       </CardHeader>
       <CardContent>
         {equityCurveData.length > 0 ? (
-          <ChartContainer config={chartConfig} className='min-h-[320px] w-full'>
+          <ChartContainer config={chartConfig} className='min-h-[240px] w-full'>
             <AreaChart
               accessibilityLayer
               data={equityCurveData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              margin={{ top: 15, right: 25, left: 20, bottom: 5 }}>
               <defs>
                 <linearGradient id='equityGradient' x1='0' y1='0' x2='0' y2='1'>
                   <stop
@@ -297,43 +301,45 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
               />
               {/* TODAS LAS LÍNEAS DE REFERENCIA ANTES DEL AREA */}
 
-              {/* Líneas del Challenge Mode PRIMERO */}
-              {challengeMode && (
-                <>
-                  {/* Target Line - Verde */}
-                  <ReferenceLine
-                    y={challengeTargetLevel}
-                    stroke='#10b981'
-                    strokeDasharray='5 5'
-                    strokeWidth={3}
-                    label={{
-                      value: `Target: ${challengeTargetLevel.toFixed(
-                        0
-                      )} (+${challengeTarget}%)`,
-                      position: "insideTopLeft",
-                      fontSize: 12,
-                      fill: "#10b981",
-                      fontWeight: "bold",
-                    }}
-                  />
-                  {/* Stop Line - Rojo */}
-                  <ReferenceLine
-                    y={challengeStopLevel}
-                    stroke='#ef4444'
-                    strokeDasharray='5 5'
-                    strokeWidth={3}
-                    label={{
-                      value: `Stop: ${challengeStopLevel.toFixed(
-                        0
-                      )} (${challengeStop}%)`,
-                      position: "insideBottomLeft",
-                      fontSize: 12,
-                      fill: "#ef4444",
-                      fontWeight: "bold",
-                    }}
-                  />
-                </>
-              )}
+              {/* Target Line - Verde - Siempre renderizada, condicionalmente visible */}
+              <ReferenceLine
+                y={challengeMode ? challengeTargetLevel : null}
+                stroke={challengeMode ? "#10b981" : "transparent"}
+                strokeDasharray={challengeMode ? "3 3" : "0"}
+                strokeWidth={challengeMode ? 2 : 0}
+                label={
+                  challengeMode
+                    ? {
+                        value: `Target: ${challengeTargetLevel.toFixed(
+                          0
+                        )} (+${challengeTarget}%)`,
+                        position: "insideTopLeft",
+                        fontSize: 12,
+                        fill: "#10b981",
+                      }
+                    : undefined
+                }
+              />
+
+              {/* Stop Line - Roja - Siempre renderizada, condicionalmente visible */}
+              <ReferenceLine
+                y={challengeMode ? challengeStopLevel : null}
+                stroke={challengeMode ? "#ef4444" : "transparent"}
+                strokeDasharray={challengeMode ? "3 3" : "0"}
+                strokeWidth={challengeMode ? 2 : 0}
+                label={
+                  challengeMode
+                    ? {
+                        value: `Stop: ${challengeStopLevel.toFixed(
+                          0
+                        )} (${challengeStop}%)`,
+                        position: "insideBottomLeft",
+                        fontSize: 12,
+                        fill: "#ef4444",
+                      }
+                    : undefined
+                }
+              />
 
               {/* Línea de Balance Inicial */}
               <ReferenceLine
@@ -360,7 +366,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
             </AreaChart>
           </ChartContainer>
         ) : (
-          <div className='min-h-[320px] flex items-center justify-center text-muted-foreground'>
+          <div className='min-h-[240px] flex items-center justify-center text-muted-foreground'>
             <div className='text-center'>
               <p className='text-lg mb-2'>No hay datos de equity disponibles</p>
               <p className='text-sm'>
