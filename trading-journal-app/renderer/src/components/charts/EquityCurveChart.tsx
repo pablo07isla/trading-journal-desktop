@@ -162,18 +162,35 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
     let dataMin = Math.min(...dataValues);
     let dataMax = Math.max(...dataValues);
 
-    // Incluir el balance inicial en el cálculo
-    dataMin = Math.min(dataMin, initialBalance);
-    dataMax = Math.max(dataMax, initialBalance);
+    // Incluir todas las líneas de referencia en el cálculo del dominio
+    const referenceValues = [initialBalance];
 
-    // Si está en modo challenge, incluir también las líneas de target y stop
     if (challengeMode) {
-      dataMin = Math.min(dataMin, challengeStopLevel);
-      dataMax = Math.max(dataMax, challengeTargetLevel);
+      referenceValues.push(challengeTargetLevel, challengeStopLevel);
+      console.log("Reference values:", {
+        initialBalance,
+        challengeTargetLevel,
+        challengeStopLevel,
+        dataMin,
+        dataMax,
+      });
     }
 
-    // Agregar un margen del 5% para mejor visualización
-    const margin = (dataMax - dataMin) * 0.05;
+    // Expandir el dominio para incluir todas las referencias
+    dataMin = Math.min(dataMin, ...referenceValues);
+    dataMax = Math.max(dataMax, ...referenceValues);
+
+    // Agregar un margen del 10% para mejor visualización
+    const range = dataMax - dataMin;
+    const margin = range * 0.1;
+
+    console.log("Domain calculation:", {
+      dataMin: dataMin - margin,
+      dataMax: dataMax + margin,
+      range,
+      margin,
+    });
+
     return [dataMin - margin, dataMax + margin];
   };
 
@@ -278,6 +295,45 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                   />
                 }
               />
+              {/* TODAS LAS LÍNEAS DE REFERENCIA ANTES DEL AREA */}
+
+              {/* Líneas del Challenge Mode PRIMERO */}
+              {challengeMode && (
+                <>
+                  {/* Target Line - Verde */}
+                  <ReferenceLine
+                    y={challengeTargetLevel}
+                    stroke='#10b981'
+                    strokeDasharray='5 5'
+                    strokeWidth={3}
+                    label={{
+                      value: `Target: ${challengeTargetLevel.toFixed(
+                        0
+                      )} (+${challengeTarget}%)`,
+                      position: "insideTopLeft",
+                      fontSize: 12,
+                      fill: "#10b981",
+                      fontWeight: "bold",
+                    }}
+                  />
+                  {/* Stop Line - Rojo */}
+                  <ReferenceLine
+                    y={challengeStopLevel}
+                    stroke='#ef4444'
+                    strokeDasharray='5 5'
+                    strokeWidth={3}
+                    label={{
+                      value: `Stop: ${challengeStopLevel.toFixed(
+                        0
+                      )} (${challengeStop}%)`,
+                      position: "insideBottomLeft",
+                      fontSize: 12,
+                      fill: "#ef4444",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </>
+              )}
 
               {/* Línea de Balance Inicial */}
               <ReferenceLine
@@ -286,55 +342,20 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                 strokeDasharray='3 3'
                 strokeWidth={2}
                 label={{
-                  value: `Balance: $${initialBalance.toFixed(0)}`,
-                  position: "insideTopLeft",
+                  value: `Balance: ${initialBalance.toFixed(0)}`,
+                  position: "insideTopRight",
                   fontSize: 12,
                 }}
               />
 
-              {/* Líneas del Challenge Mode */}
-              {challengeMode && (
-                <>
-                  {/* Target Line - Verde */}
-                  <ReferenceLine
-                    y={challengeTargetLevel}
-                    stroke='#10b981'
-                    strokeDasharray='8 4'
-                    strokeWidth={2}
-                    label={{
-                      value: `Target: $${challengeTargetLevel.toFixed(
-                        0
-                      )} (+${challengeTarget}%)`,
-                      position: "insideTopLeft",
-                      fontSize: 12,
-                      fill: "#10b981",
-                    }}
-                  />
-                  {/* Stop Line - Rojo */}
-                  <ReferenceLine
-                    y={challengeStopLevel}
-                    stroke='#ef4444'
-                    strokeDasharray='8 4'
-                    strokeWidth={2}
-                    label={{
-                      value: `Stop: $${challengeStopLevel.toFixed(
-                        0
-                      )} (${challengeStop}%)`,
-                      position: "insideBottomLeft",
-                      fontSize: 12,
-                      fill: "#ef4444",
-                    }}
-                  />
-                </>
-              )}
-
+              {/* AREA AL FINAL CON MENOS OPACIDAD */}
               <Area
                 type='monotone'
                 dataKey='equity'
                 stroke='url(#equityGradient)'
-                strokeWidth={2}
+                strokeWidth={1}
                 fill='url(#equityGradientFill)'
-                fillOpacity={0.6}
+                fillOpacity={0.2}
               />
             </AreaChart>
           </ChartContainer>
