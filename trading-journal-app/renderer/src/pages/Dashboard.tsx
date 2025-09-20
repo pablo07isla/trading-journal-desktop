@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTheme } from "@/hooks/useTheme";
 import {
   TrendingUp,
   TrendingDown,
@@ -37,6 +38,7 @@ import {
 } from "@/components/ui/table";
 
 const Dashboard: React.FC = () => {
+  const { effectiveTheme } = useTheme();
   const [trades, setTrades] = useState<TradeData[]>([]);
   const [period, setPeriod] = useState("7days");
   const [strategy, setStrategy] = useState("all");
@@ -154,6 +156,15 @@ const Dashboard: React.FC = () => {
   const changePercent =
     initialBalance > 0 ? ((totalPL / initialBalance) * 100).toFixed(1) : "0.0";
 
+  // Theme-aware colors for the gradient
+  const gradientColors = useMemo(() => {
+    const isDark = effectiveTheme === "dark";
+    return {
+      profit: isDark ? "#10b981" : "#10b981", // Green
+      loss: isDark ? "#ef4444" : "#ef4444", // Red
+    };
+  }, [effectiveTheme]);
+
   // Equity curve (acumulado)
   const sortedTrades = [...trades].sort(
     (a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime()
@@ -254,38 +265,38 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 space-y-6 bg-gray-50 min-h-screen overflow-x-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <div className="flex flex-wrap gap-3">
+    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 space-y-6 bg-background min-h-screen overflow-x-auto'>
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+        <h1 className='text-3xl font-bold text-foreground'>Dashboard</h1>
+        <div className='flex flex-wrap gap-3'>
           <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-[160px] bg-white">
-              <SelectValue placeholder="Período" />
+            <SelectTrigger className='w-[160px] bg-card'>
+              <SelectValue placeholder='Período' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7days">Últimos 7 días</SelectItem>
-              <SelectItem value="month">Este mes</SelectItem>
-              <SelectItem value="year">Este año</SelectItem>
+              <SelectItem value='7days'>Últimos 7 días</SelectItem>
+              <SelectItem value='month'>Este mes</SelectItem>
+              <SelectItem value='year'>Este año</SelectItem>
             </SelectContent>
           </Select>
           <Select value={strategy} onValueChange={setStrategy}>
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Estrategia" />
+            <SelectTrigger className='w-[180px] bg-card'>
+              <SelectValue placeholder='Estrategia' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas las estrategias</SelectItem>
-              <SelectItem value="breakout">Breakout</SelectItem>
-              <SelectItem value="reversion">Reversión</SelectItem>
-              <SelectItem value="pullback">Pullback</SelectItem>
+              <SelectItem value='all'>Todas las estrategias</SelectItem>
+              <SelectItem value='breakout'>Breakout</SelectItem>
+              <SelectItem value='reversion'>Reversión</SelectItem>
+              <SelectItem value='pullback'>Pullback</SelectItem>
             </SelectContent>
           </Select>
           {/* Filtro por cuenta de trading */}
           <Select value={account} onValueChange={setAccount}>
-            <SelectTrigger className="w-[200px] bg-white">
-              <SelectValue placeholder="Cuenta de trading" />
+            <SelectTrigger className='w-[200px] bg-card'>
+              <SelectValue placeholder='Cuenta de trading' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas las cuentas</SelectItem>
+              <SelectItem value='all'>Todas las cuentas</SelectItem>
               {Object.entries(accounts).map(([id, nombre]) => (
                 <SelectItem key={id} value={id}>
                   {nombre}
@@ -297,42 +308,44 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
         {kpiData.map((kpi, index) => {
           const Icon = kpi.icon;
           const isPositive = kpi.trend === "up";
           return (
             <Card
               key={index}
-              className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Icon className="h-4 w-4" />
+              className='bg-card border-0 shadow-sm hover:shadow-md transition-shadow'>
+              <CardContent className='p-6'>
+                <div className='flex items-center justify-between mb-4'>
+                  <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                    <Icon className='h-4 w-4' />
                     {kpi.title}
                   </div>
                   <div
                     className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
                       isPositive
-                        ? "bg-green-50 text-green-700"
-                        : "bg-red-50 text-red-700"
-                    }`}
-                  >
+                        ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                        : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                    }`}>
                     {isPositive ? (
-                      <TrendingUp className="h-3 w-3" />
+                      <TrendingUp className='h-3 w-3' />
                     ) : (
-                      <TrendingDown className="h-3 w-3" />
+                      <TrendingDown className='h-3 w-3' />
                     )}
                     {kpi.change}
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="text-2xl font-bold text-gray-900">
+                <div className='space-y-2'>
+                  <div className='text-2xl font-bold text-foreground'>
                     {kpi.value}
                   </div>
-                  <div className="text-sm text-gray-600">{kpi.subtitle}</div>
-                  <div className="text-xs text-gray-500">{kpi.description}</div>
+                  <div className='text-sm text-muted-foreground'>
+                    {kpi.subtitle}
+                  </div>
+                  <div className='text-xs text-muted-foreground/70'>
+                    {kpi.description}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -341,50 +354,57 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Chart Section */}
-      <Card className="bg-white border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
+      <Card className='bg-card border-0 shadow-sm'>
+        <CardHeader className='pb-4'>
+          <div className='flex items-center justify-between'>
             <div>
-              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+              <CardTitle className='text-lg font-semibold text-foreground flex items-center gap-2'>
+                <BarChart3 className='h-5 w-5' />
                 Equity Curve
               </CardTitle>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className='text-sm text-muted-foreground mt-1'>
                 Curva de equity acumulada
               </p>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-64 w-full relative">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className='h-64 w-full relative'>
+            <ResponsiveContainer width='100%' height='100%'>
               <AreaChart
                 data={equityCurveWithAreas}
-                margin={{ top: 10, right: 30, left: 0, bottom: 20 }}
-              >
+                margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
                 <defs>
-                  <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset={off} stopColor="#10b981" stopOpacity={0.8} />
-                    <stop offset={off} stopColor="#ef4444" stopOpacity={0.8} />
+                  <linearGradient id='splitColor' x1='0' y1='0' x2='0' y2='1'>
+                    <stop
+                      offset={off}
+                      stopColor={gradientColors.profit}
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset={off}
+                      stopColor={gradientColors.loss}
+                      stopOpacity={0.8}
+                    />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
-                  strokeDasharray="3 3"
+                  strokeDasharray='3 3'
                   vertical={false}
-                  stroke="#e5e7eb"
+                  stroke='hsl(var(--border))'
                 />
                 <XAxis
-                  dataKey="date"
+                  dataKey='date'
                   tickFormatter={(date) => {
                     // date está en formato dd/mm/yyyy
                     const [day, month] = date.split("/");
                     return `${day}/${month}`;
                   }}
                   minTickGap={20}
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
                 />
                 <YAxis
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
                   width={60}
                   domain={["auto", "auto"]}
                 />
@@ -401,15 +421,19 @@ const Dashboard: React.FC = () => {
                 />
 
                 {/* Línea de referencia en 0 */}
-                <ReferenceLine y={0} stroke="#6b7280" strokeDasharray="2 2" />
+                <ReferenceLine
+                  y={0}
+                  stroke='hsl(var(--muted-foreground))'
+                  strokeDasharray='2 2'
+                />
 
                 {/* Área principal con gradiente que cambia de color según el valor */}
                 <Area
-                  type="monotone"
-                  dataKey="equity"
-                  stroke="#3b82f6"
+                  type='monotone'
+                  dataKey='equity'
+                  stroke='hsl(var(--primary))'
                   strokeWidth={2}
-                  fill="url(#splitColor)"
+                  fill='url(#splitColor)'
                   isAnimationActive={false}
                 />
               </AreaChart>
@@ -419,11 +443,11 @@ const Dashboard: React.FC = () => {
       </Card>
 
       {/* Métricas por Estrategia / Cuenta de trading */}
-      <Card className="bg-white border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
+      <Card className='bg-card border-0 shadow-sm'>
+        <CardHeader className='pb-4'>
+          <div className='flex items-center justify-between'>
+            <CardTitle className='text-lg font-semibold text-foreground flex items-center gap-2'>
+              <BarChart3 className='h-5 w-5' />
               Métricas por Estrategia / Cuenta de trading
             </CardTitle>
           </div>
@@ -437,7 +461,7 @@ const Dashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      <div className="text-center text-gray-500 text-sm bg-white rounded-lg p-4 border border-gray-200">
+      <div className='text-center text-muted-foreground text-sm bg-card rounded-lg p-4 border'>
         Dashboard completamente funcional con datos en tiempo real
       </div>
     </div>
@@ -501,37 +525,38 @@ const MetricsByGroup: React.FC<MetricsByGroupProps> = ({
     };
   });
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-gray-900">Agrupar por:</span>
+    <div className='space-y-6'>
+      <div className='flex items-center gap-3'>
+        <span className='text-sm font-medium text-foreground'>
+          Agrupar por:
+        </span>
         <Select
           value={groupBy}
-          onValueChange={(v) => setGroupBy(v as "strategy" | "account")}
-        >
-          <SelectTrigger className="w-[200px] bg-white border-gray-200 shadow-sm">
-            <SelectValue placeholder="Agrupar por" />
+          onValueChange={(v) => setGroupBy(v as "strategy" | "account")}>
+          <SelectTrigger className='w-[200px] bg-card border shadow-sm'>
+            <SelectValue placeholder='Agrupar por' />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="strategy">Estrategia</SelectItem>
-            <SelectItem value="account">Cuenta de trading</SelectItem>
+            <SelectItem value='strategy'>Estrategia</SelectItem>
+            <SelectItem value='account'>Cuenta de trading</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className='rounded-lg border bg-card shadow-sm overflow-hidden'>
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50/50 border-b border-gray-200">
-              <TableHead className="font-semibold text-gray-900 px-6 py-4">
+            <TableRow className='bg-muted/50 border-b'>
+              <TableHead className='font-semibold text-foreground px-6 py-4'>
                 {groupBy === "strategy" ? "Estrategia" : "Cuenta"}
               </TableHead>
-              <TableHead className="font-semibold text-gray-900 px-6 py-4 text-center">
+              <TableHead className='font-semibold text-foreground px-6 py-4 text-center'>
                 # Trades
               </TableHead>
-              <TableHead className="font-semibold text-gray-900 px-6 py-4 text-center">
+              <TableHead className='font-semibold text-foreground px-6 py-4 text-center'>
                 Win Rate
               </TableHead>
-              <TableHead className="font-semibold text-gray-900 px-6 py-4 text-right">
+              <TableHead className='font-semibold text-foreground px-6 py-4 text-right'>
                 P&L Total
               </TableHead>
             </TableRow>
@@ -541,8 +566,7 @@ const MetricsByGroup: React.FC<MetricsByGroupProps> = ({
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="text-center text-gray-500 py-8 px-6"
-                >
+                  className='text-center text-muted-foreground py-8 px-6'>
                   No hay datos para mostrar
                 </TableCell>
               </TableRow>
@@ -550,35 +574,34 @@ const MetricsByGroup: React.FC<MetricsByGroupProps> = ({
               rows.map((row, index) => (
                 <TableRow
                   key={row.name}
-                  className={`border-b border-gray-100 hover:bg-gray-50/50 transition-colors ${
+                  className={`border-b hover:bg-muted/30 transition-colors ${
                     index === rows.length - 1 ? "border-b-0" : ""
-                  }`}
-                >
-                  <TableCell className="px-6 py-4 font-medium text-gray-900">
+                  }`}>
+                  <TableCell className='px-6 py-4 font-medium text-foreground'>
                     {row.name}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-center text-gray-700">
+                  <TableCell className='px-6 py-4 text-center text-muted-foreground'>
                     {row.num}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-center">
+                  <TableCell className='px-6 py-4 text-center'>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         row.winRate >= 60
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
                           : row.winRate >= 40
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
+                          ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
+                          : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+                      }`}>
                       {row.winRate.toFixed(1)}%
                     </span>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-right">
+                  <TableCell className='px-6 py-4 text-right'>
                     <span
                       className={`font-semibold ${
-                        row.totalPL >= 0 ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
+                        row.totalPL >= 0
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}>
                       {row.totalPL >= 0 ? "+" : "-"}$
                       {Math.abs(row.totalPL).toFixed(2)}
                     </span>

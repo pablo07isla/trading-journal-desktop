@@ -386,12 +386,12 @@ const TradeForm: React.FC<TradeFormProps> = ({
   };
 
   return (
-    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-white overflow-x-auto'>
+    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-background overflow-x-auto'>
       <div className='mb-6'>
-        <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+        <h2 className='text-2xl font-bold text-foreground mb-2'>
           {isReadOnly ? "Ver Trade" : isEdit ? "Editar Trade" : "Nuevo Trade"}
         </h2>
-        <p className='text-gray-600'>
+        <p className='text-muted-foreground'>
           {isReadOnly
             ? "Detalles de la operación"
             : isEdit
@@ -404,20 +404,22 @@ const TradeForm: React.FC<TradeFormProps> = ({
         {/* Layout horizontal: 3 columnas principales, responsivo */}
         <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
           {/* Columna 1: Información Básica */}
-          <div className='bg-gray-50 rounded-lg p-6'>
+          <div className='bg-muted/30 rounded-lg p-6'>
             <div className='flex items-center gap-2 mb-4'>
-              <Tag className='w-5 h-5 text-gray-600' />
-              <h3 className='text-lg font-semibold text-gray-900'>
+              <Tag className='w-5 h-5 text-muted-foreground' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Información Básica
               </h3>
             </div>
             <div className='space-y-4'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2'>
                   <Target className='w-4 h-4' />
                   Símbolo *
                 </label>
-                <Popover open={symbolOpen && !isReadOnly} onOpenChange={setSymbolOpen}>
+                <Popover
+                  open={symbolOpen && !isReadOnly}
+                  onOpenChange={setSymbolOpen}>
                   <PopoverTrigger asChild>
                     <div className='relative'>
                       <Input
@@ -439,11 +441,15 @@ const TradeForm: React.FC<TradeFormProps> = ({
                         readOnly
                         placeholder='Ej: EUR/USD, BTC/USD, XAU/USD'
                         autoComplete='off'
-                        className={`${!isReadOnly ? 'cursor-pointer hover:bg-gray-50 focus:bg-white' : 'cursor-default bg-gray-100'}`}
+                        className={`${
+                          !isReadOnly
+                            ? "cursor-pointer hover:bg-muted/50 focus:bg-background"
+                            : "cursor-default bg-muted"
+                        }`}
                         disabled={isReadOnly}
                       />
                       <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
-                        <Target className='w-4 h-4 text-gray-400' />
+                        <Target className='w-4 h-4 text-muted-foreground' />
                       </div>
                     </div>
                   </PopoverTrigger>
@@ -497,7 +503,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2'>
                   <Calendar className='w-4 h-4' />
                   Fecha *
                 </label>
@@ -505,41 +511,48 @@ const TradeForm: React.FC<TradeFormProps> = ({
                   type='date'
                   required
                   value={trade.entryDate || ""}
-                  onChange={(e) => !isReadOnly && handleChange("entryDate", e.target.value)}
-                  className='focus:ring-2 focus:ring-blue-200'
+                  onChange={(e) =>
+                    !isReadOnly && handleChange("entryDate", e.target.value)
+                  }
+                  className='focus:ring-2 focus:ring-ring/20'
                   disabled={isReadOnly}
                 />
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2'>
                   {trade.orderType === "BUY" ? (
-                    <TrendingUp className='w-4 h-4 text-green-600' />
+                    <TrendingUp className='w-4 h-4 text-green-600 dark:text-green-400' />
                   ) : (
-                    <TrendingDown className='w-4 h-4 text-red-600' />
+                    <TrendingDown className='w-4 h-4 text-red-600 dark:text-red-400' />
                   )}
                   Tipo de orden *
                 </label>
                 <Select
                   value={trade.orderType}
                   onValueChange={(v) =>
-                    !isReadOnly && handleChange("orderType", v as "BUY" | "SELL")
+                    !isReadOnly &&
+                    handleChange("orderType", v as "BUY" | "SELL")
                   }
                   disabled={isReadOnly}>
-                  <SelectTrigger className='focus:ring-2 focus:ring-blue-200'>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20'>
                     <SelectValue placeholder='Selecciona tipo' />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value='BUY'>
                       <div className='flex items-center gap-2'>
-                        <TrendingUp className='w-4 h-4 text-green-600' />
-                        <span className='text-green-700 font-medium'>Buy</span>
+                        <TrendingUp className='w-4 h-4 text-green-600 dark:text-green-400' />
+                        <span className='text-green-700 dark:text-green-300 font-medium'>
+                          Buy
+                        </span>
                       </div>
                     </SelectItem>
                     <SelectItem value='SELL'>
                       <div className='flex items-center gap-2'>
-                        <TrendingDown className='w-4 h-4 text-red-600' />
-                        <span className='text-red-700 font-medium'>Sell</span>
+                        <TrendingDown className='w-4 h-4 text-red-600 dark:text-red-400' />
+                        <span className='text-red-700 dark:text-red-300 font-medium'>
+                          Sell
+                        </span>
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -547,7 +560,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2'>
                   <DollarSign className='w-4 h-4' />
                   P/L *
                 </label>
@@ -557,25 +570,26 @@ const TradeForm: React.FC<TradeFormProps> = ({
                     step='0.01'
                     value={trade.pnl ?? ""}
                     onChange={(e) =>
-                      !isReadOnly && handleChange(
+                      !isReadOnly &&
+                      handleChange(
                         "pnl",
                         e.target.value ? parseFloat(e.target.value) : undefined
                       )
                     }
                     placeholder='Ganancia/Pérdida'
-                    className='focus:ring-2 focus:ring-blue-200'
+                    className='focus:ring-2 focus:ring-ring/20'
                     disabled={isReadOnly}
                   />
                   {typeof trade.pnl === "number" && (
                     <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
                       {trade.pnl > 0 ? (
-                        <Badge className='bg-green-100 text-green-800 text-xs'>
+                        <Badge className='bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs border-green-200 dark:border-green-800'>
                           +${trade.pnl.toFixed(2)}
                         </Badge>
                       ) : trade.pnl < 0 ? (
                         <Badge
                           variant='destructive'
-                          className='bg-red-100 text-red-800 text-xs'>
+                          className='bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs border-red-200 dark:border-red-800'>
                           -${Math.abs(trade.pnl).toFixed(2)}
                         </Badge>
                       ) : (
@@ -589,16 +603,17 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2'>
                   Resultado *
                 </label>
                 <Select
                   value={trade.result ?? ""}
                   onValueChange={(v) =>
-                    !isReadOnly && handleChange("result", v as "SL" | "TP" | "BE")
+                    !isReadOnly &&
+                    handleChange("result", v as "SL" | "TP" | "BE")
                   }
                   disabled={isReadOnly}>
-                  <SelectTrigger className='focus:ring-2 focus:ring-blue-200'>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20'>
                     <SelectValue placeholder='Selecciona resultado' />
                   </SelectTrigger>
                   <SelectContent>
@@ -606,12 +621,14 @@ const TradeForm: React.FC<TradeFormProps> = ({
                       <SelectItem key={r} value={r}>
                         <div className='flex items-center gap-2'>
                           {r === "SL" && (
-                            <Badge variant='destructive' className='text-xs'>
+                            <Badge
+                              variant='destructive'
+                              className='text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'>
                               SL
                             </Badge>
                           )}
                           {r === "TP" && (
-                            <Badge className='bg-green-100 text-green-800 text-xs'>
+                            <Badge className='bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs'>
                               TP
                             </Badge>
                           )}
@@ -635,7 +652,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2'>
                   Comisiones
                 </label>
                 <Input
@@ -644,13 +661,14 @@ const TradeForm: React.FC<TradeFormProps> = ({
                   step='0.01'
                   value={trade.commissions ?? ""}
                   onChange={(e) =>
-                    !isReadOnly && handleChange(
+                    !isReadOnly &&
+                    handleChange(
                       "commissions",
                       e.target.value ? parseFloat(e.target.value) : undefined
                     )
                   }
                   placeholder='Opcional'
-                  className='focus:ring-2 focus:ring-blue-200'
+                  className='focus:ring-2 focus:ring-ring/20'
                   disabled={isReadOnly}
                 />
               </div>
@@ -658,28 +676,29 @@ const TradeForm: React.FC<TradeFormProps> = ({
           </div>
 
           {/* Columna 2: Estrategia y Análisis */}
-          <div className='bg-blue-50 rounded-lg p-6'>
+          <div className='bg-primary/10 rounded-lg p-6'>
             <div className='flex items-center gap-2 mb-4'>
-              <span className='inline-block w-5 h-5 text-blue-600'>
+              <span className='inline-block w-5 h-5 text-primary'>
                 {/* Icono de target o similar */}
               </span>
-              <h3 className='text-lg font-semibold text-gray-900'>
+              <h3 className='text-lg font-semibold text-foreground'>
                 Estrategia y Análisis
               </h3>
             </div>
             <div className='space-y-6'>
               {/* Campo Cuenta de trading */}
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2'>
                   Cuenta de trading
                 </label>
                 <Select
                   value={trade.cuentaTradingId?.toString() ?? ""}
                   onValueChange={(v) =>
-                    !isReadOnly && handleChange("cuentaTradingId", v ? parseInt(v) : undefined)
+                    !isReadOnly &&
+                    handleChange("cuentaTradingId", v ? parseInt(v) : undefined)
                   }
                   disabled={isReadOnly}>
-                  <SelectTrigger className='focus:ring-2 focus:ring-blue-200 bg-white'>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20 bg-background'>
                     <SelectValue placeholder='Selecciona cuenta' />
                   </SelectTrigger>
                   <SelectContent>
@@ -688,7 +707,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                         key={account.id}
                         value={account.id.toString()}>
                         {account.nombre}{" "}
-                        <span className='text-xs text-gray-500 ml-2'>
+                        <span className='text-xs text-muted-foreground ml-2'>
                           ({account.broker})
                         </span>
                       </SelectItem>
@@ -698,16 +717,17 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2'>
                   Estrategia
                 </label>
                 <Select
                   value={trade.strategyId?.toString() ?? ""}
                   onValueChange={(v) =>
-                    !isReadOnly && handleChange("strategyId", v ? parseInt(v) : undefined)
+                    !isReadOnly &&
+                    handleChange("strategyId", v ? parseInt(v) : undefined)
                   }
                   disabled={isReadOnly}>
-                  <SelectTrigger className='focus:ring-2 focus:ring-blue-200 bg-white'>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20 bg-background'>
                     <SelectValue placeholder='Selecciona estrategia' />
                   </SelectTrigger>{" "}
                   <SelectContent>
@@ -728,7 +748,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                           </Badge>
                           {strategy.nombre}
                           {strategy.descripcion && (
-                            <span className='text-xs text-gray-500 ml-2'>
+                            <span className='text-xs text-muted-foreground ml-2'>
                               ({strategy.descripcion.substring(0, 30)}
                               {strategy.descripcion.length > 30 ? "..." : ""})
                             </span>
@@ -741,7 +761,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                         typeof s.id === "number" &&
                         s.id > 0
                     ).length === 0 && (
-                      <div className='px-2 py-2 text-sm text-gray-500'>
+                      <div className='px-2 py-2 text-sm text-muted-foreground'>
                         No hay estrategias activas disponibles
                       </div>
                     )}
@@ -750,14 +770,16 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2'>
                   Tipo de mercado
                 </label>
                 <Select
                   value={trade.marketType ?? ""}
-                  onValueChange={(v) => !isReadOnly && handleChange("marketType", v)}
+                  onValueChange={(v) =>
+                    !isReadOnly && handleChange("marketType", v)
+                  }
                   disabled={isReadOnly}>
-                  <SelectTrigger className='focus:ring-2 focus:ring-blue-200 bg-white'>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20 bg-background'>
                     <SelectValue placeholder='Selecciona mercado' />
                   </SelectTrigger>
                   <SelectContent>
@@ -771,7 +793,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                               : m === "Crypto"
                               ? "border-orange-200 text-orange-700"
                               : m === "Acciones"
-                              ? "border-blue-200 text-blue-700"
+                              ? "border-primary text-primary"
                               : "border-purple-200 text-purple-700"
                           }`}>
                           {m}
@@ -784,14 +806,16 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Confianza
                 </label>
                 <Select
                   value={trade.confidence ?? ""}
-                  onValueChange={(v) => !isReadOnly && handleChange("confidence", v)}
+                  onValueChange={(v) =>
+                    !isReadOnly && handleChange("confidence", v)
+                  }
                   disabled={isReadOnly}>
-                  <SelectTrigger className='focus:ring-2 focus:ring-blue-200 bg-white'>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20 bg-background'>
                     <SelectValue placeholder='Nivel de confianza' />
                   </SelectTrigger>
                   <SelectContent>
@@ -800,10 +824,10 @@ const TradeForm: React.FC<TradeFormProps> = ({
                         <Badge
                           className={`mr-2 text-xs ${
                             c === "Alta"
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
                               : c === "Media"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-gray-100 text-gray-800"
+                              ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
+                              : "bg-muted text-muted-foreground"
                           }`}>
                           {c}
                         </Badge>
@@ -815,24 +839,26 @@ const TradeForm: React.FC<TradeFormProps> = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-muted-foreground mb-2'>
                   Descripción del trade
                 </label>
                 <Textarea
                   value={trade.description || ""}
-                  onChange={(e) => !isReadOnly && handleChange("description", e.target.value)}
+                  onChange={(e) =>
+                    !isReadOnly && handleChange("description", e.target.value)
+                  }
                   placeholder='¿Por qué abriste este trade? ¿Qué veías en el mercado? Describe tu análisis y razonamiento...'
                   rows={6}
-                  className='focus:ring-2 focus:ring-blue-200 bg-white resize-none'
+                  className='focus:ring-2 focus:ring-ring/20 bg-background resize-none'
                   spellCheck={true}
                   disabled={isReadOnly}
                 />
                 {errors.description && (
-                  <div className='text-red-600 text-xs mt-1'>
+                  <div className='text-destructive text-xs mt-1'>
                     {errors.description}
                   </div>
                 )}
-                <p className='text-xs text-gray-500 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   Explica tu análisis técnico/fundamental y el setup que viste
                 </p>
               </div>
@@ -840,68 +866,71 @@ const TradeForm: React.FC<TradeFormProps> = ({
           </div>
 
           {/* Columna 3: Notas y Archivos */}
-          <div className='bg-green-50 rounded-lg p-6'>
+          <div className='bg-primary/10 rounded-lg p-6'>
             <div className='flex items-center gap-2 mb-4'>
-              <FileText className='w-5 h-5 text-green-600' />
-              <h3 className='text-lg font-semibold text-gray-900'>
+              <FileText className='w-5 h-5 text-green-600 dark:text-green-400' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Notas y Observaciones
               </h3>
             </div>
             <div className='space-y-6'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Notas post-trade
                 </label>
                 <Textarea
                   value={trade.notes || ""}
-                  onChange={(e) => !isReadOnly && handleChange("notes", e.target.value)}
+                  onChange={(e) =>
+                    !isReadOnly && handleChange("notes", e.target.value)
+                  }
                   placeholder='¿Qué aprendiste? ¿Qué harías diferente? Comentarios técnicos...'
                   rows={6}
-                  className='focus:ring-2 focus:ring-green-200 bg-white resize-none'
+                  className='focus:ring-2 focus:ring-ring/20 bg-background resize-none'
                   spellCheck={true}
                   disabled={isReadOnly}
                 />
                 {errors.notes && (
-                  <div className='text-red-600 text-xs mt-1'>
+                  <div className='text-destructive text-xs mt-1'>
                     {errors.notes}
                   </div>
                 )}
-                <p className='text-xs text-gray-500 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   Reflexiones y lecciones aprendidas de esta operación
                 </p>
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
+                <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
                   <Upload className='w-4 h-4' />
                   Archivos adjuntos
                 </label>
                 <div
                   className={`border-2 border-dashed rounded-lg p-4 text-center transition ${
                     isReadOnly
-                      ? "bg-gray-100 border-gray-200 cursor-default"
+                      ? "bg-muted border-border cursor-default"
                       : dragActive
-                      ? "border-blue-400 bg-blue-50 bg-white cursor-pointer"
-                      : "border-gray-300 hover:border-blue-400 bg-white cursor-pointer"
+                      ? "border-primary bg-primary/10 cursor-pointer"
+                      : "border-border hover:border-primary bg-background cursor-pointer"
                   }`}
                   onClick={() =>
-                    !isReadOnly && document.getElementById("tradefileinput")?.click()
+                    !isReadOnly &&
+                    document.getElementById("tradefileinput")?.click()
                   }
                   onDrop={!isReadOnly ? handleDrop : undefined}
                   onDragOver={!isReadOnly ? handleDragOver : undefined}
                   onDragLeave={!isReadOnly ? handleDragLeave : undefined}>
-                  <Upload className='w-6 h-6 text-gray-400 mx-auto mb-2' />
+                  <Upload className='w-6 h-6 text-muted-foreground mx-auto mb-2' />
                   {!isReadOnly ? (
                     <>
-                      <p className='text-sm text-gray-500 mb-1'>
+                      <p className='text-sm text-muted-foreground mb-1'>
                         Arrastra o haz click para seleccionar archivos
                       </p>
-                      <p className='text-xs text-gray-400'>
+                      <p className='text-xs text-muted-foreground'>
                         Imágenes (JPG, PNG) y videos (MP4) - Máximo 3 archivos
                       </p>
                     </>
                   ) : (
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-sm text-muted-foreground'>
                       Archivos adjuntos
                     </p>
                   )}
@@ -924,7 +953,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                       return (
                         <div
                           key={idx}
-                          className='relative group w-20 h-20 flex items-center justify-center border rounded bg-gray-50 overflow-hidden'>
+                          className='relative group w-20 h-20 flex items-center justify-center border rounded bg-muted overflow-hidden'>
                           {isAttachment ? (
                             file.type && file.type.startsWith("image") ? (
                               dataUrl ? (
@@ -939,12 +968,12 @@ const TradeForm: React.FC<TradeFormProps> = ({
                                   title='Click para ampliar imagen'
                                 />
                               ) : (
-                                <span className='text-xs text-gray-400'>
+                                <span className='text-xs text-muted-foreground'>
                                   Cargando...
                                 </span>
                               )
                             ) : file.type === "video/mp4" ? (
-                              <span className='text-blue-500'>
+                              <span className='text-primary'>
                                 <Upload className='w-8 h-8 mx-auto' />
                                 <span className='block text-xs truncate'>
                                   {file.name}
@@ -967,7 +996,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                               title='Click para ampliar imagen'
                             />
                           ) : file.type === "video/mp4" ? (
-                            <span className='text-blue-500'>
+                            <span className='text-primary'>
                               <Upload className='w-8 h-8 mx-auto' />
                               <span className='block text-xs truncate'>
                                 {file.name}
@@ -977,7 +1006,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                           {!isReadOnly && (
                             <button
                               type='button'
-                              className='absolute top-1 right-1 bg-white bg-opacity-80 rounded-full p-1 text-xs text-red-600 hover:bg-red-100'
+                              className='absolute top-1 right-1 bg-background/80 hover:bg-destructive/20 dark:bg-background/90 dark:hover:bg-destructive/30 rounded-full p-1 text-xs text-destructive hover:text-destructive/80 transition-colors'
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleRemoveFile(idx);
@@ -992,7 +1021,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                   </div>
                 </div>
                 {files.length > 0 && (
-                  <div className='text-xs text-gray-500 mt-2'>
+                  <div className='text-xs text-muted-foreground mt-2'>
                     {files.length} archivo(s) seleccionado(s)
                   </div>
                 )}
@@ -1002,13 +1031,13 @@ const TradeForm: React.FC<TradeFormProps> = ({
         </div>
 
         {/* Botones de acción - Mantienen su posición original */}
-        <div className='flex gap-3 justify-end pt-6 mt-6 border-t border-gray-200'>
+        <div className='flex gap-3 justify-end pt-6 mt-6 border-t border-border'>
           {onCancel && (
             <Button
               type='button'
               variant='ghost'
               onClick={onCancel}
-              className='px-6 py-2 hover:bg-gray-100'>
+              className='px-6 py-2 hover:bg-muted'>
               {isReadOnly ? "Cerrar" : "Cancelar"}
             </Button>
           )}
@@ -1025,7 +1054,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
                 isNaN(trade.pnl) ||
                 !trade.result
               }
-              className='px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm disabled:opacity-50'>
+              className='px-8 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm disabled:opacity-50'>
               {loading ? (
                 <div className='flex items-center gap-2'>
                   <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
@@ -1045,7 +1074,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
         <DialogContent className='max-w-4xl max-h-[90vh] p-2'>
           <DialogHeader className='px-4 pt-4'>
-            <DialogTitle className='text-lg font-semibold text-gray-900'>
+            <DialogTitle className='text-lg font-semibold text-foreground'>
               {getSelectedImageData()?.name || "Imagen"}
             </DialogTitle>
           </DialogHeader>

@@ -130,7 +130,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
         return (
           <Badge
             variant='default'
-            className='bg-green-50 text-green-700 border-green-200'>
+            className='bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'>
             Activa
           </Badge>
         );
@@ -138,7 +138,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
         return (
           <Badge
             variant='secondary'
-            className='bg-gray-50 text-gray-700 border-gray-200'>
+            className='bg-muted text-muted-foreground border-border'>
             Cerrada
           </Badge>
         );
@@ -146,7 +146,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
         return (
           <Badge
             variant='destructive'
-            className='bg-red-50 text-red-700 border-red-200'>
+            className='bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'>
             Suspendida
           </Badge>
         );
@@ -154,7 +154,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
         return (
           <Badge
             variant='outline'
-            className='bg-blue-50 text-blue-700 border-blue-200'>
+            className='bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'>
             En Evaluación
           </Badge>
         );
@@ -167,25 +167,29 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
     const config = {
       demo: {
         label: "Demo",
-        className: "bg-orange-50 text-orange-700 border-orange-200",
+        className:
+          "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800",
       },
       real: {
         label: "Real",
-        className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        className:
+          "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
       },
       fondeo: {
         label: "Fondeo",
-        className: "bg-purple-50 text-purple-700 border-purple-200",
+        className:
+          "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
       },
       practica: {
         label: "Práctica",
-        className: "bg-blue-50 text-blue-700 border-blue-200",
+        className:
+          "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
       },
     };
 
     const accountTypeConfig = config[tipo as keyof typeof config] || {
       label: tipo,
-      className: "bg-gray-50 text-gray-700 border-gray-200",
+      className: "bg-muted text-muted-foreground border-border",
     };
 
     return (
@@ -212,8 +216,8 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
     return (
       <div className='flex items-center justify-center py-12'>
         <div className='text-center'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2'></div>
-          <p className='text-gray-600'>Cargando cuentas...</p>
+          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2'></div>
+          <p className='text-muted-foreground'>Cargando cuentas...</p>
         </div>
       </div>
     );
@@ -222,10 +226,10 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
   return (
     <>
       {/* Filtros y búsqueda */}
-      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-white rounded-lg shadow-sm border'>
+      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-card rounded-lg shadow-sm border'>
         {/* Buscar */}
         <div className='relative flex-1 min-w-[200px] max-w-xs'>
-          <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400'>
+          <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground'>
             <Search className='w-4 h-4' />
           </span>
           <input
@@ -233,7 +237,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
             placeholder='Buscar cuenta o broker...'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className='w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm'
+            className='w-full pl-10 pr-4 py-2 border rounded-lg bg-background hover:bg-muted/50 focus:bg-background focus:border-primary focus:ring-2 focus:ring-ring transition-all text-sm'
           />
         </div>
 
@@ -241,7 +245,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className='px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm min-w-[140px]'>
+          className='px-4 py-2 border rounded-lg bg-background hover:bg-muted/50 focus:bg-background focus:border-primary focus:ring-2 focus:ring-ring transition-all text-sm min-w-[140px]'>
           <option value=''>Todos los estados</option>
           <option value='activa'>Activa</option>
           <option value='cerrada'>Cerrada</option>
@@ -253,7 +257,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className='px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm min-w-[140px]'>
+          className='px-4 py-2 border rounded-lg bg-background hover:bg-muted/50 focus:bg-background focus:border-primary focus:ring-2 focus:ring-ring transition-all text-sm min-w-[140px]'>
           <option value=''>Todos los tipos</option>
           <option value='demo'>Demo</option>
           <option value='real'>Real</option>
@@ -266,7 +270,7 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
           <DialogTrigger asChild>
             <Button
               onClick={handleCreateAccount}
-              className='ml-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm'>
+              className='ml-auto bg-primary hover:bg-primary/90 text-primary-foreground'>
               <Plus className='mr-2 w-4 h-4' />
               Nueva Cuenta
             </Button>
@@ -319,9 +323,9 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
       </div>
 
       {/* Tabla de cuentas */}
-      <div className='bg-white rounded-lg shadow-sm border overflow-hidden'>
+      <div className='bg-card rounded-lg shadow-sm border overflow-hidden'>
         <Table>
-          <TableHeader className='bg-gray-50'>
+          <TableHeader className='bg-muted/50'>
             <TableRow>
               <TableHead className='text-left w-[180px] font-semibold text-gray-700'>
                 Cuenta

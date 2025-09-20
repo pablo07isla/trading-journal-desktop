@@ -220,13 +220,13 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
   const getOrderTypeBadge = (orderType: string) => {
     if (orderType === "BUY") {
       return (
-        <Badge className='bg-emerald-50 text-emerald-700 border-emerald-200'>
+        <Badge className='bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30'>
           Buy
         </Badge>
       );
     }
     return (
-      <Badge className='bg-orange-50 text-orange-700 border-orange-200'>
+      <Badge className='bg-orange-500/10 text-orange-600 border-orange-500/20 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30'>
         Sell
       </Badge>
     );
@@ -235,13 +235,13 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
   const getProfitBadge = (profit: number) => {
     if (profit > 0) {
       return (
-        <Badge className='bg-green-50 text-green-700 border-green-200'>
+        <Badge className='bg-green-500/10 text-green-600 border-green-500/20 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30'>
           +${profit.toFixed(2)}
         </Badge>
       );
     } else if (profit < 0) {
       return (
-        <Badge className='bg-red-50 text-red-700 border-red-200'>
+        <Badge className='bg-red-500/10 text-red-600 border-red-500/20 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30'>
           ${profit.toFixed(2)}
         </Badge>
       );
@@ -264,9 +264,9 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
 
         <div className='space-y-6'>
           {/* Información inmutable del trade */}
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg'>
             <div>
-              <Label className='text-xs text-gray-500 uppercase tracking-wide'>
+              <Label className='text-xs text-muted-foreground uppercase tracking-wide'>
                 Símbolo
               </Label>
               <div className='flex items-center gap-2 mt-1'>
@@ -276,31 +276,31 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
               </div>
             </div>
             <div>
-              <Label className='text-xs text-gray-500 uppercase tracking-wide'>
+              <Label className='text-xs text-muted-foreground uppercase tracking-wide'>
                 Tipo
               </Label>
               <div className='mt-1'>{getOrderTypeBadge(trade.trade_type)}</div>
             </div>
             <div>
-              <Label className='text-xs text-gray-500 uppercase tracking-wide'>
+              <Label className='text-xs text-muted-foreground uppercase tracking-wide'>
                 Volumen
               </Label>
               <p className='font-medium mt-1'>{trade.volume}</p>
             </div>
             <div>
-              <Label className='text-xs text-gray-500 uppercase tracking-wide'>
+              <Label className='text-xs text-muted-foreground uppercase tracking-wide'>
                 Apertura
               </Label>
-              <p className='text-sm text-gray-600 mt-1'>
+              <p className='text-sm text-muted-foreground mt-1'>
                 {formatTradeDate(trade.open_time)}
               </p>
               <p className='font-mono text-sm'>{trade.open_price.toFixed(5)}</p>
             </div>
             <div>
-              <Label className='text-xs text-gray-500 uppercase tracking-wide'>
+              <Label className='text-xs text-muted-foreground uppercase tracking-wide'>
                 Cierre
               </Label>
-              <p className='text-sm text-gray-600 mt-1'>
+              <p className='text-sm text-muted-foreground mt-1'>
                 {trade.close_time
                   ? formatTradeDate(trade.close_time)
                   : "Abierto"}
@@ -310,7 +310,7 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
               </p>
             </div>
             <div>
-              <Label className='text-xs text-gray-500 uppercase tracking-wide'>
+              <Label className='text-xs text-muted-foreground uppercase tracking-wide'>
                 P&L
               </Label>
               <div className='mt-1'>{getProfitBadge(trade.profit)}</div>
@@ -366,7 +366,7 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
                       <div className='flex flex-col'>
                         <span>{plan.nombre}</span>
                         {plan.tipo_trader && (
-                          <span className='text-xs text-gray-500 truncate'>
+                          <span className='text-xs text-muted-foreground truncate'>
                             {plan.tipo_trader}
                           </span>
                         )}
@@ -376,7 +376,7 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
                 </SelectContent>
               </Select>
               {formData.plan_id && (
-                <p className='text-xs text-blue-600 mt-1'>
+                <p className='text-xs text-primary mt-1'>
                   💡 Este trade se asociará con tu plan de trading para
                   seguimiento y análisis
                 </p>
@@ -434,9 +434,9 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
                         className='flex items-center justify-between p-2 border rounded'>
                         <div className='flex items-center gap-2'>
                           {isImage ? (
-                            <ImageIcon className='w-4 h-4 text-blue-500' />
+                            <ImageIcon className='w-4 h-4 text-primary' />
                           ) : (
-                            <FileText className='w-4 h-4 text-gray-500' />
+                            <FileText className='w-4 h-4 text-muted-foreground' />
                           )}
                           <span className='text-sm truncate'>
                             Adjunto {attachment.id}
@@ -462,15 +462,15 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
               <div
                 className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                   dragActive
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-300 hover:border-gray-400"
+                    ? "border-primary bg-primary/5"
+                    : "border-muted-foreground/25 hover:border-muted-foreground/40"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}>
-                <Upload className='w-8 h-8 text-gray-400 mx-auto mb-2' />
-                <p className='text-sm text-gray-600 mb-2'>
+                <Upload className='w-8 h-8 text-muted-foreground mx-auto mb-2' />
+                <p className='text-sm text-muted-foreground mb-2'>
                   Arrastra archivos aquí o haz clic para seleccionar
                 </p>
                 <input
@@ -495,8 +495,10 @@ const MT5TradeEditForm: React.FC<MT5TradeEditFormProps> = ({
                   {files.map((file, index) => (
                     <div
                       key={index}
-                      className='flex items-center justify-between p-2 bg-gray-50 rounded'>
-                      <span className='text-sm text-gray-700'>{file.name}</span>
+                      className='flex items-center justify-between p-2 bg-muted/50 rounded'>
+                      <span className='text-sm text-foreground'>
+                        {file.name}
+                      </span>
                       <Button
                         type='button'
                         variant='ghost'

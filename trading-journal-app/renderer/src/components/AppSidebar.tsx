@@ -194,7 +194,7 @@ export function AppSidebar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className='cursor-pointer text-red-600 focus:text-red-600'>
+                <DropdownMenuItem className='cursor-pointer text-destructive focus:text-destructive dark:text-red-400 dark:focus:text-red-300'>
                   <LogOut className='w-4 h-4 mr-2' />
                   Cerrar sesión
                 </DropdownMenuItem>

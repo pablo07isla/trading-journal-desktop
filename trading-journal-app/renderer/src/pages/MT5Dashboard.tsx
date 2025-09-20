@@ -257,7 +257,7 @@ const MT5Dashboard: React.FC = () => {
   );
 
   return (
-    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 space-y-6 bg-gray-50 min-h-screen overflow-x-auto'>
+    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 space-y-6 bg-background min-h-screen overflow-x-auto'>
       <div className='flex flex-col gap-4'>
         <h1 className='text-2xl font-bold'>Dashboard MT5</h1>
 
@@ -314,7 +314,7 @@ const MT5Dashboard: React.FC = () => {
         )}
 
         {error && (
-          <div className='text-center py-4 text-red-600'>
+          <div className='text-center py-4 text-destructive'>
             <p>Error: {error}</p>
           </div>
         )}
@@ -329,8 +329,8 @@ const MT5Dashboard: React.FC = () => {
               <div
                 className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
                   kpi.trend === "up"
-                    ? "bg-green-50 text-green-700"
-                    : "bg-red-50 text-red-700"
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                    : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
                 }`}>
                 {kpi.trend === "up" ? (
                   <TrendingUp className='h-4 w-4' />
@@ -366,7 +366,9 @@ const MT5Dashboard: React.FC = () => {
               </CardTitle>
               <metric.icon
                 className={`h-4 w-4 ${
-                  metric.trend === "up" ? "text-green-600" : "text-red-600"
+                  metric.trend === "up"
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"
                 }`}
               />
             </CardHeader>

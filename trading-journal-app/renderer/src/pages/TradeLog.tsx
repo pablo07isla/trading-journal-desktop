@@ -24,12 +24,12 @@ const TradeLog: React.FC = () => {
   };
 
   return (
-    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-gray-50 min-h-screen overflow-x-auto'>
+    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-background min-h-screen overflow-x-auto'>
       <div className='mb-6'>
-        <h1 className='text-3xl font-bold text-gray-900 mb-2'>
+        <h1 className='text-3xl font-bold text-foreground mb-2'>
           Diario de Operaciones
         </h1>
-        <p className='text-gray-600'>
+        <p className='text-muted-foreground'>
           Registro completo de tus trades y operaciones
         </p>
       </div>

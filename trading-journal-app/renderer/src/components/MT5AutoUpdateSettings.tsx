@@ -37,7 +37,7 @@ const MT5AutoUpdateSettings: React.FC<MT5AutoUpdateSettingsProps> = ({
         <Button
           variant='ghost'
           size='sm'
-          className='h-8 w-8 p-0 hover:bg-gray-50'
+          className='h-8 w-8 p-0 hover:bg-muted'
           title='Configurar actualización automática'>
           <Settings className='w-3 h-3' />
         </Button>
@@ -53,14 +53,14 @@ const MT5AutoUpdateSettings: React.FC<MT5AutoUpdateSettingsProps> = ({
                 {isAutoUpdateEnabled ? (
                   <Badge
                     variant='default'
-                    className='bg-green-50 text-green-700 border-green-200'>
+                    className='bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30'>
                     <Zap className='w-3 h-3 mr-1' />
                     Activa
                   </Badge>
                 ) : (
                   <Badge
                     variant='secondary'
-                    className='bg-gray-50 text-gray-700 border-gray-200'>
+                    className='bg-muted text-foreground border-border dark:bg-muted dark:text-muted-foreground'>
                     <Pause className='w-3 h-3 mr-1' />
                     Inactiva
                   </Badge>
@@ -100,7 +100,7 @@ const MT5AutoUpdateSettings: React.FC<MT5AutoUpdateSettingsProps> = ({
           )}
 
           <div className='pt-2 border-t'>
-            <p className='text-xs text-gray-600'>
+            <p className='text-xs text-muted-foreground'>
               {isAutoUpdatePaused
                 ? "⏸️ Actualización pausada manualmente"
                 : isAutoUpdateEnabled

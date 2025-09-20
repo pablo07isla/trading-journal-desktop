@@ -195,9 +195,7 @@ const PnLDistributionChart: React.FC<PnLDistributionChartProps> = ({
               <p className='text-xs text-muted-foreground'>Trades Perdedores</p>
             </div>
             <div className='text-center'>
-              <p className='text-2xl font-bold text-blue-600 dark:text-blue-400'>
-                {winRate}%
-              </p>
+              <p className='text-2xl font-bold text-primary'>{winRate}%</p>
               <p className='text-xs text-muted-foreground'>Win Rate</p>
             </div>
             <div className='text-center'>

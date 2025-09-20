@@ -127,7 +127,7 @@ const MT5TradesTableWrapper: React.FC<MT5TradesTableWrapperProps> = ({
   return (
     <>
       {/* Indicador de actualización automática */}
-      <div className='mb-4 p-3 bg-white rounded-lg shadow-sm border'>
+      <div className='mb-4 p-3 bg-card rounded-lg shadow-sm border'>
         <MT5AutoUpdateIndicator
           lastUpdateTime={lastUpdateTime}
           isUpdating={isUpdating}
@@ -144,20 +144,20 @@ const MT5TradesTableWrapper: React.FC<MT5TradesTableWrapperProps> = ({
         <div
           className={`mb-4 p-3 rounded-lg text-sm ${
             updateMessage.startsWith("Error")
-              ? "bg-red-50 text-red-700 border border-red-200"
-              : "bg-green-50 text-green-700 border border-green-200"
+              ? "bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/30"
+              : "bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30"
           }`}>
           {updateMessage}
         </div>
       )}
 
       {/* Filtros - mantener consistencia con ManualTradesTable */}
-      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-white rounded-lg shadow-sm border'>
+      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-card rounded-lg shadow-sm border'>
         {/* Selector de cuenta MT5 */}
         <div className='flex items-center gap-2'>
           <label
             htmlFor='account-select'
-            className='text-sm font-medium text-gray-700'>
+            className='text-sm font-medium text-foreground'>
             Cuenta MT5:
           </label>
           <select
@@ -166,7 +166,7 @@ const MT5TradesTableWrapper: React.FC<MT5TradesTableWrapperProps> = ({
             onChange={(e) =>
               setAccountId(e.target.value ? Number(e.target.value) : undefined)
             }
-            className='px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm min-w-[200px]'>
+            className='px-4 py-2 border border-border rounded-lg bg-muted focus:bg-background focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all text-sm min-w-[200px]'>
             <option value=''>Seleccionar cuenta...</option>
             {accounts.map((account) => (
               <option key={account.account_id} value={account.account_id}>
@@ -178,7 +178,7 @@ const MT5TradesTableWrapper: React.FC<MT5TradesTableWrapperProps> = ({
 
         {/* Info de la cuenta seleccionada */}
         {/* {accountId && accounts.length > 0 && (
-          <div className='flex items-center gap-4 text-sm text-gray-600'>
+          <div className='flex items-center gap-4 text-sm text-muted-foreground'>
             <span>
               Trades: <span className='font-medium'>{mt5TradesCount}</span>
             </span>
@@ -188,10 +188,10 @@ const MT5TradesTableWrapper: React.FC<MT5TradesTableWrapperProps> = ({
 
       {/* Contenido principal */}
       {accounts.length === 0 ? (
-        <div className='bg-white rounded-lg shadow-sm border overflow-hidden p-12'>
-          <div className='flex flex-col items-center justify-center text-gray-500'>
+        <div className='bg-card rounded-lg shadow-sm border overflow-hidden p-12'>
+          <div className='flex flex-col items-center justify-center text-muted-foreground'>
             <div className='text-4xl mb-4'>🤖</div>
-            <h3 className='text-lg font-medium mb-2'>
+            <h3 className='text-lg font-medium mb-2 text-foreground'>
               No hay cuentas MT5 importadas
             </h3>
             <p className='text-sm text-center'>
@@ -200,10 +200,12 @@ const MT5TradesTableWrapper: React.FC<MT5TradesTableWrapperProps> = ({
           </div>
         </div>
       ) : !accountId ? (
-        <div className='bg-white rounded-lg shadow-sm border overflow-hidden p-12'>
-          <div className='flex flex-col items-center justify-center text-gray-500'>
+        <div className='bg-card rounded-lg shadow-sm border overflow-hidden p-12'>
+          <div className='flex flex-col items-center justify-center text-muted-foreground'>
             <div className='text-4xl mb-4'>👆</div>
-            <h3 className='text-lg font-medium mb-2'>Selecciona una cuenta</h3>
+            <h3 className='text-lg font-medium mb-2 text-foreground'>
+              Selecciona una cuenta
+            </h3>
             <p className='text-sm text-center'>
               Elige una cuenta MT5 para ver sus trades importados.
             </p>

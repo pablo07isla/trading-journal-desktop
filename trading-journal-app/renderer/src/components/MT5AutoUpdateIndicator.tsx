@@ -46,12 +46,14 @@ const MT5AutoUpdateIndicator: React.FC<MT5AutoUpdateIndicatorProps> = ({
   };
 
   return (
-    <div className='flex items-center gap-3 text-sm text-gray-600'>
+    <div className='flex items-center gap-3 text-sm text-muted-foreground'>
       {/* Estado de actualización */}
       {isUpdating ? (
         <div className='flex items-center gap-2'>
-          <RefreshCw className='w-4 h-4 animate-spin text-blue-600' />
-          <span className='text-blue-600 font-medium'>Actualizando...</span>
+          <RefreshCw className='w-4 h-4 animate-spin text-blue-600 dark:text-blue-400' />
+          <span className='text-blue-600 dark:text-blue-400 font-medium'>
+            Actualizando...
+          </span>
         </div>
       ) : (
         <div className='flex items-center gap-2'>
@@ -69,7 +71,7 @@ const MT5AutoUpdateIndicator: React.FC<MT5AutoUpdateIndicatorProps> = ({
       {isAutoUpdatePaused ? (
         <Badge
           variant='secondary'
-          className='bg-yellow-50 text-yellow-700 border-yellow-200'>
+          className='bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800/30'>
           <Pause className='w-3 h-3 mr-1' />
           Pausado
         </Badge>
@@ -77,7 +79,7 @@ const MT5AutoUpdateIndicator: React.FC<MT5AutoUpdateIndicatorProps> = ({
         !isUpdating && (
           <Badge
             variant='outline'
-            className='bg-green-50 text-green-700 border-green-200'>
+            className='bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30'>
             <Clock className='w-3 h-3 mr-1' />
             Próxima en {formatTimeRemaining(nextUpdateIn)}
           </Badge>
@@ -92,7 +94,7 @@ const MT5AutoUpdateIndicator: React.FC<MT5AutoUpdateIndicatorProps> = ({
             variant='ghost'
             size='sm'
             onClick={onResume}
-            className='h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600'
+            className='h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400'
             title='Reanudar actualización automática'>
             <Play className='w-3 h-3' />
           </Button>
@@ -101,7 +103,7 @@ const MT5AutoUpdateIndicator: React.FC<MT5AutoUpdateIndicatorProps> = ({
             variant='ghost'
             size='sm'
             onClick={onPause}
-            className='h-8 w-8 p-0 hover:bg-yellow-50 hover:text-yellow-600'
+            className='h-8 w-8 p-0 hover:bg-yellow-50 hover:text-yellow-600 dark:hover:bg-yellow-900/20 dark:hover:text-yellow-400'
             title='Pausar actualización automática'>
             <Pause className='w-3 h-3' />
           </Button>
@@ -113,7 +115,7 @@ const MT5AutoUpdateIndicator: React.FC<MT5AutoUpdateIndicatorProps> = ({
           size='sm'
           onClick={onManualUpdate}
           disabled={isUpdating}
-          className='h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600'
+          className='h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'
           title='Actualizar ahora'>
           <RefreshCw
             className={`w-3 h-3 ${isUpdating ? "animate-spin" : ""}`}
@@ -124,7 +126,7 @@ const MT5AutoUpdateIndicator: React.FC<MT5AutoUpdateIndicatorProps> = ({
       <Button
         onClick={onManualUpdate}
         disabled={isUpdating}
-        className='ml-auto bg-green-600 hover:bg-green-700 text-white shadow-sm flex items-center gap-2'>
+        className='ml-auto bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white shadow-sm flex items-center gap-2'>
         <RefreshCw className={`w-4 h-4 ${isUpdating ? "animate-spin" : ""}`} />
         {isUpdating ? "Actualizando..." : "Actualizar MT5"}
       </Button>

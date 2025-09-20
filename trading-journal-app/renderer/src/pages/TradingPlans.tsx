@@ -144,12 +144,12 @@ export function TradingPlans() {
 
   const getStatusBadge = (activo: boolean) => {
     return activo ? (
-      <Badge className='bg-green-100 text-green-800 border-green-200'>
+      <Badge className='bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800'>
         <CheckCircle className='w-3 h-3 mr-1' />
         Activo
       </Badge>
     ) : (
-      <Badge className='bg-gray-100 text-gray-800 border-gray-200'>
+      <Badge className='bg-muted text-muted-foreground border-border'>
         <Clock className='w-3 h-3 mr-1' />
         Inactivo
       </Badge>
@@ -166,9 +166,9 @@ export function TradingPlans() {
 
   const getRiskColor = (currentRisk: number, maxRisk: number) => {
     const riskPercentage = (currentRisk / maxRisk) * 100;
-    if (riskPercentage >= 80) return "text-red-600";
-    if (riskPercentage >= 60) return "text-yellow-600";
-    return "text-green-600";
+    if (riskPercentage >= 80) return "text-red-600 dark:text-red-400";
+    if (riskPercentage >= 60) return "text-yellow-600 dark:text-yellow-400";
+    return "text-green-600 dark:text-green-400";
   };
 
   const handleViewPlanDetails = (plan: TradingPlanData) => {
@@ -211,7 +211,7 @@ export function TradingPlans() {
   if (loading) {
     return (
       <div className='flex items-center justify-center h-64'>
-        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
       </div>
     );
   }
@@ -221,11 +221,11 @@ export function TradingPlans() {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900 flex items-center gap-2'>
-            <Target className='w-6 h-6 text-blue-600' />
+          <h1 className='text-2xl font-bold text-foreground flex items-center gap-2'>
+            <Target className='w-6 h-6 text-primary' />
             Planes de Trading
           </h1>
-          <p className='text-gray-600 mt-1'>
+          <p className='text-muted-foreground mt-1'>
             Gestiona tus planes de trading con objetivos y reglas definidas
           </p>
         </div>
@@ -233,7 +233,7 @@ export function TradingPlans() {
           <DialogTrigger asChild>
             <Button
               onClick={handleCreatePlan}
-              className='bg-blue-600 hover:bg-blue-700'>
+              className='ml-auto bg-primary hover:bg-primary/90 text-primary-foreground'>
               <Plus className='w-4 h-4 mr-2' />
               Nuevo Plan
             </Button>
@@ -252,12 +252,12 @@ export function TradingPlans() {
       {/* Plans activos - Cards */}
       {plans.filter((plan) => plan.activo).length > 0 ? (
         <div className='mb-8'>
-          <h2 className='text-lg font-semibold text-gray-900 mb-4 flex items-center justify-between'>
+          <h2 className='text-lg font-semibold text-foreground mb-4 flex items-center justify-between'>
             <div className='flex items-center gap-2'>
-              <Activity className='w-5 h-5 text-green-600' />
+              <Activity className='w-5 h-5 text-green-600 dark:text-green-400' />
               Planes Activos
             </div>
-            <span className='text-sm font-normal text-gray-500'>
+            <span className='text-sm font-normal text-muted-foreground'>
               Haz clic para ver detalles
             </span>
           </h2>
@@ -269,13 +269,13 @@ export function TradingPlans() {
                 return (
                   <Card
                     key={plan.id}
-                    className='bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 cursor-pointer transition-all duration-200 hover:shadow-md'
+                    className='bg-gradient-to-r from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 border-primary/20 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/30'
                     onClick={() => handleViewPlanDetails(plan)}>
                     <CardContent className='p-4'>
                       <div className='flex items-center justify-between gap-6'>
                         {/* Columna izquierda: Nombre del Plan y Status */}
                         <div className='min-w-0 flex-shrink-0 w-64'>
-                          <h3 className='text-lg font-semibold text-gray-900 truncate mb-2'>
+                          <h3 className='text-lg font-semibold text-foreground truncate mb-2'>
                             {plan.nombre}
                           </h3>
                           <div className='gap-2'>
@@ -293,34 +293,36 @@ export function TradingPlans() {
                           {/* Información Básica */}
                           <div className='flex items-center gap-6 text-sm'>
                             <div className='text-center min-w-0'>
-                              <p className='text-xs text-gray-600 mb-1'>Tipo</p>
-                              <p className='font-semibold text-gray-900'>
+                              <p className='text-xs text-muted-foreground mb-1'>
+                                Tipo
+                              </p>
+                              <p className='font-semibold text-foreground'>
                                 {plan.tipo_trader || "-"}
                               </p>
                             </div>
                             <div className='text-center min-w-0'>
-                              <p className='text-xs text-gray-600 mb-1'>
+                              <p className='text-xs text-muted-foreground mb-1'>
                                 Riesgo/Día
                               </p>
-                              <p className='font-semibold text-gray-900'>
+                              <p className='font-semibold text-foreground'>
                                 {plan.riesgo_max_diario_pct
                                   ? `${plan.riesgo_max_diario_pct}%`
                                   : "-"}
                               </p>
                             </div>
                             <div className='text-center min-w-0'>
-                              <p className='text-xs text-gray-600 mb-1'>
+                              <p className='text-xs text-muted-foreground mb-1'>
                                 Max Ops
                               </p>
-                              <p className='font-semibold text-gray-900'>
+                              <p className='font-semibold text-foreground'>
                                 {plan.max_operaciones_dia || "-"}
                               </p>
                             </div>
                             <div className='text-center min-w-0'>
-                              <p className='text-xs text-gray-600 mb-1'>
+                              <p className='text-xs text-muted-foreground mb-1'>
                                 Riesgo/Op
                               </p>
-                              <p className='font-semibold text-gray-900'>
+                              <p className='font-semibold text-foreground'>
                                 {plan.riesgo_por_operacion_pct
                                   ? `${plan.riesgo_por_operacion_pct}%`
                                   : "-"}
@@ -330,30 +332,30 @@ export function TradingPlans() {
 
                           {/* Progreso del Día */}
                           {progress && (
-                            <div className='flex items-center gap-6 text-sm border-l pl-6 border-gray-200'>
+                            <div className='flex items-center gap-6 text-sm border-l pl-6 border-border'>
                               <div className='text-center min-w-0'>
-                                <p className='text-xs text-gray-600 mb-1'>
+                                <p className='text-xs text-muted-foreground mb-1'>
                                   Ops Hoy
                                 </p>
-                                <p className='font-semibold text-blue-600'>
+                                <p className='font-semibold text-primary'>
                                   {progress.operacionesHoy || 0}
                                 </p>
                               </div>
                               <div className='text-center min-w-0'>
-                                <p className='text-xs text-gray-600 mb-1'>
+                                <p className='text-xs text-muted-foreground mb-1'>
                                   P&L
                                 </p>
                                 <p
                                   className={`font-semibold ${
                                     progress.totalProfit >= 0
-                                      ? "text-green-600"
-                                      : "text-red-600"
+                                      ? "text-green-600 dark:text-green-400"
+                                      : "text-red-600 dark:text-red-400"
                                   }`}>
                                   {formatCurrency(progress.totalProfit)}
                                 </p>
                               </div>
                               <div className='text-center min-w-0'>
-                                <p className='text-xs text-gray-600 mb-1'>
+                                <p className='text-xs text-muted-foreground mb-1'>
                                   Riesgo Usado
                                 </p>
                                 <p
@@ -365,10 +367,10 @@ export function TradingPlans() {
                                 </p>
                               </div>
                               <div className='text-center min-w-0'>
-                                <p className='text-xs text-gray-600 mb-1'>
+                                <p className='text-xs text-muted-foreground mb-1'>
                                   Win Rate
                                 </p>
-                                <p className='font-semibold text-purple-600'>
+                                <p className='font-semibold text-primary'>
                                   {progress.winRate.toFixed(1)}%
                                 </p>
                               </div>
@@ -385,7 +387,7 @@ export function TradingPlans() {
                               e.stopPropagation();
                               handleEditPlan(plan);
                             }}
-                            className='text-blue-600 hover:text-blue-800'>
+                            className='text-primary hover:text-primary/80 hover:bg-primary/10'>
                             <Edit className='w-4 h-4' />
                           </Button>
                           <Button
@@ -395,10 +397,10 @@ export function TradingPlans() {
                               e.stopPropagation();
                               handleDeletePlan(plan);
                             }}
-                            className='text-red-600 hover:text-red-800'>
+                            className='text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300'>
                             <Trash2 className='w-4 h-4' />
                           </Button>
-                          <Eye className='w-5 h-5 text-blue-600' />
+                          <Eye className='w-5 h-5 text-primary' />
                         </div>
                       </div>
                     </CardContent>
@@ -408,18 +410,18 @@ export function TradingPlans() {
           </div>
         </div>
       ) : (
-        <div className='bg-white rounded-lg shadow-sm border p-8 text-center'>
-          <Target className='w-16 h-16 mx-auto mb-4 text-gray-400' />
-          <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+        <div className='bg-card rounded-lg shadow-sm border p-8 text-center'>
+          <Target className='w-16 h-16 mx-auto mb-4 text-muted-foreground' />
+          <h3 className='text-xl font-semibold text-foreground mb-2'>
             No hay planes activos
           </h3>
-          <p className='text-gray-600 mb-4'>
+          <p className='text-muted-foreground mb-4'>
             Crea un plan de trading y actívalo para comenzar a operar con
             disciplina
           </p>
           <Button
             onClick={handleCreatePlan}
-            className='bg-blue-600 hover:bg-blue-700'>
+            className='bg-primary hover:bg-primary/90'>
             <Plus className='w-4 h-4 mr-2' />
             Crear Plan
           </Button>
@@ -434,8 +436,8 @@ export function TradingPlans() {
               {/* Header compacto */}
               <div className='flex items-center justify-between border-b pb-3'>
                 <div className='flex items-center gap-3'>
-                  <Target className='w-5 h-5 text-blue-600' />
-                  <h2 className='text-xl font-bold text-gray-900'>
+                  <Target className='w-5 h-5 text-primary' />
+                  <h2 className='text-xl font-bold text-foreground'>
                     {selectedPlanForDetails.nombre}
                   </h2>
                   {getStatusBadge(selectedPlanForDetails.activo)}

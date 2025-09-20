@@ -304,7 +304,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
               {/* Target Line - Verde - Siempre renderizada, condicionalmente visible */}
               <ReferenceLine
                 y={challengeMode ? challengeTargetLevel : null}
-                stroke={challengeMode ? "#10b981" : "transparent"}
+                stroke={challengeMode ? "hsl(var(--chart-2))" : "transparent"}
                 strokeDasharray={challengeMode ? "3 3" : "0"}
                 strokeWidth={challengeMode ? 2 : 0}
                 label={
@@ -315,7 +315,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                         )} (+${challengeTarget}%)`,
                         position: "insideTopLeft",
                         fontSize: 12,
-                        fill: "#10b981",
+                        fill: "hsl(var(--chart-2))",
                       }
                     : undefined
                 }
@@ -324,7 +324,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
               {/* Stop Line - Roja - Siempre renderizada, condicionalmente visible */}
               <ReferenceLine
                 y={challengeMode ? challengeStopLevel : null}
-                stroke={challengeMode ? "#ef4444" : "transparent"}
+                stroke={challengeMode ? "hsl(var(--chart-5))" : "transparent"}
                 strokeDasharray={challengeMode ? "3 3" : "0"}
                 strokeWidth={challengeMode ? 2 : 0}
                 label={
@@ -335,7 +335,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                         )} (${challengeStop}%)`,
                         position: "insideBottomLeft",
                         fontSize: 12,
-                        fill: "#ef4444",
+                        fill: "hsl(var(--chart-5))",
                       }
                     : undefined
                 }

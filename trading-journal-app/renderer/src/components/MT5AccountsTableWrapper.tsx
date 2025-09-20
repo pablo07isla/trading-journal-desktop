@@ -123,7 +123,7 @@ const MT5AccountsTableWrapper: React.FC<MT5AccountsTableWrapperProps> = ({
       </div> */}
 
       {/* Indicador de actualización automática */}
-      <div className='mb-4 p-3 bg-white rounded-lg shadow-sm border'>
+      <div className='mb-4 p-3 bg-card rounded-lg shadow-sm border'>
         <MT5AutoUpdateIndicator
           lastUpdateTime={lastUpdateTime}
           isUpdating={isUpdating}
@@ -140,8 +140,8 @@ const MT5AccountsTableWrapper: React.FC<MT5AccountsTableWrapperProps> = ({
         <div
           className={`mb-4 p-3 rounded-lg text-sm ${
             updateMessage.startsWith("Error")
-              ? "bg-red-50 text-red-700 border border-red-200"
-              : "bg-green-50 text-green-700 border border-green-200"
+              ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800"
+              : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800"
           }`}>
           {updateMessage}
         </div>

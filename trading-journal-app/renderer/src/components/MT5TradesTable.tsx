@@ -81,7 +81,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='default'
-          className='bg-emerald-50 text-emerald-700 border-emerald-200'>
+          className='bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800/30'>
           Buy
         </Badge>
       );
@@ -90,7 +90,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='secondary'
-          className='bg-orange-50 text-orange-700 border-orange-200'>
+          className='bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/30'>
           Sell
         </Badge>
       );
@@ -103,7 +103,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='default'
-          className='bg-green-100 text-green-800 hover:bg-green-100 flex items-center gap-1'>
+          className='bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-900/30 flex items-center gap-1'>
           <TrendingUp className='w-3 h-3' />
           +${profit.toFixed(2)}
         </Badge>
@@ -112,7 +112,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='destructive'
-          className='bg-red-100 text-red-800 hover:bg-red-100 flex items-center gap-1'>
+          className='bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/30 flex items-center gap-1'>
           <TrendingDown className='w-3 h-3' />
           -${Math.abs(profit).toFixed(2)}
         </Badge>
@@ -121,7 +121,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='secondary'
-          className='bg-gray-100 text-gray-800 hover:bg-gray-100 flex items-center gap-1'>
+          className='bg-muted text-muted-foreground hover:bg-muted flex items-center gap-1'>
           <Minus className='w-3 h-3' />
           $0.00
         </Badge>
@@ -134,7 +134,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='outline'
-          className='bg-blue-50 text-blue-700 border-blue-200'>
+          className='bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/30'>
           Cierre manual
         </Badge>
       );
@@ -146,7 +146,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='destructive'
-          className='bg-red-50 text-red-700 border-red-200'>
+          className='bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/30'>
           Stop Loss
         </Badge>
       );
@@ -156,14 +156,14 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       return (
         <Badge
           variant='default'
-          className='bg-green-50 text-green-700 border-green-200'>
+          className='bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30'>
           Take Profit
         </Badge>
       );
     }
 
     // Si no coincide con ningún patrón, mostrar el comentario original
-    return <span className='text-sm text-gray-600'>{comment}</span>;
+    return <span className='text-sm text-muted-foreground'>{comment}</span>;
   };
 
   const filteredTrades = trades.filter(
@@ -174,9 +174,9 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
   return (
     <>
       {/* Filtros */}
-      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-white rounded-lg shadow-sm border'>
+      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-card rounded-lg shadow-sm border'>
         <div className='relative flex-1 min-w-[200px] max-w-xs'>
-          <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400'>
+          <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground'>
             <Search className='w-4 h-4' />
           </span>
           <input
@@ -184,7 +184,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
             placeholder='Buscar por símbolo...'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className='w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm'
+            className='w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-muted focus:bg-background focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all text-sm'
           />
         </div>
         {accountId && (
@@ -203,50 +203,50 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       {loading ? (
         <div className='flex items-center justify-center py-12'>
           <div className='text-center'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2'></div>
-            <p className='text-gray-600'>Cargando trades...</p>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2'></div>
+            <p className='text-muted-foreground'>Cargando trades...</p>
           </div>
         </div>
       ) : (
-        <div className='bg-white rounded-lg shadow-sm border overflow-hidden'>
+        <div className='bg-card rounded-lg shadow-sm border overflow-hidden'>
           <Table>
-            <TableHeader className='bg-gray-50'>
+            <TableHeader className='bg-muted/50'>
               <TableRow>
-                {/* <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+                {/* <TableHead className='text-left w-[100px] font-semibold text-foreground'>
                   Position ID
                 </TableHead> */}
-                <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[100px] font-semibold text-foreground'>
                   Símbolo
                 </TableHead>
-                <TableHead className='text-left w-[80px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[80px] font-semibold text-foreground'>
                   Tipo
                 </TableHead>
-                <TableHead className='text-left w-[90px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[90px] font-semibold text-foreground'>
                   Volumen
                 </TableHead>
-                <TableHead className='text-left w-[140px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[140px] font-semibold text-foreground'>
                   Fecha Apertura
                 </TableHead>
-                <TableHead className='text-left w-[130px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[130px] font-semibold text-foreground'>
                   Precio Apertura
                 </TableHead>
-                <TableHead className='text-left w-[140px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[140px] font-semibold text-foreground'>
                   Fecha Cierre
                 </TableHead>
-                <TableHead className='text-left w-[130px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[130px] font-semibold text-foreground'>
                   Precio Cierre
                 </TableHead>
 
-                <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[100px] font-semibold text-foreground'>
                   Comisión
                 </TableHead>
-                <TableHead className='text-left w-[120px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[120px] font-semibold text-foreground'>
                   Profit
                 </TableHead>
-                <TableHead className='text-left w-[150px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[150px] font-semibold text-foreground'>
                   Comentario
                 </TableHead>
-                <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[100px] font-semibold text-foreground'>
                   Acciones
                 </TableHead>
               </TableRow>
@@ -255,9 +255,9 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
               {filteredTrades.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={11} className='text-center py-12'>
-                    <div className='flex flex-col items-center justify-center text-gray-500'>
+                    <div className='flex flex-col items-center justify-center text-muted-foreground'>
                       <div className='text-4xl mb-4'>📊</div>
-                      <h3 className='text-lg font-medium mb-2'>
+                      <h3 className='text-lg font-medium mb-2 text-foreground'>
                         {search
                           ? "No se encontraron trades"
                           : "No hay trades importados"}
@@ -291,13 +291,13 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
                     <TableCell className='text-left w-[90px] font-medium'>
                       {trade.volume}
                     </TableCell>
-                    <TableCell className='text-left w-[140px] text-sm text-gray-600'>
+                    <TableCell className='text-left w-[140px] text-sm text-muted-foreground'>
                       {trade.open_time ? formatTradeDate(trade.open_time) : "-"}
                     </TableCell>
                     <TableCell className='text-left w-[130px] font-mono text-sm'>
                       {trade.open_price.toFixed(5)}
                     </TableCell>
-                    <TableCell className='text-left w-[140px] text-sm text-gray-600'>
+                    <TableCell className='text-left w-[140px] text-sm text-muted-foreground'>
                       {trade.close_time
                         ? formatTradeDate(trade.close_time)
                         : "-"}
@@ -314,7 +314,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
                     <TableCell className='text-left w-[120px]'>
                       {getProfitBadge(trade.profit)}
                     </TableCell>
-                    <TableCell className='text-left w-[150px] text-sm text-gray-600'>
+                    <TableCell className='text-left w-[150px] text-sm text-muted-foreground'>
                       {getCommentBadge(trade.comment ?? null)}
                     </TableCell>
                     <TableCell className='text-left w-[100px]'>
@@ -322,7 +322,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
                         {hasAdditionalInfo(trade) && (
                           <Badge
                             variant='outline'
-                            className='text-xs bg-blue-50 text-blue-700 border-blue-200'>
+                            className='text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/30'>
                             <FileText className='w-3 h-3 mr-1' />
                             Info
                           </Badge>

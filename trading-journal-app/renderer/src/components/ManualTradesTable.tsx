@@ -83,7 +83,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='default'
-          className='bg-green-100 text-green-800 hover:bg-green-100 flex items-center gap-1'>
+          className='bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 flex items-center gap-1 border-green-200 dark:border-green-800'>
           <TrendingUp className='w-3 h-3' />
           +${pnl.toFixed(2)}
         </Badge>
@@ -92,7 +92,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='destructive'
-          className='bg-red-100 text-red-800 hover:bg-red-100 flex items-center gap-1'>
+          className='bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 flex items-center gap-1 border-red-200 dark:border-red-800'>
           <TrendingDown className='w-3 h-3' />
           -${Math.abs(pnl).toFixed(2)}
         </Badge>
@@ -101,7 +101,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='secondary'
-          className='bg-gray-100 text-gray-800 hover:bg-gray-100 flex items-center gap-1'>
+          className='bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1'>
           <Minus className='w-3 h-3' />
           $0.00
         </Badge>
@@ -114,7 +114,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='destructive'
-          className='bg-red-50 text-red-700 border-red-200'>
+          className='bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'>
           Stop Loss
         </Badge>
       );
@@ -123,7 +123,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='default'
-          className='bg-green-50 text-green-700 border-green-200'>
+          className='bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'>
           Take Profit
         </Badge>
       );
@@ -132,7 +132,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='secondary'
-          className='bg-blue-50 text-blue-700 border-blue-200'>
+          className='bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'>
           Break Even
         </Badge>
       );
@@ -145,7 +145,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='default'
-          className='bg-emerald-50 text-emerald-700 border-emerald-200'>
+          className='bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'>
           Buy
         </Badge>
       );
@@ -154,7 +154,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='secondary'
-          className='bg-orange-50 text-orange-700 border-orange-200'>
+          className='bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800'>
           Sell
         </Badge>
       );
@@ -169,7 +169,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='default'
-          className='bg-green-50 text-green-700 border-green-200'>
+          className='bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'>
           Alta
         </Badge>
       );
@@ -178,16 +178,14 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       return (
         <Badge
           variant='secondary'
-          className='bg-yellow-50 text-yellow-700 border-yellow-200'>
+          className='bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800'>
           Media
         </Badge>
       );
     }
     if (confidence === "Baja") {
       return (
-        <Badge
-          variant='outline'
-          className='bg-gray-50 text-gray-700 border-gray-200'>
+        <Badge variant='outline' className='bg-muted/50 text-muted-foreground'>
           Baja
         </Badge>
       );
@@ -223,10 +221,10 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
   return (
     <>
       {/* Filtros */}
-      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-white rounded-lg shadow-sm border'>
+      <div className='flex flex-wrap gap-4 items-center mb-6 p-4 bg-card rounded-lg shadow-sm border'>
         {/* Buscar por símbolo */}
         <div className='relative flex-1 min-w-[200px] max-w-xs'>
-          <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400'>
+          <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground'>
             <Search className='w-4 h-4' />
           </span>
           <input
@@ -234,7 +232,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
             placeholder='Buscar por símbolo...'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className='w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm'
+            className='w-full pl-10 pr-4 py-2 border rounded-lg bg-background hover:bg-muted/50 focus:bg-background focus:border-primary focus:ring-2 focus:ring-ring transition-all text-sm'
           />
         </div>
 
@@ -242,7 +240,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
         <select
           value={strategy}
           onChange={(e) => setStrategy(e.target.value)}
-          className='px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm min-w-[180px]'>
+          className='px-4 py-2 border rounded-lg bg-background hover:bg-muted/50 focus:bg-background focus:border-primary focus:ring-2 focus:ring-ring transition-all text-sm min-w-[180px]'>
           <option value=''>Todas las estrategias</option>
           <option value='Breakout'>Breakout</option>
           <option value='Reversión'>Reversión</option>
@@ -260,7 +258,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
             }
           }}>
           <DialogTrigger asChild>
-            <Button className='ml-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm'>
+            <Button className='ml-auto bg-primary hover:bg-primary/90 text-primary-foreground'>
               <Plus className='mr-2 w-4 h-4' />
               Añadir Trade
             </Button>
@@ -330,37 +328,37 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       {loading ? (
         <div className='flex items-center justify-center py-12'>
           <div className='text-center'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2'></div>
-            <p className='text-gray-600'>Cargando operaciones...</p>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2'></div>
+            <p className='text-muted-foreground'>Cargando operaciones...</p>
           </div>
         </div>
       ) : (
-        <div className='bg-white rounded-lg shadow-sm border overflow-hidden'>
+        <div className='bg-card rounded-lg shadow-sm border overflow-hidden'>
           <Table>
-            <TableHeader className='bg-gray-50'>
+            <TableHeader className='bg-muted/50'>
               <TableRow>
-                <TableHead className='text-left w-[120px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[120px] font-semibold text-foreground'>
                   Fecha
                 </TableHead>
-                <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[100px] font-semibold text-foreground'>
                   Símbolo
                 </TableHead>
-                <TableHead className='text-left w-[80px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[80px] font-semibold text-foreground'>
                   Tipo
                 </TableHead>
-                <TableHead className='text-left w-[90px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[90px] font-semibold text-foreground'>
                   P/L
                 </TableHead>
-                <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[100px] font-semibold text-foreground'>
                   Resultado
                 </TableHead>
-                <TableHead className='text-left w-[130px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[130px] font-semibold text-foreground'>
                   Estrategia
                 </TableHead>
-                <TableHead className='text-left w-[110px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[110px] font-semibold text-foreground'>
                   Confianza
                 </TableHead>
-                <TableHead className='text-left w-[110px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[110px] font-semibold text-foreground'>
                   Acciones
                 </TableHead>
               </TableRow>
@@ -369,7 +367,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
               {filteredTrades.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className='text-center py-12'>
-                    <div className='flex flex-col items-center justify-center text-gray-500'>
+                    <div className='flex flex-col items-center justify-center text-muted-foreground'>
                       <div className='text-4xl mb-4'>📈</div>
                       <h3 className='text-lg font-medium mb-2'>
                         No hay operaciones
@@ -413,7 +411,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
                       {trade.strategy ? (
                         <Badge
                           variant='outline'
-                          className='bg-blue-50 text-blue-700 border-blue-200'>
+                          className='bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'>
                           {trade.strategy}
                         </Badge>
                       ) : (
@@ -428,7 +426,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
                         <Button
                           variant='ghost'
                           size='sm'
-                          className='h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600'
+                          className='h-8 w-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-950 hover:text-blue-600 dark:hover:text-blue-400'
                           aria-label='Editar'
                           onClick={(e) => {
                             e.stopPropagation();
@@ -439,7 +437,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
                         <Button
                           variant='ghost'
                           size='sm'
-                          className='h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600'
+                          className='h-8 w-8 p-0 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400'
                           aria-label='Eliminar'
                           onClick={(e) => {
                             e.stopPropagation();

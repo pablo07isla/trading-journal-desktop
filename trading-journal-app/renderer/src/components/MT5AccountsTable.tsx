@@ -116,16 +116,16 @@ const MT5AccountsTable: React.FC = () => {
           <Button
             size='sm'
             variant='ghost'
-            className='h-6 w-6 p-0 hover:bg-green-50'
+            className='h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30'
             onClick={() => handleSaveType(accountId)}>
-            <Check className='w-3 h-3 text-green-600' />
+            <Check className='w-3 h-3 text-green-600 dark:text-green-400' />
           </Button>
           <Button
             size='sm'
             variant='ghost'
-            className='h-6 w-6 p-0 hover:bg-red-50'
+            className='h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30'
             onClick={handleCancelEdit}>
-            <X className='w-3 h-3 text-red-600' />
+            <X className='w-3 h-3 text-red-600 dark:text-red-400' />
           </Button>
         </div>
       );
@@ -136,31 +136,35 @@ const MT5AccountsTable: React.FC = () => {
         case "demo":
           return {
             variant: "secondary" as const,
-            className: "bg-blue-50 text-blue-700 border-blue-200",
+            className:
+              "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
             label: "Demo",
           };
         case "live":
           return {
             variant: "default" as const,
-            className: "bg-green-50 text-green-700 border-green-200",
+            className:
+              "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800",
             label: "Live",
           };
         case "Challenge":
           return {
             variant: "outline" as const,
-            className: "bg-purple-50 text-purple-700 border-purple-200",
+            className:
+              "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
             label: "Challenge",
           };
         case "Funded":
           return {
             variant: "outline" as const,
-            className: "bg-ambar-50 text-purple-700 border-purple-200",
+            className:
+              "bg-amber-100 dark:bg-amber-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
             label: "Funded",
           };
         default:
           return {
             variant: "secondary" as const,
-            className: "bg-gray-50 text-gray-700 border-gray-200",
+            className: "bg-muted text-muted-foreground border-border",
             label: type,
           };
       }
@@ -176,9 +180,9 @@ const MT5AccountsTable: React.FC = () => {
         <Button
           size='sm'
           variant='ghost'
-          className='h-6 w-6 p-0 hover:bg-gray-50'
+          className='h-6 w-6 p-0 hover:bg-muted/50'
           onClick={() => handleEditType(accountId, type)}>
-          <Edit className='w-3 h-3 text-gray-500' />
+          <Edit className='w-3 h-3 text-muted-foreground' />
         </Button>
       </div>
     );
@@ -189,7 +193,7 @@ const MT5AccountsTable: React.FC = () => {
       return (
         <Badge
           variant='default'
-          className='bg-green-100 text-green-800 hover:bg-green-100 flex items-center gap-1'>
+          className='bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 flex items-center gap-1'>
           <TrendingUp className='w-3 h-3' />
           +${pnl.toFixed(2)}
         </Badge>
@@ -198,7 +202,7 @@ const MT5AccountsTable: React.FC = () => {
       return (
         <Badge
           variant='destructive'
-          className='bg-red-100 text-red-800 hover:bg-red-100 flex items-center gap-1'>
+          className='bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 flex items-center gap-1'>
           <TrendingDown className='w-3 h-3' />
           -${Math.abs(pnl).toFixed(2)}
         </Badge>
@@ -207,7 +211,7 @@ const MT5AccountsTable: React.FC = () => {
       return (
         <Badge
           variant='secondary'
-          className='bg-gray-100 text-gray-800 hover:bg-gray-100 flex items-center gap-1'>
+          className='bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1'>
           <Minus className='w-3 h-3' />
           $0.00
         </Badge>
@@ -233,14 +237,14 @@ const MT5AccountsTable: React.FC = () => {
       {loading ? (
         <div className='flex items-center justify-center py-12'>
           <div className='text-center'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2'></div>
-            <p className='text-gray-600'>Cargando cuentas...</p>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2'></div>
+            <p className='text-muted-foreground'>Cargando cuentas...</p>
           </div>
         </div>
       ) : (
-        <div className='bg-white rounded-lg shadow-sm border overflow-hidden'>
+        <div className='bg-card rounded-lg shadow-sm border overflow-hidden'>
           <Table>
-            <TableHeader className='bg-gray-50'>
+            <TableHeader className='bg-muted/50'>
               <TableRow>
                 <TableHead className='text-left w-[120px] font-semibold text-gray-700'>
                   Login

@@ -50,15 +50,19 @@ export function StrategyForm({
   const getStatusIcon = (estado: string) => {
     switch (estado) {
       case "activa":
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
+        return (
+          <CheckCircle className='w-4 h-4 text-green-600 dark:text-green-400' />
+        );
       case "inactiva":
-        return <AlertCircle className="w-4 h-4 text-gray-600" />;
+        return <AlertCircle className='w-4 h-4 text-muted-foreground' />;
       case "en_desarrollo":
-        return <Clock className="w-4 h-4 text-blue-600" />;
+        return <Clock className='w-4 h-4 text-blue-600 dark:text-blue-400' />;
       case "archivada":
-        return <Archive className="w-4 h-4 text-yellow-600" />;
+        return (
+          <Archive className='w-4 h-4 text-yellow-600 dark:text-yellow-400' />
+        );
       default:
-        return <BookOpen className="w-4 h-4 text-gray-600" />;
+        return <BookOpen className='w-4 h-4 text-muted-foreground' />;
     }
   };
 
@@ -76,19 +80,22 @@ export function StrategyForm({
     const statusConfig = {
       activa: {
         label: "Activa",
-        className: "bg-green-100 text-green-800 border-green-200",
+        className:
+          "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30",
       },
       inactiva: {
         label: "Inactiva",
-        className: "bg-gray-100 text-gray-800 border-gray-200",
+        className: "bg-muted text-muted-foreground border-border",
       },
       en_desarrollo: {
         label: "En Desarrollo",
-        className: "bg-blue-100 text-blue-800 border-blue-200",
+        className:
+          "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/30",
       },
       archivada: {
         label: "Archivada",
-        className: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        className:
+          "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800/30",
       },
     };
 
@@ -99,7 +106,7 @@ export function StrategyForm({
     return (
       <Badge className={config.className}>
         {getStatusIcon(estado)}
-        <span className="ml-2">{config.label}</span>
+        <span className='ml-2'>{config.label}</span>
       </Badge>
     );
   };
@@ -156,115 +163,115 @@ export function StrategyForm({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-white overflow-x-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-card overflow-x-auto'>
+      <div className='mb-6'>
+        <h2 className='text-2xl font-bold text-foreground mb-2'>
           {isEditing ? "Editar Estrategia" : "Nueva Estrategia"}
         </h2>
-        <p className="text-gray-600">
+        <p className='text-muted-foreground'>
           {isEditing
             ? "Actualiza los datos de tu estrategia"
             : "Completa la información para crear una nueva estrategia de trading"}
         </p>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className='space-y-6'>
         {/* Layout horizontal: 3 columnas principales, responsivo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
           {/* Columna 1: Información Básica */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Tag className="w-5 h-5 text-gray-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className='bg-muted/50 rounded-lg p-6'>
+            <div className='flex items-center gap-2 mb-4'>
+              <Tag className='w-5 h-5 text-muted-foreground' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Información Básica
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <Target className="w-4 h-4" />
+                <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+                  <Target className='w-4 h-4' />
                   Nombre de la Estrategia *
                 </label>
                 <Input
                   value={formData.nombre}
                   onChange={(e) => handleInputChange("nombre", e.target.value)}
-                  placeholder="Ej: Breakout de Soporte/Resistencia"
-                  className={`focus:ring-2 focus:ring-blue-200 ${
-                    errors.nombre ? "border-red-500 focus:border-red-500" : ""
+                  placeholder='Ej: Breakout de Soporte/Resistencia'
+                  className={`focus:ring-2 focus:ring-ring/20 ${
+                    errors.nombre
+                      ? "border-destructive focus:border-destructive"
+                      : ""
                   }`}
                 />
                 {errors.nombre && (
-                  <div className="flex items-center gap-1 text-red-600 text-xs mt-1">
-                    <AlertCircle className="w-3 h-3" />
+                  <div className='flex items-center gap-1 text-destructive text-xs mt-1'>
+                    <AlertCircle className='w-3 h-3' />
                     {errors.nombre}
                   </div>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
+                <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+                  <Settings className='w-4 h-4' />
                   Estado *
                 </label>
-                <div className="space-y-3">
+                <div className='space-y-3'>
                   <Select
                     value={formData.estado}
                     onValueChange={(value) =>
                       handleInputChange("estado", value)
-                    }
-                  >
+                    }>
                     <SelectTrigger
-                      className={`focus:ring-2 focus:ring-blue-200 ${
-                        errors.estado ? "border-red-500" : ""
-                      }`}
-                    >
-                      <SelectValue placeholder="Selecciona el estado">
+                      className={`focus:ring-2 focus:ring-ring/20 ${
+                        errors.estado ? "border-destructive" : ""
+                      }`}>
+                      <SelectValue placeholder='Selecciona el estado'>
                         {formData.estado
                           ? getStatusLabel(formData.estado)
                           : "Selecciona el estado"}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="activa">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
+                      <SelectItem value='activa'>
+                        <div className='flex items-center gap-2'>
+                          <CheckCircle className='w-4 h-4 text-green-600 dark:text-green-400' />
                           <span>Activa</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="inactiva">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-gray-600" />
+                      <SelectItem value='inactiva'>
+                        <div className='flex items-center gap-2'>
+                          <AlertCircle className='w-4 h-4 text-muted-foreground' />
                           <span>Inactiva</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="en_desarrollo">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-blue-600" />
+                      <SelectItem value='en_desarrollo'>
+                        <div className='flex items-center gap-2'>
+                          <Clock className='w-4 h-4 text-blue-600 dark:text-blue-400' />
                           <span>En Desarrollo</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="archivada">
-                        <div className="flex items-center gap-2">
-                          <Archive className="w-4 h-4 text-yellow-600" />
+                      <SelectItem value='archivada'>
+                        <div className='flex items-center gap-2'>
+                          <Archive className='w-4 h-4 text-yellow-600 dark:text-yellow-400' />
                           <span>Archivada</span>
                         </div>
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.estado && (
-                    <div className="flex items-center gap-1 text-red-600 text-xs">
-                      <AlertCircle className="w-3 h-3" />
+                    <div className='flex items-center gap-1 text-destructive text-xs'>
+                      <AlertCircle className='w-3 h-3' />
                       {errors.estado}
                     </div>
                   )}
                   {/* Badge del estado seleccionado - solo se muestra aquí */}
                   {formData.estado && (
-                    <div className="flex justify-start">
+                    <div className='flex justify-start'>
                       {getStatusBadge(formData.estado)}
                     </div>
                   )}
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Descripción General
                 </label>
                 <Textarea
@@ -272,49 +279,49 @@ export function StrategyForm({
                   onChange={(e) =>
                     handleInputChange("descripcion", e.target.value)
                   }
-                  placeholder="Describe brevemente en qué consiste esta estrategia..."
+                  placeholder='Describe brevemente en qué consiste esta estrategia...'
                   rows={4}
-                  className="focus:ring-2 focus:ring-blue-200 resize-none"
+                  className='focus:ring-2 focus:ring-ring/20 resize-none'
                   spellCheck={true}
                 />
                 {errors.descripcion && (
-                  <div className="text-red-600 text-xs mt-1">
+                  <div className='text-destructive text-xs mt-1'>
                     {errors.descripcion}
                   </div>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
+                <p className='text-xs text-muted-foreground mt-1'>
                   Explica cuándo utilizarla y qué mercados son más adecuados
                 </p>
               </div>
             </div>
           </div>
           {/* Columna 2: Reglas y Metodología */}
-          <div className="bg-blue-50 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className='bg-blue-50/50 dark:bg-blue-900/10 rounded-lg p-6'>
+            <div className='flex items-center gap-2 mb-4'>
+              <FileText className='w-5 h-5 text-blue-600 dark:text-blue-400' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Reglas y Metodología
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Reglas de la Estrategia
                 </label>
                 <Textarea
                   value={formData.reglas}
                   onChange={(e) => handleInputChange("reglas", e.target.value)}
-                  placeholder="Detalla las reglas específicas:&#10;• Condiciones de entrada (señales, indicadores, patrones)&#10;• Condiciones de salida (stop loss, take profit)&#10;• Gestión de riesgo&#10;• Timeframes recomendados&#10;• Indicadores técnicos a utilizar"
+                  placeholder='Detalla las reglas específicas:&#10;• Condiciones de entrada (señales, indicadores, patrones)&#10;• Condiciones de salida (stop loss, take profit)&#10;• Gestión de riesgo&#10;• Timeframes recomendados&#10;• Indicadores técnicos a utilizar'
                   rows={12}
-                  className="focus:ring-2 focus:ring-blue-200 bg-white resize-none"
+                  className='focus:ring-2 focus:ring-ring/20 bg-background resize-none'
                   spellCheck={true}
                 />
                 {errors.reglas && (
-                  <div className="text-red-600 text-xs mt-1">
+                  <div className='text-destructive text-xs mt-1'>
                     {errors.reglas}
                   </div>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
+                <p className='text-xs text-muted-foreground mt-1'>
                   Define condiciones de entrada/salida, gestión de riesgo e
                   indicadores
                 </p>
@@ -322,32 +329,32 @@ export function StrategyForm({
             </div>
           </div>
           {/* Columna 3: Notas y Observaciones */}
-          <div className="bg-green-50 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="w-5 h-5 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className='bg-green-50/50 dark:bg-green-900/10 rounded-lg p-6'>
+            <div className='flex items-center gap-2 mb-4'>
+              <BookOpen className='w-5 h-5 text-green-600 dark:text-green-400' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Notas y Observaciones
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Notas Adicionales
                 </label>
                 <Textarea
                   value={formData.notas}
                   onChange={(e) => handleInputChange("notas", e.target.value)}
-                  placeholder="Incluye cualquier observación adicional:&#10;• Mejoras identificadas&#10;• Resultados históricos&#10;• Condiciones de mercado favorables&#10;• Lecciones aprendidas"
+                  placeholder='Incluye cualquier observación adicional:&#10;• Mejoras identificadas&#10;• Resultados históricos&#10;• Condiciones de mercado favorables&#10;• Lecciones aprendidas'
                   rows={12}
-                  className="focus:ring-2 focus:ring-green-200 bg-white resize-none"
+                  className='focus:ring-2 focus:ring-ring/20 bg-background resize-none'
                   spellCheck={true}
                 />
                 {errors.notas && (
-                  <div className="text-red-600 text-xs mt-1">
+                  <div className='text-destructive text-xs mt-1'>
                     {errors.notas}
                   </div>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
+                <p className='text-xs text-muted-foreground mt-1'>
                   Reflexiones, mejoras y lecciones aprendidas de esta estrategia
                 </p>
               </div>
@@ -355,25 +362,23 @@ export function StrategyForm({
           </div>
         </div>
         {/* Botones de acción */}
-        <div className="flex gap-3 justify-end pt-6 mt-6 border-t border-gray-200">
+        <div className='flex gap-3 justify-end pt-6 mt-6 border-t border-border'>
           <Button
-            type="button"
-            variant="ghost"
+            type='button'
+            variant='ghost'
             onClick={onCancel}
-            className="px-6 py-2 hover:bg-gray-100"
-          >
+            className='px-6 py-2 hover:bg-muted'>
             Cancelar
           </Button>
           <Button
-            type="submit"
-            className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm"
+            type='submit'
+            className='px-8 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm'
             disabled={
               Object.values(errors).some((e) => e) ||
               !formData.nombre ||
               !formData.estado
-            }
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
+            }>
+            <CheckCircle className='w-4 h-4 mr-2' />
             {isEditing ? "Actualizar" : "Crear"} Estrategia
           </Button>
         </div>

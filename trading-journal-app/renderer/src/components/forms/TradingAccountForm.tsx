@@ -100,21 +100,21 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
     }
   };
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-white overflow-x-auto">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className='w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 bg-background overflow-x-auto'>
+      <form onSubmit={handleSubmit} className='space-y-6'>
         {/* Layout horizontal: 3 columnas principales, responsivo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
           {/* Columna 1: Información Básica */}
-          <div className="bg-blue-50 rounded-lg p-6 border border-blue-100">
-            <div className="flex items-center gap-2 mb-4">
-              <Wallet className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className='bg-muted/50 rounded-lg p-6 border border-border'>
+            <div className='flex items-center gap-2 mb-4'>
+              <Wallet className='w-5 h-5 text-primary' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Información Básica
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Nombre de la Cuenta *
                 </label>
                 <Input
@@ -127,21 +127,21 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
                     if (errors.nombre)
                       setErrors((prev) => ({ ...prev, nombre: "" }));
                   }}
-                  placeholder="ej: Cuenta Fondeo FTMO"
+                  placeholder='ej: Cuenta Fondeo FTMO'
                   required
-                  className={`focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
-                    errors.nombre ? "border-red-500" : ""
+                  className={`focus:ring-2 focus:ring-ring/20 focus:border-ring ${
+                    errors.nombre ? "border-destructive" : ""
                   }`}
                 />
                 {errors.nombre && (
-                  <div className="text-red-600 text-xs mt-1">
+                  <div className='text-destructive text-xs mt-1'>
                     {errors.nombre}
                   </div>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Building2 className="w-4 h-4 inline mr-1" />
+                <label className='block text-sm font-medium text-foreground mb-2'>
+                  <Building2 className='w-4 h-4 inline mr-1' />
                   Broker/Empresa *
                 </label>
                 <Input
@@ -154,14 +154,14 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
                     if (errors.broker)
                       setErrors((prev) => ({ ...prev, broker: "" }));
                   }}
-                  placeholder="ej: FTMO, Interactive Brokers"
+                  placeholder='ej: FTMO, Interactive Brokers'
                   required
-                  className={`focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
-                    errors.broker ? "border-red-500" : ""
+                  className={`focus:ring-2 focus:ring-ring/20 focus:border-ring ${
+                    errors.broker ? "border-destructive" : ""
                   }`}
                 />
                 {errors.broker && (
-                  <div className="text-red-600 text-xs mt-1">
+                  <div className='text-destructive text-xs mt-1'>
                     {errors.broker}
                   </div>
                 )}
@@ -169,88 +169,85 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
             </div>
           </div>
           {/* Columna 2: Configuración de Cuenta */}
-          <div className="bg-green-50 rounded-lg p-6 border border-green-100">
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-5 h-5 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className='bg-muted/50 rounded-lg p-6 border border-border'>
+            <div className='flex items-center gap-2 mb-4'>
+              <DollarSign className='w-5 h-5 text-primary' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Configuración de Cuenta
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Tipo de Cuenta *
                 </label>
                 <Select
                   value={formData.tipoCuenta}
                   onValueChange={(value) =>
                     setFormData((prev) => ({ ...prev, tipoCuenta: value }))
-                  }
-                >
-                  <SelectTrigger className="focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                  }>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20 focus:border-ring'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="demo">Demo</SelectItem>
-                    <SelectItem value="real">Real</SelectItem>
-                    <SelectItem value="fondeo">Fondeo</SelectItem>
-                    <SelectItem value="practica">Práctica</SelectItem>
+                    <SelectItem value='demo'>Demo</SelectItem>
+                    <SelectItem value='real'>Real</SelectItem>
+                    <SelectItem value='fondeo'>Fondeo</SelectItem>
+                    <SelectItem value='practica'>Práctica</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Moneda *
                 </label>
                 <Select
                   value={formData.moneda}
                   onValueChange={(value) =>
                     setFormData((prev) => ({ ...prev, moneda: value }))
-                  }
-                >
-                  <SelectTrigger className="focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                  }>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20 focus:border-ring'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="USD">USD - Dólar Americano</SelectItem>
-                    <SelectItem value="EUR">EUR - Euro</SelectItem>
-                    <SelectItem value="GBP">GBP - Libra Esterlina</SelectItem>
-                    <SelectItem value="AUD">AUD - Dólar Australiano</SelectItem>
-                    <SelectItem value="CAD">CAD - Dólar Canadiense</SelectItem>
-                    <SelectItem value="CHF">CHF - Franco Suizo</SelectItem>
-                    <SelectItem value="JPY">JPY - Yen Japonés</SelectItem>
+                    <SelectItem value='USD'>USD - Dólar Americano</SelectItem>
+                    <SelectItem value='EUR'>EUR - Euro</SelectItem>
+                    <SelectItem value='GBP'>GBP - Libra Esterlina</SelectItem>
+                    <SelectItem value='AUD'>AUD - Dólar Australiano</SelectItem>
+                    <SelectItem value='CAD'>CAD - Dólar Canadiense</SelectItem>
+                    <SelectItem value='CHF'>CHF - Franco Suizo</SelectItem>
+                    <SelectItem value='JPY'>JPY - Yen Japonés</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Estado *
                 </label>
                 <Select
                   value={formData.estado}
                   onValueChange={(value) =>
                     setFormData((prev) => ({ ...prev, estado: value }))
-                  }
-                >
-                  <SelectTrigger className="focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                  }>
+                  <SelectTrigger className='focus:ring-2 focus:ring-ring/20 focus:border-ring'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="activa">Activa</SelectItem>
-                    <SelectItem value="cerrada">Cerrada</SelectItem>
-                    <SelectItem value="suspendida">Suspendida</SelectItem>
-                    <SelectItem value="en_evaluacion">En Evaluación</SelectItem>
+                    <SelectItem value='activa'>Activa</SelectItem>
+                    <SelectItem value='cerrada'>Cerrada</SelectItem>
+                    <SelectItem value='suspendida'>Suspendida</SelectItem>
+                    <SelectItem value='en_evaluacion'>En Evaluación</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <DollarSign className="w-4 h-4 inline mr-1" />
+                <label className='block text-sm font-medium text-foreground mb-2'>
+                  <DollarSign className='w-4 h-4 inline mr-1' />
                   Balance Inicial
                 </label>
                 <Input
-                  type="number"
-                  step="0.01"
+                  type='number'
+                  step='0.01'
                   value={formData.balanceInicial || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -260,17 +257,17 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
                         : undefined,
                     }))
                   }
-                  placeholder="0.00"
-                  className="focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                  placeholder='0.00'
+                  className='focus:ring-2 focus:ring-ring/20 focus:border-ring'
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Calendar className="w-4 h-4 inline mr-1" />
+                <label className='block text-sm font-medium text-foreground mb-2'>
+                  <Calendar className='w-4 h-4 inline mr-1' />
                   Fecha de Apertura
                 </label>
                 <Input
-                  type="date"
+                  type='date'
                   value={formData.fechaApertura}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -278,22 +275,22 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
                       fechaApertura: e.target.value,
                     }))
                   }
-                  className="focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                  className='focus:ring-2 focus:ring-ring/20 focus:border-ring'
                 />
               </div>
             </div>
           </div>
           {/* Columna 3: Notas Adicionales */}
-          <div className="bg-purple-50 rounded-lg p-6 border border-purple-100">
-            <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className='bg-muted/50 rounded-lg p-6 border border-border'>
+            <div className='flex items-center gap-2 mb-4'>
+              <FileText className='w-5 h-5 text-primary' />
+              <h3 className='text-lg font-semibold text-foreground'>
                 Información Adicional
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className='block text-sm font-medium text-foreground mb-2'>
                   Notas y Observaciones
                 </label>
                 <Textarea
@@ -301,9 +298,9 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, notas: e.target.value }))
                   }
-                  placeholder="Observaciones adicionales sobre la cuenta..."
+                  placeholder='Observaciones adicionales sobre la cuenta...'
                   rows={4}
-                  className="focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white resize-none"
+                  className='focus:ring-2 focus:ring-ring/20 focus:border-ring resize-none'
                   spellCheck={true}
                 />
               </div>
@@ -311,25 +308,23 @@ export const TradingAccountForm: React.FC<TradingAccountFormProps> = ({
           </div>
         </div>
         {/* Botones de Acción */}
-        <div className="flex gap-3 justify-end pt-6 mt-6 border-t border-gray-200">
+        <div className='flex gap-3 justify-end pt-6 mt-6 border-t border-border'>
           <Button
-            type="button"
-            variant="outline"
+            type='button'
+            variant='outline'
             onClick={onCancel}
-            className="px-6 hover:bg-gray-50"
-          >
+            className='px-6 hover:bg-muted'>
             Cancelar
           </Button>
           <Button
-            type="submit"
+            type='submit'
             disabled={
               isSubmitting ||
               Object.values(errors).some((e) => e) ||
               !formData.nombre ||
               !formData.broker
             }
-            className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm disabled:opacity-50"
-          >
+            className='px-8 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm disabled:opacity-50'>
             {isSubmitting
               ? "Guardando..."
               : account

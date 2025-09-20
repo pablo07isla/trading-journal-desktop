@@ -337,7 +337,7 @@ export function TradingPlanForm({
     <div className='max-w-4xl mx-auto p-6'>
       <form onSubmit={handleSubmit} className='space-y-8'>
         <div className='flex items-center justify-between mb-6'>
-          <h2 className='text-2xl font-bold text-gray-900'>
+          <h2 className='text-2xl font-bold text-foreground'>
             {isEditing
               ? "Editar Plan de Trading"
               : "Crear Nuevo Plan de Trading"}
@@ -352,10 +352,10 @@ export function TradingPlanForm({
         </div>
 
         {/* 1. Información General */}
-        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+        <section className='bg-card rounded-lg border p-6'>
           <div className='flex items-center gap-3 mb-4'>
-            <Target className='w-6 h-6 text-blue-600' />
-            <h3 className='text-lg font-semibold text-gray-900'>
+            <Target className='w-6 h-6 text-blue-600 dark:text-blue-400' />
+            <h3 className='text-lg font-semibold text-foreground'>
               1. Información General
             </h3>
           </div>
@@ -364,7 +364,7 @@ export function TradingPlanForm({
             <div>
               <label
                 htmlFor='nombre'
-                className='block text-sm font-medium text-gray-700 mb-1'>
+                className='block text-sm font-medium text-muted-foreground mb-1'>
                 Nombre del Plan *
               </label>
               <Input
@@ -382,7 +382,7 @@ export function TradingPlanForm({
             <div>
               <label
                 htmlFor='tipo_trader'
-                className='block text-sm font-medium text-gray-700 mb-1'>
+                className='block text-sm font-medium text-muted-foreground mb-1'>
                 Tipo de Trader *
               </label>
               <Select
@@ -416,16 +416,16 @@ export function TradingPlanForm({
                   handleInputChange("activo", checked)
                 }
               />
-              <span className='text-sm text-gray-700'>Plan activo</span>
+              <span className='text-sm text-muted-foreground'>Plan activo</span>
             </label>
           </div>
         </section>
 
         {/* 2. Capital y Gestión de Riesgo */}
-        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+        <section className='bg-card rounded-lg border p-6'>
           <div className='flex items-center gap-3 mb-4'>
-            <Shield className='w-6 h-6 text-red-600' />
-            <h3 className='text-lg font-semibold text-gray-900'>
+            <Shield className='w-6 h-6 text-red-600 dark:text-red-400' />
+            <h3 className='text-lg font-semibold text-foreground'>
               2. Capital y Gestión de Riesgo
             </h3>
           </div>
@@ -434,7 +434,7 @@ export function TradingPlanForm({
             <div>
               <label
                 htmlFor='riesgo_max_diario_pct'
-                className='block text-sm font-medium text-gray-700 mb-1'>
+                className='block text-sm font-medium text-muted-foreground mb-1'>
                 Riesgo Máximo Diario (%)
               </label>
               <Input
@@ -458,7 +458,7 @@ export function TradingPlanForm({
             <div>
               <label
                 htmlFor='max_operaciones_dia'
-                className='block text-sm font-medium text-gray-700 mb-1'>
+                className='block text-sm font-medium text-muted-foreground mb-1'>
                 Máximo Operaciones/Día
               </label>
               <Input
@@ -481,9 +481,11 @@ export function TradingPlanForm({
             <div>
               <label
                 htmlFor='riesgo_por_operacion_pct'
-                className='block text-sm font-medium text-gray-700 mb-1'>
+                className='block text-sm font-medium text-muted-foreground mb-1'>
                 Riesgo por Operación (%)
-                <span className='text-xs text-gray-500'>(Calculado)</span>
+                <span className='text-xs text-muted-foreground'>
+                  (Calculado)
+                </span>
               </label>
               <Input
                 id='riesgo_por_operacion_pct'
@@ -497,7 +499,7 @@ export function TradingPlanForm({
             <div>
               <label
                 htmlFor='relacion_rr_minima'
-                className='block text-sm font-medium text-gray-700 mb-1'>
+                className='block text-sm font-medium text-muted-foreground mb-1'>
                 Relación R/R Mínima
               </label>
               <Input
@@ -521,7 +523,7 @@ export function TradingPlanForm({
             <div>
               <label
                 htmlFor='perdida_max_semanal_pct'
-                className='block text-sm font-medium text-gray-700 mb-1'>
+                className='block text-sm font-medium text-muted-foreground mb-1'>
                 Pérdida Máxima Semanal (%)
               </label>
               <Input
@@ -547,17 +549,17 @@ export function TradingPlanForm({
         </section>
 
         {/* 3. Mercados y Horarios */}
-        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+        <section className='bg-card rounded-lg border p-6'>
           <div className='flex items-center gap-3 mb-4'>
-            <Globe className='w-6 h-6 text-green-600' />
-            <h3 className='text-lg font-semibold text-gray-900'>
+            <Globe className='w-6 h-6 text-green-600 dark:text-green-400' />
+            <h3 className='text-lg font-semibold text-foreground'>
               3. Mercados y Horarios
             </h3>
           </div>
 
           <div className='space-y-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-muted-foreground mb-2'>
                 Sesiones de Mercado
               </label>
               <div className='flex gap-2 flex-wrap'>
@@ -581,7 +583,7 @@ export function TradingPlanForm({
               <div>
                 <label
                   htmlFor='horario_inicio'
-                  className='block text-sm font-medium text-gray-700 mb-1'>
+                  className='block text-sm font-medium text-muted-foreground mb-1'>
                   Horario de Inicio
                 </label>
                 <Input
@@ -599,7 +601,7 @@ export function TradingPlanForm({
               <div>
                 <label
                   htmlFor='horario_fin'
-                  className='block text-sm font-medium text-gray-700 mb-1'>
+                  className='block text-sm font-medium text-muted-foreground mb-1'>
                   Horario de Fin
                 </label>
                 <Input
@@ -616,10 +618,10 @@ export function TradingPlanForm({
         </section>
 
         {/* 4. Instrumentos de Trading */}
-        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+        <section className='bg-card rounded-lg border p-6'>
           <div className='flex items-center gap-3 mb-4'>
-            <TrendingUp className='w-6 h-6 text-orange-600' />
-            <h3 className='text-lg font-semibold text-gray-900'>
+            <TrendingUp className='w-6 h-6 text-orange-600 dark:text-orange-400' />
+            <h3 className='text-lg font-semibold text-foreground'>
               4. Instrumentos de Trading
             </h3>
           </div>
@@ -659,10 +661,10 @@ export function TradingPlanForm({
         </section>
 
         {/* 5. Psicología y Disciplina */}
-        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+        <section className='bg-card rounded-lg border p-6'>
           <div className='flex items-center gap-3 mb-4'>
-            <Brain className='w-6 h-6 text-purple-600' />
-            <h3 className='text-lg font-semibold text-gray-900'>
+            <Brain className='w-6 h-6 text-purple-600 dark:text-purple-400' />
+            <h3 className='text-lg font-semibold text-foreground'>
               5. Psicología y Disciplina
             </h3>
           </div>
@@ -685,10 +687,12 @@ export function TradingPlanForm({
                 {formData.reglas_personales.map((rule, index) => (
                   <div
                     key={index}
-                    className='flex items-start gap-2 p-3 bg-gray-50 rounded-md'>
-                    <span className='text-sm text-gray-700 flex-1'>{rule}</span>
+                    className='flex items-start gap-2 p-3 bg-muted/50 rounded-md'>
+                    <span className='text-sm text-foreground flex-1'>
+                      {rule}
+                    </span>
                     <X
-                      className='w-4 h-4 cursor-pointer text-gray-400 hover:text-red-500 mt-0.5'
+                      className='w-4 h-4 cursor-pointer text-muted-foreground hover:text-destructive mt-0.5'
                       onClick={() => removeRule(index)}
                     />
                   </div>
@@ -699,10 +703,10 @@ export function TradingPlanForm({
         </section>
 
         {/* 6. Estrategia */}
-        <section className='bg-white rounded-lg border border-gray-200 p-6'>
+        <section className='bg-card rounded-lg border p-6'>
           <div className='flex items-center gap-3 mb-4'>
-            <Settings className='w-6 h-6 text-indigo-600' />
-            <h3 className='text-lg font-semibold text-gray-900'>
+            <Settings className='w-6 h-6 text-indigo-600 dark:text-indigo-400' />
+            <h3 className='text-lg font-semibold text-foreground'>
               6. Estrategia
             </h3>
           </div>
@@ -710,7 +714,7 @@ export function TradingPlanForm({
           <div>
             <label
               htmlFor='strategy'
-              className='block text-sm font-medium text-gray-700 mb-1'>
+              className='block text-sm font-medium text-muted-foreground mb-1'>
               Estrategia a Utilizar
             </label>
             <Select
