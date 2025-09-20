@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Toaster } from "@/components/ui/sonner";
 import { AppSidebar } from "@/components/AppSidebar";
-import { ModeToggle } from "@/components/ModeToggle";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { useLocation } from "react-router-dom";
 
 const navLinks = [
@@ -112,7 +112,7 @@ const Layout: React.FC = () => {
             </Breadcrumb>
           </div>
           <div className='flex items-center gap-1 px-4'>
-            <ModeToggle />
+            <ThemeSwitch />
           </div>
         </header>
         <main className='flex-1 overflow-auto'>
