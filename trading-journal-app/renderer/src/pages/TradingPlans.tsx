@@ -434,7 +434,7 @@ export function TradingPlans() {
           {selectedPlanForDetails && (
             <div className='space-y-4'>
               {/* Header compacto */}
-              <div className='flex items-center justify-between border-b pb-3'>
+              <div className='flex items-center justify-between border-b border-border pb-3'>
                 <div className='flex items-center gap-3'>
                   <Target className='w-5 h-5 text-primary' />
                   <h2 className='text-xl font-bold text-foreground'>
@@ -454,19 +454,21 @@ export function TradingPlans() {
                 {/* Columna 1: Objetivos y Límites */}
                 <div className='space-y-4'>
                   <div>
-                    <h3 className='text-sm font-semibold text-blue-900 mb-2 flex items-center gap-1'>
+                    <h3 className='text-sm font-semibold text-foreground mb-2 flex items-center gap-1'>
                       <Target className='w-4 h-4' />
                       Objetivos y Límites
                     </h3>
                     <div className='space-y-2'>
-                      <div className='bg-indigo-50 p-2 rounded flex justify-between text-sm'>
-                        <span className='text-gray-600'>Tipo Trader</span>
+                      <div className='bg-indigo-50 dark:bg-indigo-950/30 p-2 rounded flex justify-between text-sm'>
+                        <span className='text-muted-foreground'>
+                          Tipo Trader
+                        </span>
                         <span className='font-semibold text-indigo-600'>
                           {selectedPlanForDetails.tipo_trader || "-"}
                         </span>
                       </div>
-                      <div className='bg-yellow-50 p-2 rounded flex justify-between text-sm'>
-                        <span className='text-gray-600'>
+                      <div className='bg-yellow-50 dark:bg-yellow-950/30 p-2 rounded flex justify-between text-sm'>
+                        <span className='text-muted-foreground'>
                           Riesgo Máx. Diario
                         </span>
                         <span className='font-semibold text-yellow-600'>
@@ -475,22 +477,26 @@ export function TradingPlans() {
                             : "-"}
                         </span>
                       </div>
-                      <div className='bg-green-50 p-2 rounded flex justify-between text-sm'>
-                        <span className='text-gray-600'>Max Ops/Día</span>
+                      <div className='bg-green-50 dark:bg-green-950/30 p-2 rounded flex justify-between text-sm'>
+                        <span className='text-muted-foreground'>
+                          Max Ops/Día
+                        </span>
                         <span className='font-semibold text-green-600'>
                           {selectedPlanForDetails.max_operaciones_dia || "-"}
                         </span>
                       </div>
-                      <div className='bg-purple-50 p-2 rounded flex justify-between text-sm'>
-                        <span className='text-gray-600'>Riesgo/Op</span>
+                      <div className='bg-purple-50 dark:bg-purple-950/30 p-2 rounded flex justify-between text-sm'>
+                        <span className='text-muted-foreground'>Riesgo/Op</span>
                         <span className='font-semibold text-purple-600'>
                           {selectedPlanForDetails.riesgo_por_operacion_pct
                             ? `${selectedPlanForDetails.riesgo_por_operacion_pct}%`
                             : "-"}
                         </span>
                       </div>
-                      <div className='bg-blue-50 p-2 rounded flex justify-between text-sm'>
-                        <span className='text-gray-600'>R/R Mínima</span>
+                      <div className='bg-blue-50 dark:bg-blue-950/30 p-2 rounded flex justify-between text-sm'>
+                        <span className='text-muted-foreground'>
+                          R/R Mínima
+                        </span>
                         <span className='font-semibold text-blue-600'>
                           {selectedPlanForDetails.relacion_rr_minima
                             ? `1:${selectedPlanForDetails.relacion_rr_minima}`
@@ -498,8 +504,10 @@ export function TradingPlans() {
                         </span>
                       </div>
 
-                      <div className='bg-red-50 p-2 rounded flex justify-between text-sm'>
-                        <span className='text-gray-600'>Pérdida Semanal</span>
+                      <div className='bg-red-50 dark:bg-red-950/30 p-2 rounded flex justify-between text-sm'>
+                        <span className='text-muted-foreground'>
+                          Pérdida Semanal
+                        </span>
                         <span className='font-semibold text-red-600'>
                           {selectedPlanForDetails.perdida_max_semanal_pct
                             ? `${selectedPlanForDetails.perdida_max_semanal_pct}%`
@@ -513,7 +521,7 @@ export function TradingPlans() {
                 {/* Columna 2: Configuración */}
                 <div className='space-y-4'>
                   <div>
-                    <h3 className='text-sm font-semibold text-blue-900 mb-2 flex items-center gap-1'>
+                    <h3 className='text-sm font-semibold text-foreground mb-2 flex items-center gap-1'>
                       <Settings className='w-4 h-4' />
                       Configuración
                     </h3>
@@ -523,8 +531,8 @@ export function TradingPlans() {
                         formatInstruments(
                           selectedPlanForDetails.instrumentos_principales
                         ).length > 0 && (
-                          <div className='bg-gray-50 p-3 rounded-lg'>
-                            <h4 className='text-xs font-medium text-gray-700 mb-2'>
+                          <div className='bg-gray-50 dark:bg-muted/50 p-3 rounded-lg'>
+                            <h4 className='text-xs font-medium text-muted-foreground mb-2'>
                               Instrumentos
                             </h4>
                             <div className='flex flex-wrap gap-1'>
@@ -545,8 +553,8 @@ export function TradingPlans() {
                       {selectedPlanForDetails.mercados_operacion &&
                         formatMarkets(selectedPlanForDetails.mercados_operacion)
                           .length > 0 && (
-                          <div className='bg-gray-50 p-3 rounded-lg'>
-                            <h4 className='text-xs font-medium text-gray-700 mb-2'>
+                          <div className='bg-gray-50 dark:bg-muted/50 p-3 rounded-lg'>
+                            <h4 className='text-xs font-medium text-muted-foreground mb-2'>
                               Mercados
                             </h4>
                             <div className='flex flex-wrap gap-1'>
@@ -566,11 +574,11 @@ export function TradingPlans() {
                       {/* Horarios */}
                       {(selectedPlanForDetails.horario_operacion_inicio ||
                         selectedPlanForDetails.horario_operacion_fin) && (
-                        <div className='bg-gray-50 p-3 rounded-lg'>
-                          <h4 className='text-xs font-medium text-gray-700 mb-1'>
+                        <div className='bg-gray-50 dark:bg-muted/50 p-3 rounded-lg'>
+                          <h4 className='text-xs font-medium text-muted-foreground mb-1'>
                             Horarios
                           </h4>
-                          <p className='text-sm font-semibold text-gray-900'>
+                          <p className='text-sm font-semibold text-foreground'>
                             {formatTime(
                               selectedPlanForDetails.horario_operacion_inicio
                             )}{" "}
@@ -591,11 +599,11 @@ export function TradingPlans() {
                   formatRules(selectedPlanForDetails.reglas_personales).length >
                     0 && (
                     <div>
-                      <h3 className='text-sm font-semibold text-blue-900 mb-2 flex items-center gap-1'>
+                      <h3 className='text-sm font-semibold text-foreground mb-2 flex items-center gap-1'>
                         <AlertTriangle className='w-4 h-4' />
                         Reglas de Trading
                       </h3>
-                      <div className='bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-lg max-h-64 overflow-y-auto'>
+                      <div className='bg-yellow-50 dark:bg-yellow-950/30 border-l-4 border-yellow-400 dark:border-yellow-600 p-3 rounded-lg max-h-64 overflow-y-auto'>
                         <ul className='space-y-2'>
                           {formatRules(
                             selectedPlanForDetails.reglas_personales
@@ -604,7 +612,7 @@ export function TradingPlans() {
                               key={idx}
                               className='flex items-start gap-2 text-sm'>
                               <span className='w-1.5 h-1.5 bg-yellow-500 rounded-full mt-1.5 flex-shrink-0'></span>
-                              <span className='text-gray-800 leading-relaxed'>
+                              <span className='text-foreground leading-relaxed'>
                                 {rule}
                               </span>
                             </li>
@@ -617,15 +625,15 @@ export function TradingPlans() {
 
               {/* Estado Actual - Sección horizontal debajo de las 3 columnas */}
               {selectedPlanForDetails.id && (
-                <div className='mt-6 border-t pt-4'>
-                  <h3 className='text-sm font-semibold text-blue-900 mb-3 flex items-center gap-1'>
+                <div className='mt-6 border-t border-border pt-4'>
+                  <h3 className='text-sm font-semibold text-foreground mb-3 flex items-center gap-1'>
                     <TrendingUp className='w-4 h-4' />
                     Estado Actual
                   </h3>
 
                   {!planProgress[selectedPlanForDetails.id] ? (
-                    <div className='bg-gray-50 p-4 rounded-lg text-center'>
-                      <p className='text-gray-600 text-sm'>
+                    <div className='bg-muted p-4 rounded-lg text-center'>
+                      <p className='text-muted-foreground text-sm'>
                         No hay datos de progreso disponibles para este plan
                       </p>
                     </div>
@@ -636,14 +644,14 @@ export function TradingPlans() {
                           planProgress[selectedPlanForDetails.id!];
                         return (
                           <>
-                            <div className='bg-blue-50 p-3 rounded-lg text-center'>
-                              <p className='text-xs text-gray-600 mb-1'>
+                            <div className='bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg text-center'>
+                              <p className='text-xs text-muted-foreground mb-1'>
                                 Operaciones Hoy
                               </p>
-                              <p className='text-xl font-bold text-blue-600'>
+                              <p className='text-xl font-bold text-blue-600 dark:text-blue-400'>
                                 {progress.operacionesHoy || 0}
                               </p>
-                              <p className='text-xs text-gray-500'>
+                              <p className='text-xs text-muted-foreground'>
                                 Restantes:{" "}
                                 {Math.max(
                                   0,
@@ -655,28 +663,28 @@ export function TradingPlans() {
                             <div
                               className={`p-3 rounded-lg text-center ${
                                 progress.totalProfit >= 0
-                                  ? "bg-green-50"
-                                  : "bg-red-50"
+                                  ? "bg-green-50 dark:bg-green-950/30"
+                                  : "bg-red-50 dark:bg-red-950/30"
                               }`}>
-                              <p className='text-xs text-gray-600 mb-1'>
+                              <p className='text-xs text-muted-foreground mb-1'>
                                 P&L del Día
                               </p>
                               <p
                                 className={`text-xl font-bold ${
                                   progress.totalProfit >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-red-600 dark:text-red-400"
                                 }`}>
                                 {formatCurrency(progress.totalProfit)}
                               </p>
-                              <p className='text-xs text-gray-500'>
+                              <p className='text-xs text-muted-foreground'>
                                 {progress.totalProfit >= 0
                                   ? "Ganando"
                                   : "Perdiendo"}
                               </p>
                             </div>
-                            <div className='bg-orange-50 p-3 rounded-lg text-center'>
-                              <p className='text-xs text-gray-600 mb-1'>
+                            <div className='bg-orange-50 dark:bg-orange-950/30 p-3 rounded-lg text-center'>
+                              <p className='text-xs text-muted-foreground mb-1'>
                                 Riesgo Usado
                               </p>
                               <p
@@ -687,21 +695,21 @@ export function TradingPlans() {
                                 )}`}>
                                 {progress.riesgoActual.toFixed(1)}%
                               </p>
-                              <p className='text-xs text-gray-500'>
+                              <p className='text-xs text-muted-foreground'>
                                 de{" "}
                                 {selectedPlanForDetails.riesgo_max_diario_pct ||
                                   0}
                                 % máximo
                               </p>
                             </div>
-                            <div className='bg-purple-50 p-3 rounded-lg text-center'>
-                              <p className='text-xs text-gray-600 mb-1'>
+                            <div className='bg-purple-50 dark:bg-purple-950/30 p-3 rounded-lg text-center'>
+                              <p className='text-xs text-muted-foreground mb-1'>
                                 Win Rate
                               </p>
-                              <p className='text-xl font-bold text-purple-600'>
+                              <p className='text-xl font-bold text-purple-600 dark:text-purple-400'>
                                 {progress.winRate.toFixed(1)}%
                               </p>
-                              <p className='text-xs text-gray-500'>
+                              <p className='text-xs text-muted-foreground'>
                                 {progress.totalTrades} trades totales
                               </p>
                             </div>
