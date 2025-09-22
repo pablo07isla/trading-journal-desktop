@@ -27,9 +27,12 @@ interface EquityCurveChartProps {
   readonly title?: string;
   readonly className?: string;
   readonly initialBalance?: number;
-  readonly challengeMode?: boolean;
-  readonly challengeTarget?: number; // Porcentaje para pasar el challenge (default: 8%)
-  readonly challengeStop?: number; // Porcentaje para perder el challenge (default: -10%)
+  readonly profitTargetPercent?: number; // Porcentaje para profit target (viene de mt5_accounts)
+  readonly stopTargetPercent?: number; // Porcentaje para stop target (viene de mt5_accounts)
+  readonly dailyLossPercent?: number; // Porcentaje para daily loss (viene de mt5_accounts)
+  // Mantener compatibilidad con props anteriores
+  readonly challengeTarget?: number; // Deprecated - usar profitTargetPercent
+  readonly challengeStop?: number; // Deprecated - usar stopTargetPercent
 }
 
 const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
@@ -37,10 +40,45 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
   title = "Curva de Equity",
   className,
   initialBalance = 0,
-  challengeMode = true,
-  challengeTarget = 8, // 8% para pasar
-  challengeStop = -10, // -10% para perder
+  profitTargetPercent,
+  stopTargetPercent,
+  dailyLossPercent,
+  // Compatibilidad hacia atrás
+  challengeTarget = 8, // 8% para pasar (fallback)
+  challengeStop = -10, // -10% para perder (fallback)
 }) => {
+  // Usar los nuevos campos si están disponibles (incluyendo 0 como valor válido), sino usar los valores de fallback
+  const effectiveProfitTarget =
+    profitTargetPercent !== undefined ? profitTargetPercent : challengeTarget;
+  const effectiveStopTarget =
+    stopTargetPercent !== undefined ? stopTargetPercent : challengeStop;
+  const effectiveDailyLoss =
+    dailyLossPercent !== undefined ? dailyLossPercent : challengeStop; // usar challengeStop como fallback para dailyLoss
+
+  // Determinar si se deben mostrar las líneas de gestión de riesgo
+  const showRiskManagementLines =
+    profitTargetPercent !== undefined && stopTargetPercent !== undefined;
+
+  // Debug: Log para verificar valores recibidos como props
+  console.log("EquityCurveChart Props Debug:", {
+    profitTargetPercent,
+    stopTargetPercent,
+    dailyLossPercent,
+    challengeTarget,
+    challengeStop,
+    showRiskManagementLines,
+    typeofProfitTarget: typeof profitTargetPercent,
+    typeofStopTarget: typeof stopTargetPercent,
+    typeofDailyLoss: typeof dailyLossPercent,
+  });
+
+  // Debug: Log para verificar valores efectivos calculados
+  console.log("EquityCurveChart Effective Values Debug:", {
+    effectiveProfitTarget,
+    effectiveStopTarget,
+    effectiveDailyLoss,
+    showRiskManagementLines,
+  });
   // Chart configuration
   const chartConfig = {
     equity: {
@@ -91,24 +129,28 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
       ? ((totalReturn / initialBalance) * 100).toFixed(2)
       : "0.00";
 
-  // Niveles del challenge
-  const challengeTargetLevel = initialBalance * (1 + challengeTarget / 100);
-  const challengeStopLevel = initialBalance * (1 + challengeStop / 100);
+  // Niveles del challenge usando los valores efectivos
+  const challengeTargetLevel =
+    initialBalance * (1 + effectiveProfitTarget / 100);
+  // Stop level es un drawdown (pérdida) desde el balance inicial
+  const challengeStopLevel =
+    initialBalance * (1 - Math.abs(effectiveStopTarget) / 100);
 
-  // Debug: Log para verificar valores
-  console.log("EquityCurveChart Debug:", {
-    challengeMode,
-    challengeTarget,
-    challengeStop,
+  // Debug: Log para verificar cálculos de niveles
+  console.log("EquityCurveChart Levels Debug:", {
     initialBalance,
+    effectiveProfitTarget,
+    effectiveStopTarget,
     challengeTargetLevel,
     challengeStopLevel,
-    currentEquity,
-    dataLength: equityCurveData.length,
+    targetCalculation: `${initialBalance} * (1 + ${effectiveProfitTarget}/100) = ${challengeTargetLevel}`,
+    stopCalculation: `${initialBalance} * (1 - ${Math.abs(
+      effectiveStopTarget
+    )}/100) = ${challengeStopLevel}`,
   });
 
-  // Estado del challenge
-  const challengeStatus = challengeMode
+  // Estado del challenge - solo cuando hay datos de gestión de riesgo
+  const challengeStatus = showRiskManagementLines
     ? currentEquity >= challengeTargetLevel
       ? "passed"
       : currentEquity <= challengeStopLevel
@@ -116,13 +158,13 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
       : "in-progress"
     : null;
 
-  // Distancia a los objetivos del challenge
-  const distanceToTarget = challengeMode
+  // Distancia a los objetivos del challenge - solo cuando hay datos de gestión de riesgo
+  const distanceToTarget = showRiskManagementLines
     ? (((challengeTargetLevel - currentEquity) / initialBalance) * 100).toFixed(
         2
       )
     : "0.00";
-  const distanceToStop = challengeMode
+  const distanceToStop = showRiskManagementLines
     ? (((currentEquity - challengeStopLevel) / initialBalance) * 100).toFixed(2)
     : "0.00";
 
@@ -155,7 +197,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
   // Calcular el rango para el YAxis optimizado para mostrar las líneas de referencia
   const getYAxisDomain = () => {
     if (equityCurveData.length === 0) {
-      return challengeMode
+      return showRiskManagementLines
         ? [challengeStopLevel * 0.9, challengeTargetLevel * 1.1]
         : [initialBalance * 0.9, initialBalance * 1.1];
     }
@@ -167,8 +209,8 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
     // Incluir balance inicial siempre
     const referenceValues = [initialBalance];
 
-    // Incluir líneas de challenge si está activo
-    if (challengeMode) {
+    // Incluir líneas de gestión de riesgo solo si están activas
+    if (showRiskManagementLines) {
       referenceValues.push(challengeTargetLevel, challengeStopLevel);
     }
 
@@ -190,7 +232,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
       },
       referenceValues,
       finalDomain,
-      challengeMode,
+      showRiskManagementLines,
       challengeTargetLevel,
       challengeStopLevel,
     });
@@ -207,7 +249,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
         <CardDescription>
           {equityCurveData.length} trades • Return: {totalReturnPercent}% • Max
           DD: {maxDrawdown.toFixed(2)}%
-          {challengeMode && (
+          {showRiskManagementLines && challengeStatus && (
             <>
               {" • "}
               <span
@@ -301,45 +343,41 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
               />
               {/* TODAS LAS LÍNEAS DE REFERENCIA ANTES DEL AREA */}
 
-              {/* Target Line - Verde - Siempre renderizada, condicionalmente visible */}
-              <ReferenceLine
-                y={challengeMode ? challengeTargetLevel : undefined}
-                stroke={challengeMode ? "hsl(var(--chart-2))" : "transparent"}
-                strokeDasharray={challengeMode ? "3 3" : "0"}
-                strokeWidth={challengeMode ? 2 : 0}
-                label={
-                  challengeMode
-                    ? {
-                        value: `Target: ${challengeTargetLevel.toFixed(
-                          0
-                        )} (+${challengeTarget}%)`,
-                        position: "insideTopLeft",
-                        fontSize: 12,
-                        fill: "hsl(var(--chart-2))",
-                      }
-                    : undefined
-                }
-              />
+              {/* Target Line - Verde - Solo se muestra si hay datos de gestión de riesgo */}
+              {showRiskManagementLines && (
+                <ReferenceLine
+                  y={challengeTargetLevel}
+                  stroke='hsl(var(--chart-2))'
+                  strokeDasharray='3 3'
+                  strokeWidth={2}
+                  label={{
+                    value: `Target: ${challengeTargetLevel.toFixed(
+                      0
+                    )} (+${effectiveProfitTarget}%)`,
+                    position: "insideTopLeft",
+                    fontSize: 12,
+                    fill: "hsl(var(--chart-2))",
+                  }}
+                />
+              )}
 
-              {/* Stop Line - Roja - Siempre renderizada, condicionalmente visible */}
-              <ReferenceLine
-                y={challengeMode ? challengeStopLevel : undefined}
-                stroke={challengeMode ? "hsl(var(--chart-5))" : "transparent"}
-                strokeDasharray={challengeMode ? "3 3" : "0"}
-                strokeWidth={challengeMode ? 2 : 0}
-                label={
-                  challengeMode
-                    ? {
-                        value: `Stop: ${challengeStopLevel.toFixed(
-                          0
-                        )} (${challengeStop}%)`,
-                        position: "insideBottomLeft",
-                        fontSize: 12,
-                        fill: "hsl(var(--chart-5))",
-                      }
-                    : undefined
-                }
-              />
+              {/* Stop Line - Roja - Solo se muestra si hay datos de gestión de riesgo */}
+              {showRiskManagementLines && (
+                <ReferenceLine
+                  y={challengeStopLevel}
+                  stroke='hsl(var(--chart-5))'
+                  strokeDasharray='3 3'
+                  strokeWidth={2}
+                  label={{
+                    value: `Stop: ${challengeStopLevel.toFixed(0)} (-${Math.abs(
+                      effectiveStopTarget
+                    )}%)`,
+                    position: "insideBottomLeft",
+                    fontSize: 12,
+                    fill: "hsl(var(--chart-5))",
+                  }}
+                />
+              )}
 
               {/* Línea de Balance Inicial */}
               <ReferenceLine
@@ -379,8 +417,8 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
         {/* Estadísticas adicionales */}
         {equityCurveData.length > 0 && (
           <div className='mt-4 pt-4 border-t'>
-            {challengeMode ? (
-              // Vista Challenge Mode
+            {showRiskManagementLines ? (
+              // Vista Challenge Mode con datos de gestión de riesgo
               <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
                 <div className='text-center'>
                   <p className='text-2xl font-bold text-foreground'>
@@ -434,7 +472,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
                 </div>
               </div>
             ) : (
-              // Vista Normal
+              // Vista Normal sin gestión de riesgo
               <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
                 <div className='text-center'>
                   <p className='text-2xl font-bold text-foreground'>

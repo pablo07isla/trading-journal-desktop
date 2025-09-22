@@ -51,8 +51,23 @@ const MT5Dashboard: React.FC = () => {
     fetchMetrics,
     fetchPnLDistribution,
     fetchEquityCurve,
+    fetchAccounts,
     calculateAdvancedMetrics,
   } = useMT5Data();
+
+  // Escuchar eventos de actualización de cuentas MT5
+  useEffect(() => {
+    const handleAccountsUpdated = () => {
+      console.log("MT5Dashboard: Recibido evento de actualización de cuentas");
+      fetchAccounts(); // Recargar cuentas cuando se actualicen
+    };
+
+    window.addEventListener("mt5AccountsUpdated", handleAccountsUpdated);
+
+    return () => {
+      window.removeEventListener("mt5AccountsUpdated", handleAccountsUpdated);
+    };
+  }, [fetchAccounts]);
 
   // Preparar filtros basados en el estado actual
   const filters = useMemo((): MT5MetricFilters => {
@@ -128,6 +143,48 @@ const MT5Dashboard: React.FC = () => {
   };
 
   const initialBalance = getInitialBalance();
+
+  // Obtener configuración de risk management de la cuenta seleccionada
+  const getRiskSettings = () => {
+    if (account !== "all") {
+      const accountData = accounts.find(
+        (acc) => acc.account_id.toString() === account
+      );
+
+      console.log("MT5Dashboard getRiskSettings Debug:", {
+        account,
+        accountData,
+        found: !!accountData,
+        riskSettings: accountData
+          ? {
+              profitTarget: accountData.profit_target_percent,
+              stopTarget: accountData.stop_target_percent,
+              dailyLoss: accountData.daily_loss_percent,
+            }
+          : null,
+      });
+
+      return {
+        profitTargetPercent: accountData?.profit_target_percent,
+        stopTargetPercent: accountData?.stop_target_percent,
+        dailyLossPercent: accountData?.daily_loss_percent,
+      };
+    }
+
+    console.log(
+      "MT5Dashboard getRiskSettings Debug - Account is 'all', returning undefined values"
+    );
+    return {
+      profitTargetPercent: undefined,
+      stopTargetPercent: undefined,
+      dailyLossPercent: undefined,
+    };
+  };
+
+  const riskSettings = getRiskSettings();
+
+  // Debug adicional para verificar qué se pasa al componente
+  console.log("MT5Dashboard riskSettings final:", riskSettings);
 
   // Preparar datos de KPIs mejorados
   const kpiData = useMemo(() => {
@@ -384,7 +441,10 @@ const MT5Dashboard: React.FC = () => {
       <EquityCurveChart
         data={equityCurve}
         initialBalance={initialBalance}
-        challengeMode={true}
+        profitTargetPercent={riskSettings.profitTargetPercent}
+        stopTargetPercent={riskSettings.stopTargetPercent}
+        dailyLossPercent={riskSettings.dailyLossPercent}
+        // Mantener fallbacks para compatibilidad
         challengeTarget={8}
         challengeStop={-10}
       />

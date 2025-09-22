@@ -28,7 +28,11 @@ const MT5AccountsTable: React.FC = () => {
       const res = await window.electronAPI.getMT5Accounts();
       console.log("MT5AccountsTable: Respuesta recibida:", res);
       if (res.success && res.data) {
-        console.log("MT5AccountsTable: Cuentas cargadas:", res.data.length);
+        console.log(
+          "MT5AccountsTable: Cuentas cargadas:",
+          res.data.length,
+          res.data
+        );
         setAccounts(res.data);
       } else {
         console.error("MT5AccountsTable: Error en respuesta:", res.error);
@@ -59,12 +63,16 @@ const MT5AccountsTable: React.FC = () => {
       );
 
       if (result.success) {
-        // Actualizar el estado local
-        setAccounts((prev) =>
-          prev.map((acc) =>
-            acc.account_id === accountId ? { ...acc, ...updateData } : acc
-          )
+        // Recargar datos desde la base de datos
+        await loadAccounts();
+
+        // Emitir evento personalizado para notificar otros componentes
+        window.dispatchEvent(
+          new CustomEvent("mt5AccountsUpdated", {
+            detail: { accountId, updateData },
+          })
         );
+
         toast.success("Cuenta actualizada correctamente");
         setEditingAccount(null); // Cerrar el modal
       } else {

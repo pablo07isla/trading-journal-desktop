@@ -230,6 +230,38 @@ export class DatabaseManager {
   }) {
     console.log("addMT5Account: Insertando cuenta:", account);
 
+    // Verificar si la cuenta ya existe para preservar los campos de gestión de riesgo
+    const existingAccount = this.db
+      .prepare(
+        "SELECT profit_target_percent, stop_target_percent, daily_loss_percent FROM mt5_accounts WHERE account_id = ?"
+      )
+      .get(account.login) as
+      | {
+          profit_target_percent?: number;
+          stop_target_percent?: number;
+          daily_loss_percent?: number;
+        }
+      | undefined;
+
+    // Si la cuenta existe y no se proporcionan nuevos valores de riesgo, preservar los existentes
+    const profitTarget =
+      account.profit_target_percent ??
+      existingAccount?.profit_target_percent ??
+      0.0;
+    const stopTarget =
+      account.stop_target_percent ??
+      existingAccount?.stop_target_percent ??
+      0.0;
+    const dailyLoss =
+      account.daily_loss_percent ?? existingAccount?.daily_loss_percent ?? 0.0;
+
+    console.log("addMT5Account: Valores de gestión de riesgo:", {
+      profitTarget,
+      stopTarget,
+      dailyLoss,
+      isUpdate: !!existingAccount,
+    });
+
     // Usar INSERT OR REPLACE para manejar actualizaciones de cuentas existentes
     const stmt = this.db.prepare(`
     INSERT OR REPLACE INTO mt5_accounts (
@@ -249,9 +281,9 @@ export class DatabaseManager {
         account.initial_balance,
         account.current_balance,
         account.pnl,
-        account.profit_target_percent ?? 0.0,
-        account.stop_target_percent ?? 0.0,
-        account.daily_loss_percent ?? 0.0,
+        profitTarget, // Preservar valores existentes
+        stopTarget, // Preservar valores existentes
+        dailyLoss, // Preservar valores existentes
         account.created_at ?? null // created_at
       );
 
