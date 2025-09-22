@@ -57,6 +57,9 @@ export interface MT5Account {
   initial_balance: number;
   current_balance: number;
   pnl: number; // P&L
+  profit_target_percent?: number;
+  stop_target_percent?: number;
+  daily_loss_percent?: number;
   created_at: string;
 }
 

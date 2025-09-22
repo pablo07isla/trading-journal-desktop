@@ -303,7 +303,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
 
               {/* Target Line - Verde - Siempre renderizada, condicionalmente visible */}
               <ReferenceLine
-                y={challengeMode ? challengeTargetLevel : null}
+                y={challengeMode ? challengeTargetLevel : undefined}
                 stroke={challengeMode ? "hsl(var(--chart-2))" : "transparent"}
                 strokeDasharray={challengeMode ? "3 3" : "0"}
                 strokeWidth={challengeMode ? 2 : 0}
@@ -323,7 +323,7 @@ const EquityCurveChart: React.FC<EquityCurveChartProps> = ({
 
               {/* Stop Line - Roja - Siempre renderizada, condicionalmente visible */}
               <ReferenceLine
-                y={challengeMode ? challengeStopLevel : null}
+                y={challengeMode ? challengeStopLevel : undefined}
                 stroke={challengeMode ? "hsl(var(--chart-5))" : "transparent"}
                 strokeDasharray={challengeMode ? "3 3" : "0"}
                 strokeWidth={challengeMode ? 2 : 0}

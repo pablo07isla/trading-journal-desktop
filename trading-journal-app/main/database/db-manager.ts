@@ -90,6 +90,9 @@ export interface MT5AccountData {
   initial_balance: number;
   current_balance: number;
   pnl: number;
+  profit_target_percent?: number;
+  stop_target_percent?: number;
+  daily_loss_percent?: number;
 }
 
 // Tipo para compatibilidad con datos legacy
@@ -179,6 +182,9 @@ export class DatabaseManager {
         initial_balance,
         current_balance,
         pnl,
+        profit_target_percent,
+        stop_target_percent,
+        daily_loss_percent,
         created_at
       FROM mt5_accounts 
       ORDER BY created_at DESC
@@ -217,6 +223,9 @@ export class DatabaseManager {
     initial_balance: number;
     current_balance: number;
     pnl: number;
+    profit_target_percent?: number;
+    stop_target_percent?: number;
+    daily_loss_percent?: number;
     created_at?: string;
   }) {
     console.log("addMT5Account: Insertando cuenta:", account);
@@ -225,8 +234,9 @@ export class DatabaseManager {
     const stmt = this.db.prepare(`
     INSERT OR REPLACE INTO mt5_accounts (
       account_id, account_name, company, currency, type, 
-      initial_balance, current_balance, pnl, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      initial_balance, current_balance, pnl, profit_target_percent, 
+      stop_target_percent, daily_loss_percent, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
     try {
@@ -239,6 +249,9 @@ export class DatabaseManager {
         account.initial_balance,
         account.current_balance,
         account.pnl,
+        account.profit_target_percent ?? 0.0,
+        account.stop_target_percent ?? 0.0,
+        account.daily_loss_percent ?? 0.0,
         account.created_at ?? null // created_at
       );
 
@@ -257,6 +270,28 @@ export class DatabaseManager {
       accountId,
       updateData
     );
+
+    // Validaciones para los nuevos campos
+    if (updateData.profit_target_percent !== undefined) {
+      const value = Number(updateData.profit_target_percent);
+      if (isNaN(value) || value < 0 || value > 100) {
+        throw new Error("Profit Target debe estar entre 0 y 100%");
+      }
+    }
+
+    if (updateData.stop_target_percent !== undefined) {
+      const value = Number(updateData.stop_target_percent);
+      if (isNaN(value) || value < 0 || value > 100) {
+        throw new Error("Stop Target debe estar entre 0 y 100%");
+      }
+    }
+
+    if (updateData.daily_loss_percent !== undefined) {
+      const value = Number(updateData.daily_loss_percent);
+      if (isNaN(value) || value < 0 || value > 100) {
+        throw new Error("Daily Loss debe estar entre 0 y 100%");
+      }
+    }
 
     const updates: string[] = [];
     const params: any[] = [];
@@ -1178,6 +1213,33 @@ export class DatabaseManager {
       }
     } catch (error) {
       console.error("Error en migración 010:", error);
+    }
+
+    // Ejecutar migración 011: Agregar campos de gestión de riesgo a mt5_accounts
+    try {
+      console.log(
+        "Verificando si se necesita migración 011 (campos de gestión de riesgo MT5)..."
+      );
+      const needsMigration011 = this.checkIfNeedsMT5RiskFieldsMigration();
+
+      if (needsMigration011) {
+        console.log("Aplicando migración 011...");
+        const migration011Path = path.join(__dirname, "migration_011.sql");
+        if (fs.existsSync(migration011Path)) {
+          const migration011 = fs.readFileSync(migration011Path, "utf8");
+          this.db.exec(migration011);
+          console.log(
+            "Migration 011 (campos de gestión de riesgo MT5) aplicada desde archivo."
+          );
+        } else {
+          this.runMT5RiskFieldsMigration011Inline();
+          console.log(
+            "Migration 011 (campos de gestión de riesgo MT5) aplicada inline."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error en migración 011:", error);
     }
   }
 
@@ -2871,5 +2933,39 @@ export class DatabaseManager {
       console.error("Error obteniendo adjuntos MT5:", error);
       throw error;
     }
+  }
+
+  // Verificar si se necesita migración 011: Campos de gestión de riesgo para MT5 accounts
+  private checkIfNeedsMT5RiskFieldsMigration(): boolean {
+    try {
+      const tableInfo = this.db
+        .prepare("PRAGMA table_info(mt5_accounts)")
+        .all() as Array<{ name: string }>;
+
+      const hasProfitTarget = tableInfo.some((col) => col.name === "profit_target_percent");
+      const hasStopTarget = tableInfo.some((col) => col.name === "stop_target_percent");
+      const hasDailyLoss = tableInfo.some((col) => col.name === "daily_loss_percent");
+
+      return !hasProfitTarget || !hasStopTarget || !hasDailyLoss;
+    } catch (error) {
+      console.error("Error verificando migración 011:", error);
+      return false;
+    }
+  }
+
+  // Migración 011: Agregar campos de gestión de riesgo inline
+  private runMT5RiskFieldsMigration011Inline(): void {
+    const migrationSQL = `
+      BEGIN TRANSACTION;
+
+      -- Agregar nuevas columnas para gestión de riesgo
+      ALTER TABLE mt5_accounts ADD profit_target_percent REAL DEFAULT 0.0;
+      ALTER TABLE mt5_accounts ADD stop_target_percent REAL DEFAULT 0.0;
+      ALTER TABLE mt5_accounts ADD daily_loss_percent REAL DEFAULT 0.0;
+
+      COMMIT;
+    `;
+
+    this.db.exec(migrationSQL);
   }
 }

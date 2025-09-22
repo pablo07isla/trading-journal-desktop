@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, TrendingDown, Minus, Edit, Check, X } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Edit } from "lucide-react";
 import {
   Table,
   TableHeader,
@@ -12,25 +12,14 @@ import {
 } from "@/components/ui/table";
 import { formatAccountDate } from "@/lib/dateUtils";
 import { toast } from "sonner";
-
-interface MT5Account {
-  account_id: number;
-  account_name: string;
-  company: string;
-  currency: string;
-  type: string;
-  initial_balance: number;
-  current_balance: number;
-  pnl: number;
-  created_at: string;
-}
+import MT5AccountEditModal from "./MT5AccountEditModal";
+import type { MT5Account } from "../types/electron";
 
 const MT5AccountsTable: React.FC = () => {
   const [accounts, setAccounts] = useState<MT5Account[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editingAccountId, setEditingAccountId] = useState<number | null>(null);
-  const [editingType, setEditingType] = useState<string>("");
+  const [editingAccount, setEditingAccount] = useState<MT5Account | null>(null);
 
   const loadAccounts = async () => {
     setLoading(true);
@@ -59,78 +48,32 @@ const MT5AccountsTable: React.FC = () => {
     loadAccounts();
   }, []);
 
-  const handleEditType = (accountId: number, currentType: string) => {
-    setEditingAccountId(accountId);
-    setEditingType(currentType);
-  };
-
-  const handleSaveType = async (accountId: number) => {
+  const handleSaveAccount = async (accountId: number, updateData: Partial<MT5Account>) => {
     try {
-      const result = await window.electronAPI.updateMT5Account(accountId, {
-        type: editingType as "Challenge" | "Funded" | "Live" | "Demo",
-      });
+      const result = await window.electronAPI.updateMT5Account(accountId, updateData);
 
       if (result.success) {
         // Actualizar el estado local
         setAccounts((prev) =>
           prev.map((acc) =>
             acc.account_id === accountId
-              ? {
-                  ...acc,
-                  type: editingType as "Challenge" | "Funded" | "Live" | "Demo",
-                }
+              ? { ...acc, ...updateData }
               : acc
           )
         );
-        toast.success("Tipo de cuenta actualizado correctamente");
+        toast.success("Cuenta actualizada correctamente");
+        setEditingAccount(null); // Cerrar el modal
       } else {
-        toast.error(result.error || "Error al actualizar la cuenta");
+        throw new Error(result.error || "Error al actualizar la cuenta");
       }
     } catch (error) {
-      console.error("Error updating account type:", error);
+      console.error("Error updating account:", error);
       toast.error("Error al actualizar la cuenta");
-    } finally {
-      setEditingAccountId(null);
-      setEditingType("");
+      throw error;
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditingAccountId(null);
-    setEditingType("");
-  };
-
-  const getAccountTypeBadge = (type: string, accountId: number) => {
-    if (editingAccountId === accountId) {
-      return (
-        <div className='flex items-center gap-1'>
-          <select
-            value={editingType}
-            onChange={(e) => setEditingType(e.target.value)}
-            className='px-2 py-1 border border-gray-300 rounded text-xs'>
-            <option value='Live'>Live</option>
-            <option value='Demo'>Demo</option>
-            <option value='Challenge'>Challenge</option>
-            <option value='Funded'>Funded</option>
-          </select>
-          <Button
-            size='sm'
-            variant='ghost'
-            className='h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30'
-            onClick={() => handleSaveType(accountId)}>
-            <Check className='w-3 h-3 text-green-600 dark:text-green-400' />
-          </Button>
-          <Button
-            size='sm'
-            variant='ghost'
-            className='h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30'
-            onClick={handleCancelEdit}>
-            <X className='w-3 h-3 text-red-600 dark:text-red-400' />
-          </Button>
-        </div>
-      );
-    }
-
+  const getAccountTypeBadge = (type: string) => {
     const getBadgeConfig = (accountType: string) => {
       switch (accountType.toLowerCase()) {
         case "demo":
@@ -147,18 +90,18 @@ const MT5AccountsTable: React.FC = () => {
               "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800",
             label: "Live",
           };
-        case "Challenge":
+        case "challenge":
           return {
             variant: "outline" as const,
             className:
               "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
             label: "Challenge",
           };
-        case "Funded":
+        case "funded":
           return {
             variant: "outline" as const,
             className:
-              "bg-amber-100 dark:bg-amber-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+              "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",
             label: "Funded",
           };
         default:
@@ -173,18 +116,9 @@ const MT5AccountsTable: React.FC = () => {
     const config = getBadgeConfig(type);
 
     return (
-      <div className='flex items-center gap-1'>
-        <Badge variant={config.variant} className={config.className}>
-          {config.label}
-        </Badge>
-        <Button
-          size='sm'
-          variant='ghost'
-          className='h-6 w-6 p-0 hover:bg-muted/50'
-          onClick={() => handleEditType(accountId, type)}>
-          <Edit className='w-3 h-3 text-muted-foreground' />
-        </Button>
-      </div>
+      <Badge variant={config.variant} className={config.className}>
+        {config.label}
+      </Badge>
     );
   };
 
@@ -273,6 +207,9 @@ const MT5AccountsTable: React.FC = () => {
                 <TableHead className='text-left w-[150px] font-semibold text-foreground'>
                   Fecha Creación
                 </TableHead>
+                <TableHead className='text-center w-[80px] font-semibold text-foreground'>
+                  Acciones
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -310,7 +247,7 @@ const MT5AccountsTable: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className='text-left w-[140px]'>
-                      {getAccountTypeBadge(acc.type, acc.account_id)}
+                      {getAccountTypeBadge(acc.type)}
                     </TableCell>
                     <TableCell className='text-left w-[120px] font-medium'>
                       $
@@ -329,8 +266,17 @@ const MT5AccountsTable: React.FC = () => {
                     <TableCell className='text-left w-[120px]'>
                       {getPLBadge(acc.pnl)}
                     </TableCell>
-                    <TableCell className='text-left w-[120px] font-medium'>
+                    <TableCell className='text-left w-[150px] font-medium'>
                       {formatAccountDate(acc.created_at)}
+                    </TableCell>
+                    <TableCell className='text-center w-[80px]'>
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => setEditingAccount(acc)}
+                      >
+                        <Edit className='w-4 h-4' />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -339,6 +285,14 @@ const MT5AccountsTable: React.FC = () => {
           </Table>
         </div>
       )}
+
+      {/* Modal para editar cuenta */}
+      <MT5AccountEditModal
+        account={editingAccount}
+        isOpen={editingAccount !== null}
+        onSave={handleSaveAccount}
+        onClose={() => setEditingAccount(null)}
+      />
     </>
   );
 };
