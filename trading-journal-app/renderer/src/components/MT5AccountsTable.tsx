@@ -246,31 +246,31 @@ const MT5AccountsTable: React.FC = () => {
           <Table>
             <TableHeader className='bg-muted/50'>
               <TableRow>
-                <TableHead className='text-left w-[120px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[120px] font-semibold text-foreground'>
                   Login
                 </TableHead>
-                <TableHead className='text-left w-[150px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[150px] font-semibold text-foreground'>
                   Nombre
                 </TableHead>
-                <TableHead className='text-left w-[130px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[130px] font-semibold text-foreground'>
                   Compañía
                 </TableHead>
-                <TableHead className='text-left w-[80px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[80px] font-semibold text-foreground'>
                   Moneda
                 </TableHead>
-                <TableHead className='text-left w-[140px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[140px] font-semibold text-foreground'>
                   Tipo
                 </TableHead>
-                <TableHead className='text-left w-[120px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[120px] font-semibold text-foreground'>
                   Balance Inicial
                 </TableHead>
-                <TableHead className='text-left w-[120px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[120px] font-semibold text-foreground'>
                   Balance Actual
                 </TableHead>
-                <TableHead className='text-left w-[120px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[120px] font-semibold text-foreground'>
                   P&L
                 </TableHead>
-                <TableHead className='text-left w-[150px] font-semibold text-gray-700'>
+                <TableHead className='text-left w-[150px] font-semibold text-foreground'>
                   Fecha Creación
                 </TableHead>
               </TableRow>
@@ -329,7 +329,7 @@ const MT5AccountsTable: React.FC = () => {
                     <TableCell className='text-left w-[120px]'>
                       {getPLBadge(acc.pnl)}
                     </TableCell>
-                    <TableCell className='text-left w-[150px] text-sm text-gray-600'>
+                    <TableCell className='text-left w-[120px] font-medium'>
                       {formatAccountDate(acc.created_at)}
                     </TableCell>
                   </TableRow>

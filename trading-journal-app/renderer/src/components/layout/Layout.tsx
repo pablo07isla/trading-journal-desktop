@@ -16,6 +16,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
+
 import { useLocation } from "react-router-dom";
 
 const navLinks = [

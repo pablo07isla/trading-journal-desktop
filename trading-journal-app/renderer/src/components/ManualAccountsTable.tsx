@@ -327,25 +327,25 @@ const ManualAccountsTable: React.FC<ManualAccountsTableProps> = ({
         <Table>
           <TableHeader className='bg-muted/50'>
             <TableRow>
-              <TableHead className='text-left w-[180px] font-semibold text-gray-700'>
+              <TableHead className='text-left w-[180px] font-semibold text-foreground'>
                 Cuenta
               </TableHead>
-              <TableHead className='text-left w-[150px] font-semibold text-gray-700'>
+              <TableHead className='text-left w-[150px] font-semibold text-foreground'>
                 Broker
               </TableHead>
-              <TableHead className='text-left w-[100px] font-semibold text-gray-700'>
+              <TableHead className='text-left w-[100px] font-semibold text-foreground'>
                 Tipo
               </TableHead>
-              <TableHead className='text-left w-[80px] font-semibold text-gray-700'>
+              <TableHead className='text-left w-[80px] font-semibold text-foreground'>
                 Moneda
               </TableHead>
-              <TableHead className='text-left w-[140px] font-semibold text-gray-700'>
+              <TableHead className='text-left w-[140px] font-semibold text-foreground'>
                 Balance Inicial
               </TableHead>
-              <TableHead className='text-left w-[110px] font-semibold text-gray-700'>
+              <TableHead className='text-left w-[110px] font-semibold text-foreground'>
                 Estado
               </TableHead>
-              <TableHead className='text-left w-[110px] font-semibold text-gray-700'>
+              <TableHead className='text-left w-[110px] font-semibold text-foreground'>
                 Acciones
               </TableHead>
             </TableRow>
