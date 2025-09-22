@@ -48,17 +48,21 @@ const MT5AccountsTable: React.FC = () => {
     loadAccounts();
   }, []);
 
-  const handleSaveAccount = async (accountId: number, updateData: Partial<MT5Account>) => {
+  const handleSaveAccount = async (
+    accountId: number,
+    updateData: Partial<MT5Account>
+  ) => {
     try {
-      const result = await window.electronAPI.updateMT5Account(accountId, updateData);
+      const result = await window.electronAPI.updateMT5Account(
+        accountId,
+        updateData
+      );
 
       if (result.success) {
         // Actualizar el estado local
         setAccounts((prev) =>
           prev.map((acc) =>
-            acc.account_id === accountId
-              ? { ...acc, ...updateData }
-              : acc
+            acc.account_id === accountId ? { ...acc, ...updateData } : acc
           )
         );
         toast.success("Cuenta actualizada correctamente");
@@ -273,8 +277,7 @@ const MT5AccountsTable: React.FC = () => {
                       <Button
                         size='sm'
                         variant='outline'
-                        onClick={() => setEditingAccount(acc)}
-                      >
+                        onClick={() => setEditingAccount(acc)}>
                         <Edit className='w-4 h-4' />
                       </Button>
                     </TableCell>

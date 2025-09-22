@@ -2942,9 +2942,15 @@ export class DatabaseManager {
         .prepare("PRAGMA table_info(mt5_accounts)")
         .all() as Array<{ name: string }>;
 
-      const hasProfitTarget = tableInfo.some((col) => col.name === "profit_target_percent");
-      const hasStopTarget = tableInfo.some((col) => col.name === "stop_target_percent");
-      const hasDailyLoss = tableInfo.some((col) => col.name === "daily_loss_percent");
+      const hasProfitTarget = tableInfo.some(
+        (col) => col.name === "profit_target_percent"
+      );
+      const hasStopTarget = tableInfo.some(
+        (col) => col.name === "stop_target_percent"
+      );
+      const hasDailyLoss = tableInfo.some(
+        (col) => col.name === "daily_loss_percent"
+      );
 
       return !hasProfitTarget || !hasStopTarget || !hasDailyLoss;
     } catch (error) {
