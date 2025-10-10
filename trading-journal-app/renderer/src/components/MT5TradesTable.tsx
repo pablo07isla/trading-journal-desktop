@@ -21,6 +21,7 @@ import type { MT5TradeData } from "../types/electron";
 import { formatTradeDate } from "@/lib/dateUtils";
 import MT5TradeEditForm from "./forms/MT5TradeEditForm";
 import { toast } from "sonner";
+import Pagination from "@/components/Pagination";
 
 interface MT5TradesTableProps {
   accountId?: number;
@@ -34,6 +35,10 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
   const [editingTrade, setEditingTrade] = useState<MT5TradeData | null>(null);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
 
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+
   const loadTrades = async () => {
     setLoading(true);
     try {
@@ -45,8 +50,10 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       } else {
         setError(res.error || "Error al obtener trades MT5");
       }
-    } catch (err: any) {
-      setError(err.message || "Error inesperado");
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Error inesperado"
+      );
     } finally {
       setLoading(false);
     }
@@ -54,6 +61,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
 
   useEffect(() => {
     loadTrades();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 
   const handleEditTrade = (trade: MT5TradeData) => {
@@ -171,6 +179,27 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
       !search || trade.symbol?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Cálculos de paginación
+  const totalItems = filteredTrades.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTrades = filteredTrades.slice(startIndex, endIndex);
+
+  // Resetear a página 1 cuando cambien los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1); // Resetear a página 1 cuando cambie el número de items
+  };
+
   return (
     <>
       {/* Filtros */}
@@ -252,7 +281,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTrades.length === 0 ? (
+              {paginatedTrades.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={11} className='text-center py-12'>
                     <div className='flex flex-col items-center justify-center text-muted-foreground'>
@@ -271,7 +300,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredTrades.map((trade) => (
+                paginatedTrades.map((trade) => (
                   <TableRow
                     key={trade.position_id}
                     className='hover:bg-muted/50'>
@@ -341,6 +370,18 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
               )}
             </TableBody>
           </Table>
+
+          {/* Componente de Paginación */}
+          {filteredTrades.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          )}
         </div>
       )}
 

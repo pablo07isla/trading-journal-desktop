@@ -27,6 +27,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import Pagination from "@/components/Pagination";
 
 interface Trade extends TradeData {
   id: number;
@@ -52,6 +53,10 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
   const [deleteTradeId, setDeleteTradeId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+
   const loadTrades = useCallback(async () => {
     try {
       const data = await window.electronAPI.getTrades();
@@ -74,6 +79,27 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
       (!search || t.symbol?.toLowerCase().includes(search.toLowerCase())) &&
       (!strategy || t.strategy === strategy)
   );
+
+  // Cálculos de paginación
+  const totalItems = filteredTrades.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTrades = filteredTrades.slice(startIndex, endIndex);
+
+  // Resetear a página 1 cuando cambien los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, strategy]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1); // Resetear a página 1 cuando cambie el número de items
+  };
 
   const getPLBadge = (pnl: number | undefined) => {
     if (typeof pnl !== "number")
@@ -364,7 +390,7 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTrades.length === 0 ? (
+              {paginatedTrades.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className='text-center py-12'>
                     <div className='flex flex-col items-center justify-center text-muted-foreground'>
@@ -373,13 +399,15 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
                         No hay operaciones
                       </h3>
                       <p className='text-sm'>
-                        ¡Agrega tu primer trade para comenzar!
+                        {search || strategy
+                          ? "No se encontraron operaciones con los filtros aplicados"
+                          : "¡Agrega tu primer trade para comenzar!"}
                       </p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredTrades.map((trade) => (
+                paginatedTrades.map((trade) => (
                   <TableRow
                     key={trade.id}
                     className='hover:bg-muted/50 cursor-pointer'
@@ -452,6 +480,18 @@ const ManualTradesTable: React.FC<ManualTradesTableProps> = ({
               )}
             </TableBody>
           </Table>
+
+          {/* Componente de Paginación */}
+          {filteredTrades.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          )}
         </div>
       )}
     </>
