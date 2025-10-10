@@ -51,9 +51,7 @@ const MT5TradesTable: React.FC<MT5TradesTableProps> = ({ accountId }) => {
         setError(res.error || "Error al obtener trades MT5");
       }
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Error inesperado"
-      );
+      setError(err instanceof Error ? err.message : "Error inesperado");
     } finally {
       setLoading(false);
     }

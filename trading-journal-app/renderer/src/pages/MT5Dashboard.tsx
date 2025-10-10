@@ -72,14 +72,22 @@ const MT5Dashboard: React.FC = () => {
   // Preparar filtros basados en el estado actual
   const filters = useMemo((): MT5MetricFilters => {
     const now = new Date();
+    // Establecer la hora al final del día para incluir todos los trades del día actual
+    // IMPORTANTE: Los trades MT5 se guardan con +8 horas, así que ajustamos para incluir todo el día
+    now.setHours(23, 59, 59, 999);
+
     let fromDate: Date;
 
     if (period === "7days") {
       fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      // Establecer la hora al inicio del día para incluir todos los trades del primer día
+      fromDate.setHours(0, 0, 0, 0);
     } else if (period === "month") {
       fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      fromDate.setHours(0, 0, 0, 0);
     } else if (period === "year") {
       fromDate = new Date(now.getFullYear(), 0, 1);
+      fromDate.setHours(0, 0, 0, 0);
     } else {
       fromDate = new Date(0); // all time
     }

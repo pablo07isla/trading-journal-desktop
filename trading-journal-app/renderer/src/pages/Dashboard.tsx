@@ -49,6 +49,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchTrades = async () => {
       let tradesData = await window.electronAPI.getTrades();
+
       // Filtro por estrategia
       if (strategy !== "all") {
         tradesData = tradesData.filter((t) => {
@@ -59,6 +60,7 @@ const Dashboard: React.FC = () => {
           return false;
         });
       }
+
       // Filtro por cuenta
       if (account !== "all") {
         tradesData = tradesData.filter((t) => {
@@ -66,19 +68,32 @@ const Dashboard: React.FC = () => {
           return String(t.cuentaTradingId) === account;
         });
       }
+
       // Filtro por periodo
       const now = new Date();
+      // Establecer la hora al final del día para incluir todos los trades del día actual
+      now.setHours(23, 59, 59, 999);
+
       let fromDate: Date;
-      if (period === "7days")
+      if (period === "7days") {
         fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      else if (period === "month")
+        // Establecer la hora al inicio del día para incluir todos los trades del primer día
+        fromDate.setHours(0, 0, 0, 0);
+      } else if (period === "month") {
         fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      else if (period === "year") fromDate = new Date(now.getFullYear(), 0, 1);
-      else fromDate = new Date(0);
+        fromDate.setHours(0, 0, 0, 0);
+      } else if (period === "year") {
+        fromDate = new Date(now.getFullYear(), 0, 1);
+        fromDate.setHours(0, 0, 0, 0);
+      } else {
+        fromDate = new Date(0);
+      }
+
       tradesData = tradesData.filter((t) => {
         const d = new Date(t.entryDate);
         return d >= fromDate && d <= now;
       });
+
       setTrades(tradesData);
     };
     fetchTrades();

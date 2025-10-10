@@ -1,6 +1,11 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -56,8 +61,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <select
           value={itemsPerPage}
           onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-          className='px-2 py-1 border border-border rounded-md bg-background focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all text-sm'
-        >
+          className='px-2 py-1 border border-border rounded-md bg-background focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all text-sm'>
           {itemsPerPageOptions.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -86,8 +90,7 @@ const Pagination: React.FC<PaginationProps> = ({
           onClick={handleFirstPage}
           disabled={currentPage === 1 || totalPages === 0}
           className='h-8 w-8 p-0'
-          aria-label='Primera página'
-        >
+          aria-label='Primera página'>
           <ChevronsLeft className='w-4 h-4' />
         </Button>
         <Button
@@ -96,8 +99,7 @@ const Pagination: React.FC<PaginationProps> = ({
           onClick={handlePreviousPage}
           disabled={currentPage === 1 || totalPages === 0}
           className='h-8 w-8 p-0'
-          aria-label='Página anterior'
-        >
+          aria-label='Página anterior'>
           <ChevronLeft className='w-4 h-4' />
         </Button>
 
@@ -116,8 +118,7 @@ const Pagination: React.FC<PaginationProps> = ({
           onClick={handleNextPage}
           disabled={currentPage === totalPages || totalPages === 0}
           className='h-8 w-8 p-0'
-          aria-label='Página siguiente'
-        >
+          aria-label='Página siguiente'>
           <ChevronRight className='w-4 h-4' />
         </Button>
         <Button
@@ -126,8 +127,7 @@ const Pagination: React.FC<PaginationProps> = ({
           onClick={handleLastPage}
           disabled={currentPage === totalPages || totalPages === 0}
           className='h-8 w-8 p-0'
-          aria-label='Última página'
-        >
+          aria-label='Última página'>
           <ChevronsRight className='w-4 h-4' />
         </Button>
       </div>
