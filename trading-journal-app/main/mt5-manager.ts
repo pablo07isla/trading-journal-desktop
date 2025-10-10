@@ -254,6 +254,18 @@ export async function importMT5Data(): Promise<MT5ImportResult> {
       executePythonScript(["trades"]),
     ]);
 
+    // Log para debug - mostrar información de fechas del script Python
+    if (
+      tradesResponse &&
+      typeof tradesResponse === "object" &&
+      "debug_info" in tradesResponse
+    ) {
+      console.log(
+        "importMT5Data: Información de debug del script Python:",
+        tradesResponse.debug_info
+      );
+    }
+
     let account: MT5AccountResponse | null = null;
     let trades: MT5TradeInsertData[] = [];
 
@@ -262,7 +274,14 @@ export async function importMT5Data(): Promise<MT5ImportResult> {
       account = accountResponse;
 
       // Determinar balance inicial desde trades de depósito
-      const initialDeposit = tradesResponse?.find(
+      const tradesForAccount =
+        tradesResponse &&
+        typeof tradesResponse === "object" &&
+        "deals" in tradesResponse
+          ? tradesResponse.deals
+          : tradesResponse || [];
+
+      const initialDeposit = tradesForAccount.find(
         (trade: MT5TradeResponse) =>
           (trade.comment?.toUpperCase().includes("DEPOSIT") ||
             trade.comment?.toUpperCase().includes("INITIAL") ||
@@ -270,7 +289,7 @@ export async function importMT5Data(): Promise<MT5ImportResult> {
           trade.profit > 0
       );
 
-      const createDate = tradesResponse?.find(
+      const createDate = tradesForAccount.find(
         (trade: MT5TradeResponse) =>
           (trade.comment?.toUpperCase().includes("DEPOSIT") ||
             trade.comment?.toUpperCase().includes("INITIAL") ||
@@ -353,13 +372,24 @@ export async function importMT5Data(): Promise<MT5ImportResult> {
     }
 
     // Procesar trades
-    if (Array.isArray(tradesResponse)) {
+    let tradesArray = tradesResponse;
+
+    // Si la respuesta tiene la nueva estructura con debug_info, extraer solo los deals
+    if (
+      tradesResponse &&
+      typeof tradesResponse === "object" &&
+      "deals" in tradesResponse
+    ) {
+      tradesArray = tradesResponse.deals;
+    }
+
+    if (Array.isArray(tradesArray)) {
       // Filtrar trades de balance/depósito que no son trades reales
-      const actualTrades = tradesResponse.filter(
+      const actualTrades = tradesArray.filter(
         (trade: MT5TradeResponse) => trade.type !== 2 && trade.symbol !== ""
       );
       console.log(
-        `Procesando ${actualTrades.length} trades reales de ${tradesResponse.length} totales`
+        `Procesando ${actualTrades.length} trades reales de ${tradesArray.length} totales`
       );
 
       // Agrupar trades por ticket/position_id
