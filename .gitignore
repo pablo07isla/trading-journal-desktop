@@ -59,6 +59,12 @@ Icon?
 # Windows
 *.lnk
 
+# Excepciones MT5 integration (incluir build y dist del ejecutable)
+!trading-journal-app/main/mt5-integration/build/
+!trading-journal-app/main/mt5-integration/build/**
+!trading-journal-app/main/mt5-integration/dist/
+!trading-journal-app/main/mt5-integration/dist/**
+
 # Custom for trading-journal-app
 trading-journal-app/renderer/node_modules/
 trading-journal-app/main/node_modules/
